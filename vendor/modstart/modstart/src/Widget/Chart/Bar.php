@@ -1,0 +1,161 @@
+<?php
+
+
+namespace ModStart\Widget\Chart;
+
+
+use ModStart\Core\Util\ColorUtil;
+use ModStart\Core\Util\RandomUtil;
+use ModStart\Core\Util\ReportUtil;
+use ModStart\Core\Util\TimeUtil;
+
+class Bar extends Chart
+{
+    protected $option = [
+        'grid' => [
+            'top' => '20%',
+            'right' => '0',
+            'left' => '0',
+            'bottom' => '0',
+            'containLabel' => true
+        ],
+        'tooltip' => [
+            'trigger' => 'axis',
+            'axisPointer' => [
+                'type' => 'shadow',
+                'snap' => true,
+                'crossStyle' => [
+                    'color' => '#999',
+                ],
+            ],
+        ],
+        'legend' => [
+            'data' => [],
+        ],
+        'xAxis' => [
+            'type' => 'category',
+            'data' => []
+        ],
+        'yAxis' => [
+            'type' => 'value',
+            'minInterval' => 1
+        ],
+        'series' => [
+
+        ]
+    ];
+
+    public function random()
+    {
+        $this->option['xAxis']['data'] = RandomUtil::dateCollection();
+        $this->ySeries(0, RandomUtil::numberCollection());
+        return $this;
+    }
+
+    public function xData($value, $param = [])
+    {
+        $this->option['xAxis']['data'] = $value;
+        return $this;
+    }
+
+    public function yData($value, $name = '数量', $param = [])
+    {
+        return $this->ySeries(0, $value, $name, $param);
+    }
+
+    public function ySeries($i, $value, $name = '数量', $param = [])
+    {
+        if (!isset($param['barColor'])) {
+            $param['barColor'] = ColorUtil::pick('L-' . $i);
+        }
+        $this->option['legend']['data'][$i] = $name;
+        $this->option['series'][$i] = [
+            'name' => $name,
+            'data' => $value,
+            'type' => 'bar',
+            'smooth' => true,
+            'itemStyle' => [
+                'normal' => [
+                    'color' => $param['barColor'],
+                    'barStyle' => [
+                        'color' => $param['barColor'],
+                    ]
+                ]
+            ]
+        ];
+        return $this;
+    }
+
+    
+    public function tableDailyCountLatest($series = [], $limit = 15)
+    {
+        $end = date('Y-m-d');
+        $endTs = strtotime($end);
+        $startTs = $endTs - ($limit - 1) * TimeUtil::PERIOD_DAY;
+        $start = date('Y-m-d', $startTs);
+        return $this->tableDailyCount($start, $end, $series);
+    }
+
+    
+    public function tableDailyCount($start, $end, $series = [])
+    {
+        $data = ReportUtil::tableCountSeriesDaily($start, $end, $series);
+        $this->xData($data['time']);
+        $this->option['series'] = [];
+        foreach ($data['values'] as $index => $value) {
+            $color = isset($series[$index]['color']) ? $series[$index]['color'] : ColorUtil::randomColor();
+            $this->option['series'][] = [
+                'name' => $series[$index]['title'],
+                'data' => $value,
+                'type' => 'bar',
+                'smooth' => true,
+                'itemStyle' => [
+                    'normal' => [
+                        'color' => $color,
+                        'barStyle' => [
+                            'color' => $color
+                        ]
+                    ]
+                ]
+            ];
+        }
+        return $this;
+    }
+
+    
+    public function tableDailySumLatest($series = [], $limit = 15)
+    {
+        $end = date('Y-m-d');
+        $endTs = strtotime($end);
+        $startTs = $endTs - ($limit - 1) * TimeUtil::PERIOD_DAY;
+        $start = date('Y-m-d', $startTs);
+        return $this->tableDailySum($start, $end, $series);
+    }
+
+    
+    public function tableDailySum($start, $end, $series = [])
+    {
+        $data = ReportUtil::tableSumSeriesDaily($start, $end, $series);
+        $this->xData($data['time']);
+        $this->option['series'] = [];
+        foreach ($data['values'] as $index => $value) {
+            $color = isset($series[$index]['color']) ? $series[$index]['color'] : ColorUtil::randomColor();
+            $this->option['series'][] = [
+                'name' => $series[$index]['title'],
+                'data' => $value,
+                'type' => 'bar',
+                'smooth' => true,
+                'itemStyle' => [
+                    'normal' => [
+                        'color' => $color,
+                        'barStyle' => [
+                            'color' => $color
+                        ]
+                    ]
+                ]
+            ];
+        }
+        return $this;
+    }
+
+}

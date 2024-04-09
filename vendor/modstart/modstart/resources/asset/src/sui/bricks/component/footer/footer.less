@@ -1,0 +1,137 @@
+
+.ub-footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 1rem;
+    background: var(--color-body-bg);
+    border-top: 1px solid var(--color-body-line);
+
+    .nav {
+        padding: 0.5rem 0;
+
+        a {
+            color: var(--color-text);
+            display: inline-block;
+            margin: 0 0.25rem;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .copyright {
+        color: var(--color-text);
+
+        a {
+            color: var(--color-text);
+        }
+    }
+}
+
+.ub-footer-a {
+    text-align: center;
+    padding: 1.5rem 0;
+    border-top: 0.05rem solid #EEE;
+    background: var(--color-primary);
+    margin-top: 1rem;
+
+    .nav {
+        padding: 0.5rem 0;
+
+        a {
+            color: #FFF;
+            display: inline-block;
+            margin: 0 0.25rem;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .copyright {
+        color: #FFF;
+
+        a {
+            color: #FFF;
+        }
+    }
+}
+
+.ub-footer-link {
+
+    padding: 2rem 0;
+
+    a {
+        color: var(--color-text);
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &.reverse {
+        background: #1b1c20;
+        color: #c4cfdb;
+
+        a {
+            color: #c4cfdb;
+        }
+
+        .line {
+            background-color: lighten(#1b1c20, 10%);
+        }
+    }
+
+    .link {
+        padding: 1rem 0;
+
+        .title {
+            font-size: 1rem;
+        }
+
+        .list {
+            a {
+                margin: 0.5rem 0;
+                display: block;
+            }
+        }
+    }
+
+    .content {
+        padding: 1rem 0;
+    }
+
+    .line {
+        height: 1px;
+        background: #EEE;
+        margin: 1rem 0;
+    }
+
+    .nav {
+        padding: 0.5rem 0;
+        text-align: center;
+
+        a {
+            margin: 0 0.25rem;
+        }
+    }
+
+    .copyright {
+        text-align: center;
+    }
+}
+
+@media screen and (max-width: 40rem) {
+    .ub-footer-link {
+        .link {
+            text-align: left;
+            padding: 1rem;
+        }
+
+        .image {
+            text-align: center;
+        }
+    }
+}

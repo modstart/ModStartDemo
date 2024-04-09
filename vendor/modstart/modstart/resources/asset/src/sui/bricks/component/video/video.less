@@ -1,0 +1,121 @@
+.ub-video-container {
+    background: #1b1e32;
+}
+
+.ub-video {
+    display: flex;
+    background: #151728;
+
+    &.full-page {
+        .side {
+            display: none;
+        }
+    }
+
+    .main {
+        flex: 1;
+        width: 0;
+
+        .player-box {
+            width: 100%;
+            position: relative;
+            display: block;
+            overflow: hidden;
+
+            &:after {
+                content: '';
+                display: block;
+                margin-top: 56.25%;
+                height: 0;
+            }
+
+            .player-info {
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                color: #FFF;
+                display: flex;
+                justify-content: center;
+                item-align: center;
+                flex-direction: column;
+                text-align: center;
+                z-index: 1000;
+
+                .player-info-body {
+                }
+            }
+
+            .player {
+                height: 100%;
+                width: 100%;
+                position: absolute;
+                inset: 0;
+
+                .iframe {
+                    width: 100% !important;
+                    height: 100% !important;
+                }
+
+                .player-iframe-mask {
+                    width: 100% !important;
+                    height: 100% !important;
+                    position: relative;
+                    overflow: hidden;
+
+                    iframe {
+                        width: 900px;
+                        height: 500px;
+                    }
+                }
+            }
+        }
+
+        .tool-box {
+            background: #0f111d;
+            padding: 0.5rem;
+            height: 2rem;
+
+            .item {
+                color: #999;
+                display: inline-block;
+                line-height: 1rem;
+                margin-right: 0.5rem;
+                height: 1rem;
+            }
+        }
+    }
+
+    .side {
+        width: 10rem;
+        flex-shrink: 0;
+        position: relative;
+
+        .side-container {
+            position: absolute;
+            inset: 0;
+            overflow: auto;
+            color: rgb(156, 162, 172);
+            --color-scrollbar-bg: #1b1e32;
+        }
+    }
+}
+
+
+@media screen and (max-width: 40rem) {
+    .ub-video {
+        flex-direction: column;
+        height: auto;
+
+        .main {
+            width: 100%;
+        }
+
+        .side {
+            width: 100%;
+
+            .side-container {
+                position: relative;
+            }
+        }
+    }
+}

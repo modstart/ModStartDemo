@@ -1,0 +1,275 @@
+
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: none;
+    padding: 0.25rem 0.65rem;
+    height: 1.6rem;
+    line-height: 1rem;
+    font-size: 0.65rem;
+    border-radius: 0.2rem;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+}
+
+.btn-group {
+    display: inline-flex;
+
+    & > .btn {
+        border-radius: 0;
+        margin: 0;
+
+        &:first-child {
+            border-top-left-radius: 0.2rem;
+            border-bottom-left-radius: 0.2rem;
+        }
+
+        &:last-child {
+            border-top-right-radius: 0.2rem;
+            border-bottom-right-radius: 0.2rem;
+        }
+    }
+}
+
+
+.btn-lg {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1rem;
+    border-radius: 0.24rem;
+    height: 2.0rem;
+}
+
+.btn-sm {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.5rem;
+    height: 1.4rem;
+    border-radius: 0.16rem;
+    line-height: 1rem;
+}
+
+
+// 换行按钮出现问题
+//.btn + .btn {
+//  margin-left: var(--size-margin);
+//}
+
+.btn:hover, .btn:focus {
+    text-decoration: none;
+}
+
+.btn:focus, .btn.focus {
+
+}
+
+.btn.btn-border-none, .btn[class*="ub-bg-"] {
+    border: none;
+
+    &:hover, &:hover:not(.disabled) {
+        border: none;
+    }
+}
+
+.btn.disabled, .btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.btn:not(:disabled):not(.disabled) {
+    cursor: pointer;
+}
+
+.btn:not(:disabled):not(.disabled):active, .btn:not(:disabled):not(.disabled).active {
+    background-image: none;
+}
+
+a.btn.disabled,
+fieldset:disabled a.btn {
+    pointer-events: none;
+}
+
+.btn {
+    color: var(--color-body-block);
+    background-color: var(--color-content-bg);
+    border: 0.05rem solid var(--color-body-line);
+
+    &:hover:not(.disabled) {
+        color: var(--color-primary);
+        border: 0.05rem solid var(--color-primary);
+    }
+}
+
+.btn-round {
+    border-radius: 0.8rem;
+}
+
+.btn-lg.btn-round {
+    border-radius: 1.2rem;
+}
+
+.btn-sm.btn-round {
+    border-radius: 0.7rem;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+
+    &:hover:not(.disabled) {
+        color: #fff;
+        background-color: var(--color-primary-dark);
+        border-color: var(--color-primary-dark);
+    }
+
+    &.disabled, &:disabled {
+        color: #fff;
+        background-color: var(--color-primary);
+    }
+
+    &:not(:disabled):not(.disabled):active, &:not(:disabled):not(.disabled).active {
+        color: #fff;
+        background-color: var(--color-primary-dark);
+    }
+
+    &.gradient {
+        background-image: linear-gradient(45deg, var(--color-primary-dark), var(--color-primary-light));
+    }
+
+}
+
+
+.btn-primary-line {
+    color: var(--color-primary);
+    border: 0.05rem solid var(--color-primary);
+    background: transparent;
+
+    &:hover:not(.disabled) {
+        color: #FFF;
+        background-color: var(--color-primary);
+    }
+
+    &.disabled, &:disabled {
+        background-color: #F8F8F8;
+    }
+
+    &:not(:disabled):not(.disabled):active, &:not(:disabled):not(.disabled).active {
+        background-color: var(--color-primary);
+    }
+}
+
+
+.btn-success {
+    color: #fff;
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+
+    &:hover:not(.disabled) {
+        color: #fff;
+        background-color: var(--color-success-dark);
+        border-color: var(--color-success-dark);
+    }
+
+    &.disabled, &:disabled {
+        color: #fff;
+        background-color: var(--color-success);
+    }
+
+    &:not(:disabled):not(.disabled):active, &:not(:disabled):not(.disabled).active {
+        color: #fff;
+        background-color: var(--color-success-dark);
+    }
+
+    &.gradient {
+        background-image: linear-gradient(45deg, var(--color-success-dark), var(--color-success));
+    }
+}
+
+.btn-warning {
+    color: #FFF;
+    background-color: var(--color-warning);
+    border-color: var(--color-warning);
+
+    &:hover:not(.disabled) {
+        color: #fff;
+        background-color: var(--color-warning-dark);
+        border-color: var(--color-warning-dark);
+    }
+
+    &.disabled, &:disabled {
+        color: #fff;
+        background-color: var(--color-warning);
+    }
+
+    &:not(:disabled):not(.disabled):active, &:not(:disabled):not(.disabled).active {
+        color: #fff;
+        background-color: var(--color-warning-dark);
+    }
+
+    &.gradient {
+        background-image: linear-gradient(45deg, var(--color-warning-dark), var(--color-warning));
+    }
+}
+
+
+.btn-danger {
+    color: #fff;
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+
+    &:hover:not(.disabled) {
+        color: #fff;
+        background-color: var(--color-danger-dark);
+        border-color: var(--color-danger-dark);
+    }
+
+    &.disabled, &:disabled {
+        color: #fff;
+        background-color: var(--color-danger);
+    }
+
+    &:not(:disabled):not(.disabled):active, &:not(:disabled):not(.disabled).active {
+        color: #fff;
+        background-color: var(--color-danger-dark);
+    }
+
+    &.gradient {
+        background-image: linear-gradient(45deg, var(--color-danger-dark), var(--color-danger));
+    }
+}
+
+.btn-vip {
+    background-image: linear-gradient(90deg, #EDD3B0 0%, #DDB888 100%);
+    color: #805D2D;
+    border-color: #EDD3B0;
+
+    &:hover, &:active, &:not(:disabled):not(.disabled):active {
+        background-image: linear-gradient(90deg, #DDB888 100%, #EDD3B0 0%);
+        color: #805D2D !important;
+        border-color: #EDD3B0 !important;
+    }
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+//.btn-block + .btn-block {
+//  margin-top: 0.4rem;
+//}
+
+input[type="submit"].btn-block,
+input[type="reset"].btn-block,
+input[type="button"].btn-block {
+    width: 100%;
+}

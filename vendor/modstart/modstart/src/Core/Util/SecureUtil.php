@@ -1,0 +1,83 @@
+<?php
+
+namespace ModStart\Core\Util;
+
+use ModStart\Core\Exception\BizException;
+
+class SecureUtil
+{
+    const DEFAULT_CIPHER_ALGO = 'aes-256-cbc';
+
+    
+    const MODE_DEFAULT = 'default';
+    
+    const MODE_SALTED = 'salted';
+
+    
+    public static function aesEncode($key, $data, $keyIsBase64 = false, $mode = 'default')
+    {
+        $encryptionKey = $key;
+        if ($keyIsBase64) {
+            $encryptionKey = base64_decode($encryptionKey);
+        }
+        switch ($mode) {
+            case self::MODE_SALTED:
+                $method = "AES-256-CBC";
+                $salt = openssl_random_pseudo_bytes(8);
+                $keyIv = self::evpBytesToKey($salt, $key);
+                $key = substr($keyIv, 0, 32);
+                $iv = substr($keyIv, 32, 16);
+                $ciphertext = openssl_encrypt(urlencode($data), $method, $key, OPENSSL_RAW_DATA, $iv);
+                return base64_encode("Salted__" . $salt . $ciphertext);
+            default:
+                $ivLength = openssl_cipher_iv_length(self::DEFAULT_CIPHER_ALGO);
+                $iv = openssl_random_pseudo_bytes($ivLength);
+                $encrypted = openssl_encrypt($data, self::DEFAULT_CIPHER_ALGO, $encryptionKey, 0, $iv);
+                return base64_encode($encrypted . '::' . $iv);
+        }
+    }
+
+    
+    public static function aesDecode($key, $data, $keyIsBase64 = false)
+    {
+        BizException::throwsIfEmpty('SecureUtil.Error KeyEmpty', $key);
+        $encryptionKey = $key;
+        if ($keyIsBase64) {
+            $encryptionKey = base64_decode($encryptionKey);
+        }
+        $data = base64_decode($data);
+        if (strpos($data, 'Salted__') === 0) {
+            $salt = substr($data, 8, 8);
+            $ciphertext = substr($data, 16);
+            $keyIv = self::evpBytesToKey($salt, $key);
+            $key = substr($keyIv, 0, 32);
+            $iv = substr($keyIv, 32, 16);
+            $encryptedData = urldecode(openssl_decrypt($ciphertext, self::DEFAULT_CIPHER_ALGO, $key, OPENSSL_RAW_DATA, $iv));
+            return $encryptedData;
+        }
+        $pcs = explode('::', $data, 2);
+        if (count($pcs) != 2) {
+            return null;
+        }
+        list($encryptedData, $iv) = $pcs;
+        return openssl_decrypt($encryptedData, self::DEFAULT_CIPHER_ALGO, $encryptionKey, 0, $iv);
+    }
+
+    private static function evpBytesToKey($salt, $password)
+    {
+        $bytes = '';
+        $last = '';
+        while (strlen($bytes) < 48) {
+            $last = hash('md5', $last . $password . $salt, true);
+            $bytes .= $last;
+        }
+        return $bytes;
+    }
+
+    public static function encryptKey()
+    {
+        $key = config('env.ENCRYPT_KEY');
+        BizException::throwsIfEmpty('SecureUtil.Error ENCRYPT_KEY KeyEmpty', $key);
+        return $key;
+    }
+}

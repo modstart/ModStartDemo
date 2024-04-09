@@ -1,0 +1,43 @@
+{
+    "name": "Demo",
+    "title": "开发示例程序",
+    "types": [
+        "PC",
+        "Mobile"
+    ],
+    "env": [
+        "laravel5",
+        "laravel9"
+    ],
+    "require": [
+        "Vendor"
+    ],
+    "version": "1.6.0",
+    "author": "ModStart",
+    "description": "ModStart开发示例程序",
+    "modstartVersion": ">=3.7.0",
+    "config": {
+        "testText": [
+            [
+                "text",
+                "文字参数"
+            ]
+        ],
+        "testEnable": [
+            [
+                "switch",
+                "功能启用"
+            ]
+        ],
+        "testSelect": [
+            [
+                "select",
+                "下拉选择"
+            ],
+            [
+                "optionType",
+                "Module\\Demo\\Type\\DemoType"
+            ]
+        ]
+    }
+}

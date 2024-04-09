@@ -1,0 +1,21 @@
+@if($autoColor)
+    <span class="ub-text-{{$value>0?'success':'danger'}}">
+        @if(!empty($unit)&&(!empty($unitPosition)&&$unitPosition=='before'))
+            {{$unit}}
+        @endif
+        {{($signShow&&($value>0))?'+':''}}{{$value}}
+        @if(!empty($unit)&&(empty($unitPosition)||$unitPosition=='after'))
+            {{$unit}}
+        @endif
+    </span>
+@else
+    <span>
+        @if(!empty($unit)&&(!empty($unitPosition)&&$unitPosition=='before'))
+            {{$unit}}
+        @endif
+        {{($signShow&&($value>0))?'+':''}}{{$value}}
+        @if(!empty($unit)&&(empty($unitPosition)||$unitPosition=='after'))
+            {{$unit}}
+        @endif
+    </span>
+@endif
