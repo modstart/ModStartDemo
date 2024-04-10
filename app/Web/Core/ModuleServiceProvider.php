@@ -19,6 +19,9 @@ class ModuleServiceProvider extends ServiceProvider
         ModStartHook::subscribe('AdminPageHeadAppend', function () {
             return modstart_config('DemoHeadAppend', '');
         });
+        ModStartHook::subscribe('AdminLoginBodyAppend', function () {
+            return modstart_config('DemoAdminLoginBodyAppend', '');
+        });
     }
 
     
