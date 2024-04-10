@@ -12,7 +12,11 @@ use ModStart\Core\Util\SerializeUtil;
 use ModStart\Core\Util\StrUtil;
 use ModStart\Field\Type\DynamicFieldsType;
 
-
+/**
+ * 动态自选
+ * Class ComplexFields
+ * @package ModStart\Field
+ */
 class DynamicFields extends AbstractField
 {
     protected $width = 300;

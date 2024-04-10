@@ -7,10 +7,16 @@ namespace ModStart\Core\Provider;
 use ModStart\Core\Exception\BizException;
 use ModStart\Core\Util\FileUtil;
 
-
+/**
+ * Class FontProvider
+ * @package ModStart\Core\Provider
+ * @method static AbstractFontProvider first()
+ */
 class FontProvider
 {
-    
+    /**
+     * @var array
+     */
     private static $list = [
         DefaultFontProvider::class
     ];

@@ -6,7 +6,23 @@ namespace ModStart\Widget;
 
 use ModStart\ModStart;
 
-
+/**
+ * Class Label
+ * @package ModStart\Widget
+ *
+ * @method static string primary($text, $url, $confirm = null, $disabled = false)
+ * @method static string muted($text, $url, $confirm = null, $disabled = false)
+ * @method static string warning($text, $url, $confirm = null, $disabled = false)
+ * @method static string danger($text, $url, $confirm = null, $disabled = false)
+ * @method static string success($text, $url, $confirm = null, $disabled = false)
+ *
+ * @method $this text($text)
+ * @method $this type($type)
+ * @method $this confirm($text)
+ * @method $this url($url)
+ * @method $this disabled($boolean)
+ * @method $this attr($attr)
+ */
 class TextAjaxRequest extends AbstractWidget
 {
     public static function getAssets()
@@ -16,7 +32,10 @@ class TextAjaxRequest extends AbstractWidget
         ];
     }
 
-    
+    /**
+     * @param ...$arguments string type,text,url
+     * @return $this
+     */
     public static function make(...$arguments)
     {
         $ins = new static();

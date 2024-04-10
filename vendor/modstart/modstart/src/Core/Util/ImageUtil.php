@@ -7,7 +7,9 @@ use ModStart\Core\Exception\BizException;
 use ModStart\Core\Input\Response;
 use ModStart\Core\Provider\FontProvider;
 
-
+/**
+ * @Util 图片工具类
+ */
 class ImageUtil
 {
     public static function base64Src($imageContent, $type = 'png')
@@ -87,13 +89,38 @@ class ImageUtil
         }
     }
 
-    
+    /**
+     * 为图片加水印
+     * 单位尺寸：min( 宽度, 高度 ) / 100
+     * @param $image string 图片路径，绝对路径
+     * @param $type string 水印类型 image|text
+     * @param $content string 水印内容 image 为图片路径，text 为文字内容
+     * @param $option array 水印配置
+     * @return array
+     * @example
+     * 文字单行 $option = [ 'mode' => 'single', ],
+     * 文字多行 $option = [ 'mode' => 'repeat', ],
+     * 图片单行 $option = [ 'mode' => 'single', 'imageSize' => 20, ],
+     * 图片多行 $option = [ 'mode' => 'repeat', 'imageSize' => 20, 'gapX' => 50, 'gapY' => 30, ],
+     */
     public static function watermark($image, $type, $content, $option = [])
     {
         $option = array_merge([
-            'return' => false,                                              'mode' => 'single',                                             'rotate' => 'horizontal',                                       'gapX' => 50,                                                   'gapY' => 30,                                                   'minSizePx' => 100,                                 
-            'textColor' => '#FFFFFF',                                       'textOpacity' => 40,                                            'textSize' => 5,                                                'textFont' => FontProvider::firstLocalPathOrFail(), 
-            'imageSize' => 20,                                              'imageOpacity' => 40,                                       ], $option);
+            'return' => false,                                  // 是否返回图片内容
+            'mode' => 'single',                                 // 重复模式 单个 single 重复 repeat
+            'rotate' => 'horizontal',                           // 旋转角度 水平 horizontal 倾斜 oblique
+            'gapX' => 50,                                       // 重复模式下，水平间隔
+            'gapY' => 30,                                       // 重复模式下，垂直间隔
+            'minSizePx' => 100,                                 // 最小加水印尺寸（单位像素），宽和高必须都大于此值
+
+            'textColor' => '#FFFFFF',                           // 文字颜色
+            'textOpacity' => 40,                                // 文字透明度
+            'textSize' => 5,                                    // 文字大小
+            'textFont' => FontProvider::firstLocalPathOrFail(), // 文字字体
+
+            'imageSize' => 20,                                  // 图片大小
+            'imageOpacity' => 40,                               // 图片透明度
+        ], $option);
         try {
             BizException::throwsIf('Image not exists', !file_exists($image));
             BizException::throwsIf('watermark type error', !in_array($type, ['image', 'text']));
@@ -198,7 +225,12 @@ class ImageUtil
         ];
     }
 
-    
+    /**
+     * @param $width integer 图片宽度
+     * @param $height integer 图片高度
+     * @param $option array 水印参数
+     * @return array
+     */
     public static function calcWatermarkPositionInfo($width, $height, array $option)
     {
         $normalPx = min($width, $height) / 100;

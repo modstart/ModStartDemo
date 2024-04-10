@@ -12,7 +12,9 @@ class LayoutTable extends AbstractField
     protected $isLayoutField = true;
     private $layoutClosure = null;
 
-    
+    /**
+     * LayoutGrid constructor.
+     */
     public function __construct($closure)
     {
         parent::__construct(IdUtil::generate('LayoutTable'));
@@ -27,7 +29,12 @@ class LayoutTable extends AbstractField
     }
 
 
-    
+    /**
+     * @param $closure
+     *
+     * @example
+     * $closure = function ($builder) { }
+     */
     public function layoutRow($closure)
     {
         $this->context->html($this->column() . '_end')->html('<tr>')->plain();
@@ -35,7 +42,12 @@ class LayoutTable extends AbstractField
         $this->context->html($this->column() . '_end')->html('</tr>')->plain();
     }
 
-    
+    /**
+     * @param $closure
+     *
+     * @example
+     * $closure = function ($builder) { }
+     */
     public function layoutCol($closure)
     {
         $this->context->html($this->column() . '_end')->html('<td>')->plain();

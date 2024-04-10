@@ -6,10 +6,14 @@ use ModStart\ModStart;
 
 trait HasVueTrait
 {
-    
+    /**
+     * @return string
+     */
     abstract public function script();
 
-    
+    /**
+     * @return string
+     */
     abstract public function template();
 
     public function content()

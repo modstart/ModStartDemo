@@ -24,7 +24,7 @@ class WidgetController extends Controller
         BizException::throwsIf('Invalid Param (format error)', !preg_match('/^[a-zA-Z0-9\\\\]+$/', $name));
         BizException::throwsIf('Invalid Param (not exists)', !class_exists($name));
         BizException::throwsIf('Invalid Param (not Widget)', !is_subclass_of($name, AbstractWidget::class));
-        
+        /** @var HasRequestTrait $ins */
         $ins = app($name);
         BizException::throwsIf(L('No Permission'), !$ins->permit());
         return $ins->request();

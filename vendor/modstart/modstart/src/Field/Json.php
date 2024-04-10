@@ -7,7 +7,13 @@ use ModStart\Core\Exception\BizException;
 use ModStart\Core\Util\CurlUtil;
 use ModStart\Core\Util\SerializeUtil;
 
-
+/**
+ * Json字段
+ * {} 或 []
+ *
+ * Class Json
+ * @package ModStart\Field
+ */
 class Json extends AbstractField
 {
     const MODE_API = 'api';
@@ -17,7 +23,8 @@ class Json extends AbstractField
     {
         $this->addVariables([
             'editorHeight' => '200px',
-                        'jsonMode' => 'default',
+            // api | default
+            'jsonMode' => 'default',
         ]);
     }
 
@@ -56,7 +63,17 @@ class Json extends AbstractField
 
     public static function executeApi($value)
     {
-                                                                                        BizException::throwsIf('url为空', empty($value['url']));
+        // $value = [
+        //     'url' => 'http://xxx.com',
+        //     'method' => 'GET',
+        //     'headers' => [],
+        //     'query' => [],
+        //     // FormData, UrlEncoded, Json
+        //     'enctype' => 'Json',
+        //     'bodyParam' => [],
+        //     'bodyRaw' => '{}'
+        // ];
+        BizException::throwsIf('url为空', empty($value['url']));
         BizException::throwsIf('method错误', empty($value['method']) || !in_array($value['method'], ['GET', 'POST', 'PUT', 'DELETE']));
         BizException::throwsIf('enctype错误', empty($value['enctype']) || !in_array($value['enctype'], ['FormData', 'UrlEncoded', 'Json']));
 

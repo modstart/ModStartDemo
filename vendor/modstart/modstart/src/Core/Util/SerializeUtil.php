@@ -6,7 +6,11 @@ namespace ModStart\Core\Util;
 
 class SerializeUtil
 {
-    
+    /**
+     * @param $data
+     * @return false|string
+     * @deprecated delete at 2024-04-26
+     */
     public static function jsonObject($data)
     {
         if (empty($data)) {

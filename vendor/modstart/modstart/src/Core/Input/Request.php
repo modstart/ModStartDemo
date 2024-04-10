@@ -9,13 +9,25 @@ use Illuminate\Support\Str;
 class Request
 {
 
-    
+    /**
+     * get path for request
+     * @return string
+     *
+     * @example
+     * http://www.example.com/url/path?foo=bar -> "url/path"
+     * http://www.example.com -> ""
+     */
     public static function path()
     {
         return ltrim(\Illuminate\Support\Facades\Request::path(), '/');
     }
 
-    
+    /**
+     * get base path for request
+     * @return string
+     *
+     * @example visit http://www.example.com/url/path?foo=bar -> /url/path
+     */
     public static function basePath()
     {
         static $path = null;
@@ -31,7 +43,12 @@ class Request
         return $path;
     }
 
-    
+    /**
+     * get full url for request (with query string)
+     * @return string
+     *
+     * @example visit http://www.example.com/url/path?foo=bar -> /url/path?foo=bar
+     */
     public static function basePathWithQueries()
     {
         $url = self::basePath();
@@ -41,7 +58,12 @@ class Request
         return $url;
     }
 
-    
+    /**
+     * get full url for request (with query string)
+     * @return string
+     *
+     * @example visit http://www.example.com/url/path?foo=bar -> http://www.example.com/url/path?foo=bar
+     */
     public static function currentPageUrl()
     {
         if (\Illuminate\Support\Facades\Request::ajax()) {
@@ -73,7 +95,12 @@ class Request
     }
 
 
-    
+    /**
+     * get full url for request (without query string)
+     * @return string
+     *
+     * @example visit http://www.example.com/url/path?foo=bar -> http://www.example.com/url/path
+     */
     public static function currentPageUrlWithOutQueries()
     {
         $url = \Illuminate\Support\Facades\Request::url();
@@ -90,7 +117,12 @@ class Request
         return $url;
     }
 
-    
+    /**
+     * merge url queries with given array
+     * 根据给定的数组，合并url的query
+     * @param array $pair
+     * @return string
+     */
     public static function mergeQueries($pair = [])
     {
         $gets = (!empty($_GET) && is_array($_GET)) ? $_GET : [];
@@ -98,7 +130,8 @@ class Request
             $gets[$k] = $v;
         }
 
-                ksort($gets);
+        // sort by key, always sort by key to make sure the url is the same
+        ksort($gets);
 
         $urls = [];
         foreach ($gets as $k => $v) {
@@ -123,13 +156,19 @@ class Request
         return join('&', $urls);
     }
 
-    
+    /**
+     * get domain url
+     * @return string
+     */
     public static function domain()
     {
         return \Illuminate\Support\Facades\Request::server('HTTP_HOST');
     }
 
-    
+    /**
+     * check if current request is https
+     * @return bool
+     */
     public static function isSecurity()
     {
         if ($forceSchema = config('modstart.forceSchema')) {
@@ -138,7 +177,10 @@ class Request
         return \Illuminate\Support\Facades\Request::secure();
     }
 
-    
+    /**
+     * @get current request scheme
+     * @return string
+     */
     public static function schema()
     {
         static $schema = null;
@@ -156,7 +198,10 @@ class Request
         return $schema;
     }
 
-    
+    /**
+     * get current request domain url
+     * @return string
+     */
     public static function domainUrl($subdirFix = false)
     {
         $url = self::schema() . '://' . self::domain();
@@ -166,31 +211,45 @@ class Request
         return $url;
     }
 
-    
+    /**
+     * check if current request is get
+     * @return bool
+     */
     public static function isGet()
     {
         return \Illuminate\Support\Facades\Request::isMethod('get');
     }
 
-    
+    /**
+     * check if current request is post
+     * @return bool
+     */
     public static function isPost()
     {
         return \Illuminate\Support\Facades\Request::isMethod('post');
     }
 
-    
+    /**
+     * check if current request is ajax
+     * @return bool
+     */
     public static function isAjax()
     {
         return \Illuminate\Support\Facades\Request::ajax() || self::headerGet('is-ajax');
     }
 
-    
+    /**
+     * 将请求标记为ajax请求
+     */
     public static function treatAsAjax()
     {
         self::headerSet('is-ajax', '1');
     }
 
-    
+    /**
+     * check if current request is jsonp
+     * @return bool
+     */
     public static function isJsonp()
     {
         if (
@@ -203,13 +262,22 @@ class Request
         return false;
     }
 
-    
+    /**
+     * get laravel request instance
+     * @return \Illuminate\Http\Request
+     */
     public static function instance()
     {
         return \Illuminate\Support\Facades\Request::instance();
     }
 
-    
+    /**
+     * get current request controller and action
+     * @return array
+     *
+     * @example
+     * list($controller, $action) = Request::controllerAction();
+     */
     public static function getControllerAction()
     {
         $routeAction = Route::currentRouteAction();

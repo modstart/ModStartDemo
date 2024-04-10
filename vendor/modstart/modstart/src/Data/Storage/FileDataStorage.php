@@ -74,7 +74,10 @@ class FileDataStorage extends AbstractDataStorage
         $data['chunk'] = $input['chunk'];
         $data['file'] = $input['file'];
 
-                        
+        // if ($data['chunk'] == 3 && rand(0, 10) > 2) {
+        //     return Response::generateError('ShouldRetryUpload');
+        // }
+
         $hashFile = self::DATA_CHUNK . '/data/' . $token['hash'];
         if ($data['chunk'] < $data['chunks']) {
             $p = $data['file']->getRealPath();

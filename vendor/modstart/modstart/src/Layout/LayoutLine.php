@@ -12,7 +12,9 @@ class LayoutLine extends AbstractField
     protected $isLayoutField = true;
     private $layoutClosure = null;
 
-    
+    /**
+     * LayoutGrid constructor.
+     */
     public function __construct($title, $arguments = [])
     {
         parent::__construct(IdUtil::generate('LayoutPanel'));

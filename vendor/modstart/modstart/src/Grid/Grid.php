@@ -32,7 +32,57 @@ use ModStart\Support\Concern\HasFields;
 use ModStart\Support\Concern\HasFluentAttribute;
 use ModStart\Support\Manager\FieldManager;
 
-
+/**
+ * Class Grid
+ *
+ * @method Grid|mixed engine($value = null)
+ * @method Grid|mixed title($value = null)
+ * @method Grid|mixed titleAdd($value = null)
+ * @method Grid|mixed titleEdit($value = null)
+ * @method Grid|mixed titleShow($value = null)
+ * @method Grid|mixed titleExport($value = null)
+ * @method Grid|mixed titleImport($value = null)
+ * @method Grid|mixed canAdd($value = null)
+ * @method Grid|mixed canEdit($value = null)
+ * @method Grid|mixed canDelete($value = null)
+ * @method Grid|mixed canShow($value = null)
+ * @method Grid|mixed canExport($value = null)
+ * @method Grid|mixed canImport($value = null)
+ * @method Grid|mixed canCopy($value = null)
+ * @method Grid|mixed canMultiSelectItem($value = null)
+ * @method Grid|mixed canSingleSelectItem($value = null)
+ * @method Grid|mixed urlGrid($value = null)
+ * @method Grid|mixed urlAdd($value = null)
+ * @method Grid|mixed urlEdit($value = null)
+ * @method Grid|mixed textEdit($value = null)
+ * @method Grid|mixed urlDelete($value = null)
+ * @method Grid|mixed urlShow($value = null)
+ * @method Grid|mixed urlExport($value = null)
+ * @method Grid|mixed urlImport($value = null)
+ * @method Grid|mixed urlSort($value = null)
+ * @method Grid|mixed addDialogSize($value = null)
+ * @method Grid|mixed editDialogSize($value = null)
+ * @method Grid|mixed showDialogSize($value = null)
+ * @method Grid|mixed importDialogSize($value = null)
+ * @method Grid|mixed addBlankPage($value = null)
+ * @method Grid|mixed editBlankPage($value = null)
+ * @method Grid|mixed defaultOrder($value = null)
+ * @method Grid|mixed treeMaxLevel($value = null)
+ * @method Form|mixed treeRootPid($value = null)
+ * @method Grid|mixed batchOperatePrepend($value = null)
+ * @method Grid|mixed gridOperateAppend($value = null)
+ * @method Grid|mixed view($value = null)
+ * // 配合 useSimple 使用，设置每行的列数，value 是一个数组，分别表示 md 和 sm 的占比（总和为 12）
+ * @method Grid|mixed gridRowCols($value = null)
+ * @method Grid|mixed defaultPageSize($value = null)
+ * @method Grid|mixed pageSizes($value = null)
+ * @method Grid|mixed gridToolbar($value = []),
+ * @method Grid|mixed pageJumpEnable($enable = null),
+ *
+ * $value = function(Grid $grid, $items){ return $items; }
+ * @method Grid|mixed hookPrepareItems($value = null)
+ *
+ */
 class Grid
 {
     use HasBuilder,
@@ -45,9 +95,13 @@ class Grid
         HasScopeFilter,
         HasRepositoryFilter;
 
-    
+    /**
+     * @var string
+     */
     private $id;
-    
+    /**
+     * @var Model
+     */
     private $model;
 
     protected $fluentAttributes = [
@@ -99,7 +153,10 @@ class Grid
         'gridToolbar',
         'pageJumpEnable',
     ];
-    
+    /**
+     * 运行引擎 @see GridEngine
+     * @var string
+     */
     private $engine = 'basic';
     private $title;
     private $titleAdd;
@@ -138,42 +195,54 @@ class Grid
     private $defaultOrder = [];
     private $treeMaxLevel = 0;
     private $treeRootPid = 0;
-    
+    /** @var string 批量操作向前字符串 */
     private $batchOperatePrepend = '';
-    
+    /** @var string 表格操作右上角追加字符串 */
     private $gridOperateAppend = '';
-    
+    /** @var array simple模式下栅格所占用的栅格大小null:表示不启用，[6,12]:表示md,sm栅格占比 */
     private $gridRowCols = null;
-    
+    /** @var int grid default page size */
     private $defaultPageSize = 10;
-    
+    /** @var int[] grid page sizes for selection list */
     private $pageSizes = [10, 50, 100];
-    
+    /** @var string[] grid toolbar */
     private $gridToolbar = [];
-    
+    /** @var bool page jump enable */
     private $pageJumpEnable = false;
-    
+    /** @var Closure 渲染前置处理Items */
     private $hookPrepareItems = null;
-    
+    /** @var array 渲染在Table顶部的区域 */
     private $gridTableTops = [];
-    
+    /** @var Closure 请求处理额外脚本 */
     private $gridRequestScript = null;
-    
+    /** @var Closure 请求处理额外脚本 */
     private $gridBeforeRequestScript = null;
-    
+    /** @var bool */
     private $isBuilt = false;
 
-    
+    /**
+     * @var bool 是否是使用数据表名称快速生成的动态模型
+     */
     private $isDynamicModel = false;
-    
+    /**
+     * @var string 动态模型数据表名称
+     */
     private $dynamicModelTableName;
 
-    
+    /**
+     * @var string Grid页面视图
+     */
     private $view = 'modstart::core.grid.index';
-    
+    /**
+     * @var string 追加视图内容
+     */
     private $bodyAppend = '';
 
-    
+    /**
+     * Grid constructor.
+     * @param null $repository
+     * @param Closure|null $builder
+     */
     public function __construct($repository = null, \Closure $builder = null)
     {
         $this->id = IdUtil::generate('Grid');
@@ -186,7 +255,11 @@ class Grid
         $this->builder($builder);
     }
 
-    
+    /**
+     * @param $model
+     * @param Closure|null $builder = function(Grid $grid){  }
+     * @return Grid
+     */
     public static function make($model, \Closure $builder = null)
     {
         if ($model && is_object($model)) {
@@ -207,7 +280,12 @@ class Grid
         return $grid;
     }
 
-    
+    /**
+     * @param $htmlHookRending
+     * @return $this
+     *
+     * $value = function(AbstractField $field, $item, $index){ return $item->title; }
+     */
     public function useSimple($htmlHookRending)
     {
         $this->view = 'modstart::core.grid.simple';
@@ -240,7 +318,10 @@ class Grid
         return $this;
     }
 
-    
+    /**
+     * @param null $value
+     * @return Grid|bool
+     */
     public function canBatchDelete($value = null)
     {
         if (null === $value) {
@@ -261,7 +342,11 @@ class Grid
         return $this;
     }
 
-    
+    /**
+     * 多选时，是否按照选择顺序进行批量操作
+     * @param $value bool
+     * @return $this|bool
+     */
     public function batchSelectInOrder($value = null)
     {
         if (null === $value) {
@@ -296,21 +381,31 @@ class Grid
         return $this->model->repository()->getKeyName();
     }
 
-    
+    /**
+     * Set the grid filter.
+     *
+     * @param Closure $callback function(GridFilter $filter){ $filter->eq('id','ID'); }
+     */
     public function gridFilter(Closure $callback)
     {
         call_user_func($callback, $this->gridFilter);
         return $this;
     }
 
-    
+    /**
+     * @param $closure
+     * @return $this
+     */
     public function gridRequestScript($closure)
     {
         $this->gridRequestScript = $closure;
         return $this;
     }
 
-    
+    /**
+     * @param $view string
+     * @return $this
+     */
     public function gridBeforeRequestScriptView($view)
     {
         return $this->gridBeforeRequestScript(
@@ -318,20 +413,31 @@ class Grid
         );
     }
 
-    
+    /**
+     * @param $script string
+     * @return $this
+     */
     public function gridBeforeRequestScript($script)
     {
         $this->gridBeforeRequestScript = $script;
         return $this;
     }
 
-    
+    /**
+     * 渲染在顶部
+     * @param $view
+     * @return $this
+     */
     public function gridTableTopView($view, $viewData = [])
     {
         return $this->gridTableTop(View::make($view, $viewData)->render());
     }
 
-    
+    /**
+     * 渲染在顶部
+     * @param $content
+     * @return $this
+     */
     public function gridTableTop($content)
     {
         if ($content instanceof Closure) {
@@ -347,7 +453,9 @@ class Grid
         return $this;
     }
 
-    
+    /**
+     * 开始构建Grid，主要处理回调等操作
+     */
     public function build()
     {
         if (!$this->isBuilt) {
@@ -397,21 +505,26 @@ class Grid
                 'grid' => $this,
             ])->render();
         }
-                $this->gridFilter->setSearch($input->getArray('search'));
+        // print_r($input->getArray('search'));exit();
+        $this->gridFilter->setSearch($input->getArray('search'));
         $items = $this->gridFilter->execute();
-                if ($this->engine == GridEngine::TREE) {
+        // print_r($items->toArray());exit();
+        if ($this->engine == GridEngine::TREE) {
             $treeIdName = $this->repository()->getKeyName();
             $treePidName = $this->repository()->getTreePidColumn();
             $treeSortName = $this->repository()->getTreeSortColumn();
-                        $items = TreeUtil::itemsMergeLevel($items, $treeIdName, $treePidName, $treeSortName);
+            // return [$items, $treeIdName, $treePidName, $treeSortName];
+            $items = TreeUtil::itemsMergeLevel($items, $treeIdName, $treePidName, $treeSortName);
         }
         $paginator = $this->model->paginator();
         if ($this->hookPrepareItems) {
             $items = call_user_func($this->hookPrepareItems, $this, $items);
         }
-                $records = [];
+        // var_dump($items);exit();
+        $records = [];
         foreach ($items as $index => $item) {
-                        
+            // print_r($item);exit();
+            /** @var \Illuminate\Database\Eloquent\Model|\stdClass $item */
             $itemColumns = [];
             if ($item instanceof \Illuminate\Database\Eloquent\Model) {
                 $itemColumns = array_keys($item->getAttributes());
@@ -423,15 +536,17 @@ class Grid
             $record = [];
             $record['_id'] = '' . $item->{$this->repository()->getKeyName()};
             foreach ($this->listableFields() as $field) {
-                
+                /** @var AbstractField $field */
                 if ($field->isLayoutField()) {
                     continue;
                 }
                 $value = null;
-                                if (in_array($field->column(), $itemColumns)
+                // var_dump($field->column(),$itemColumns);
+                if (in_array($field->column(), $itemColumns)
                     || ($item instanceof \Illuminate\Database\Eloquent\Model && method_exists($item, $field->column()))
                 ) {
-                                        $value = $item->{$field->column()};
+                    // var_dump($field->column());
+                    $value = $item->{$field->column()};
                     $field->item($item);
                     if ($field->hookValueUnserialize()) {
                         $value = call_user_func($field->hookValueUnserialize(), $value, $field);
@@ -447,18 +562,24 @@ class Grid
                     if (str_contains($field->column(), '.')) {
                         $value = ModelUtil::traverse($item, $field->column());
                     }
-                                        if ($field->hookValueUnserialize()) {
+                    // var_dump($field->column(),$value);
+                    if ($field->hookValueUnserialize()) {
                         $value = call_user_func($field->hookValueUnserialize(), $value, $field);
                     }
                     $value = $field->unserializeValue($value, $field);
                     if ($field->hookFormatValue()) {
                         $value = call_user_func($field->hookFormatValue(), $value, $field);
                     }
-                                    }
+                    // echo $field->column() . ' - ' . json_encode($value) . "\n";
+                }
                 $field->setValue($value);
-                                $field->item($item);
-                                                $record[$field->column()] = $field->renderView($field, $item, $index);
-                                if ($this->engine == GridEngine::TREE && $field->column() == $this->repository()->getTreeTitleColumn()) {
+                // echo $field->column() . ' ' . json_encode($value) . "\n";
+                $field->item($item);
+                // return $this->repository()->getTreeTitleColumn();
+                // echo $field->column() . ' ' . json_encode($value) . "\n";
+                $record[$field->column()] = $field->renderView($field, $item, $index);
+                // echo $field->column() . ' ' . json_encode($record[$field->column()]) . "\n";
+                if ($this->engine == GridEngine::TREE && $field->column() == $this->repository()->getTreeTitleColumn()) {
                     $treePrefix = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $item->_level - 1)
                         . '<a class="tree-arrow-icon ub-text-muted" href="javascript:;"><i class="icon iconfont icon-angle-right"></i></a> ';
                     $record[$field->column()] = $treePrefix . $record[$field->column()];
@@ -475,7 +596,8 @@ class Grid
                     }
                 }
             }
-                        $records[] = $record;
+            // var_dump($record);
+            $records[] = $record;
         }
         $head = [];
         foreach ($this->listableFields() as $field) {
@@ -541,19 +663,31 @@ class Grid
         }
     }
 
-    
+    /**
+     * @return bool
+     */
     public function isDynamicModel()
     {
         return $this->isDynamicModel;
     }
 
-    
+    /**
+     * @return string
+     */
     public function getDynamicModelTableName()
     {
         return $this->dynamicModelTableName;
     }
 
-    
+    /**
+     * Generate a Field object and add to form builder if Field exists.
+     *
+     * @param string $method
+     * @param array $arguments
+     *
+     * @return AbstractField|void|Grid|Form|Detail
+     * @throws \Exception
+     */
     public function __call($method, $arguments)
     {
         switch ($method) {

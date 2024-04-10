@@ -19,14 +19,22 @@ class Values extends AbstractField
         ]);
     }
 
-    
+    /**
+     * 设置内容填写模式，default=列表，mini=一行
+     * @param $viewMode string default|mini
+     * @return $this
+     */
     public function viewMode($viewMode)
     {
         $this->addVariables(['viewMode' => $viewMode]);
         return $this;
     }
 
-    
+    /**
+     * 是否固定显示数量
+     * @param $enable bool
+     * @return $this
+     */
     public function countFixed($enable)
     {
         $this->addVariables(['countFixed' => $enable]);

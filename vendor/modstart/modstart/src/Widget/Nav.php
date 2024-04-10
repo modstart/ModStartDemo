@@ -2,19 +2,32 @@
 
 namespace ModStart\Widget;
 
-
+/**
+ * Class Box
+ * @package ModStart\Widget
+ */
 class Nav extends AbstractWidget
 {
-    
+    /**
+     * @var string
+     */
     protected $view = 'modstart::widget.nav';
 
-    
+    /**
+     * @var string
+     */
     protected $navs = '';
 
-    
+    /**
+     * @var string
+     */
     protected $classList = '';
 
-    
+    /**
+     * Box constructor.
+     *
+     * @param array $navs
+     */
     public function __construct($navs, $classList = '')
     {
         parent::__construct();
@@ -39,7 +52,11 @@ class Nav extends AbstractWidget
         return $this;
     }
 
-    
+    /**
+     * Variables in view.
+     *
+     * @return array
+     */
     public function variables()
     {
         return [

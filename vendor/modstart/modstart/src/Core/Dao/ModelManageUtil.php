@@ -169,13 +169,22 @@ class ModelManageUtil
         }
     }
 
-    
+    /**
+     * @param $table
+     * @param \Closure $schemaCallback
+     * @param string $connection
+     * @since 1.7.0
+     */
     public static function migrate($table, \Closure $schemaCallback, $connection = 'mysql')
     {
         $schemaCallback($table, Schema::connection($connection));
     }
 
-    
+    /**
+     * @param $fieldType
+     * @return bool
+     * @since 1.7.0
+     */
     public static function ddlFieldTypeIsCorrect($fieldType)
     {
         if (preg_match('/^INT$/', $fieldType)) {
@@ -202,7 +211,13 @@ class ModelManageUtil
         return false;
     }
 
-    
+    /**
+     * @param $table
+     * @param $fieldName
+     * @param $fieldType
+     * @throws \Exception
+     * @since 1.7.0
+     */
     public static function ddlFieldAdd($table, $fieldName, $fieldType)
     {
         if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $table)) {
@@ -219,7 +234,14 @@ class ModelManageUtil
         self::statement($sql);
     }
 
-    
+    /**
+     * @param $table
+     * @param $fieldNameOld
+     * @param $fieldName
+     * @param $fieldType
+     * @throws \Exception
+     * @since 1.7.0
+     */
     public static function ddlFieldChange($table, $fieldNameOld, $fieldName, $fieldType)
     {
         if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $table)) {
@@ -239,7 +261,13 @@ class ModelManageUtil
         self::statement($sql);
     }
 
-    
+    /**
+     * @param $table
+     * @param $fieldName
+     * @param $fieldType
+     * @throws \Exception
+     * @since 1.7.0
+     */
     public static function ddlFieldModify($table, $fieldName, $fieldType)
     {
         if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $table)) {
@@ -256,7 +284,12 @@ class ModelManageUtil
         self::statement($sql);
     }
 
-    
+    /**
+     * @param $table
+     * @param $fieldName
+     * @throws \Exception
+     * @since 1.7.0
+     */
     public static function ddlFieldDrop($table, $fieldName)
     {
         if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $table)) {
@@ -318,19 +351,28 @@ class ModelManageUtil
         }
     }
 
-    
+    /**
+     * 判断字段值是否合法
+     * @param $value
+     * @param $table
+     * @param $field
+     * @param string $conn
+     */
     public static function fieldValueCheck($value, $table, $field, $conn = 'mysql')
     {
         $f = self::field($table, $field, $conn);
         if (empty($f)) {
             return Response::generateError("字段不存在");
         }
-                if ('TEXT' == $f['type']) {
-                        if (strlen($value) > 65535) {
+        // print_r($f);
+        if ('TEXT' == $f['type']) {
+            // 最多存储 65535 个字节
+            if (strlen($value) > 65535) {
                 return Response::generateError("长度不能超过 65535");
             }
         } else if (preg_match('/^VARCHAR\((\d+)\)$/', $f['type'], $m)) {
-                        if (StrUtil::mbLength($value) > $m[1]) {
+            // 最多存储 $m[1] 个字节
+            if (StrUtil::mbLength($value) > $m[1]) {
                 return Response::generateError("长度不能超过 {$m[1]}");
             }
         }

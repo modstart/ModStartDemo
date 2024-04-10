@@ -20,7 +20,115 @@ use ModStart\ModStart;
 use ModStart\Support\Concern\HasFluentAttribute;
 use ModStart\Support\Manager\FieldManager;
 
-
+/**
+ * Class AbstractField
+ * @package ModStart\Field
+ *
+ * @method $this listable($value = null)
+ *
+ * @method $this addable($value = null)
+ *
+ * @method $this editable($value = null)
+ *
+ * @method $this formShowOnly($value = null)
+ *
+ * @method $this showable($value = null)
+ *
+ * @method $this sortable($value = null)
+ *
+ * @method $this renderMode($value = null)
+ *
+ * form模式：默认值
+ * @method $this defaultValue($value = null)
+ *
+ * form模式：提示文字
+ * @method $this placeholder($value = null)
+ *
+ * form模式：只读
+ * @method $this readonly($value = null)
+ *
+ * form模式：帮助文字，样式
+ * @method $this help($value = null)
+ *
+ * grid|form|detail模式：字段提示
+ * @method $this tip($value = null)
+ *
+ * form模式：字段样式，或直接作用到 input, textarea 等元素上
+ * @method $this styleFormField($value = null)
+ *
+ * grid模式：字段宽度
+ * @method $this width($value = null)
+ *
+ * @method $this hookFormatValue($value = null)
+ * @method $this hookValueUnserialize($value = null)
+ *
+ * > $value = function ($value, AbstractField $field) { return $value; }
+ * @method $this hookValueSerialize($value = null)
+ *
+ * > $value = function ($itemId, AbstractField $field) {  }
+ * @method $this hookValueSaved($value = null)
+ *
+ * grid|form|detail模式：渲染自定义回调
+ * > $value = function(AbstractField $field, $item, $index){ return $item->title; }
+ * @method $this hookRendering($value = null)
+ *
+ * @method $this isLayoutField($vlaue = null)
+ * @method $this isCustomField($vlaue = null)
+ * @method $this gridFixed($vlaue = null)
+ * grid模式：是否启用快捷编辑
+ * > $value = true
+ * > $value = function(AbstractField $field, $item, $index){ return true; }
+ * @method $this gridEditable($vlaue = null)
+ *
+ * >>>>>> 数据流转换流程 >>>>>>
+ *
+ * grid.request
+ * -> repository->get
+ * -> hookValueUnserialize(function($value, AbstractField $field){ return $value; })
+ * -> unserializeValue($value, AbstractField $field)
+ * -> hookFormatValue(function($value, AbstractField $field){ return $value;})
+ * -> view->render
+ *
+ * form.add
+ * -> view->render
+ *
+ * form.addRequest
+ * -> prepareInput($value, $dataSubmitted)
+ * -> serializeValue($value, $dataSubmitted)
+ * -> hookValueSerialize(function($value, AbstractField $field){ return $value; })
+ * -> repository->add
+ *
+ * form.formRequest
+ * -> prepareInput($value, $dataSubmitted)
+ * -> serializeValue($value, $dataSubmitted)
+ * -> hookValueSerialize(function($value, AbstractField $field){ return $value; })
+ * -> repository->add
+ *
+ * form.edit
+ * -> repository->editing
+ * -> hookValueUnserialize(function($value, AbstractField $field){ return $value; })
+ * -> unserializeValue($value, AbstractField $field)
+ * -> hookFormatValue(function($value, AbstractField $field){ return $value;})
+ * -> view->render
+ *
+ * form.editRequest
+ * -> prepareInput($value, $dataSubmitted)
+ * -> serializeValue($value, $dataSubmitted)
+ * -> hookValueSerialize(function($value, AbstractField $field){ return $value; })
+ * -> repository->edit
+ *
+ * detail.show
+ * -> repository->show
+ * -> hookValueUnserialize(function($value, AbstractField $field){ return $value; })
+ * -> unserializeValue($value, AbstractField $field)
+ * -> hookFormatValue(function($value, AbstractField $field){ return $value;})
+ * -> view->render
+ *
+ * form.deleteRequest
+ * -> repository->deleting
+ * -> repository->delete
+ *
+ */
 class AbstractField implements Renderable
 {
     use HasFluentAttribute;
@@ -29,27 +137,47 @@ class AbstractField implements Renderable
     protected static $js = [];
     protected $script = '';
 
-    
+    /** @var Form|Grid|Detail $context */
     protected $context;
 
     protected $id;
-    
+    /**
+     * @var string 表单name
+     */
     protected $name;
-    
+    /**
+     * @var string 数据表字段名
+     */
     protected $column;
-    
+    /**
+     * @var mixed|null 表单名称
+     */
     protected $label;
-    
+    /**
+     * @var null 字段值，null表示没有值，非null表示有值
+     */
     protected $value = null;
-    
+    /**
+     * @var null 默认值，null表示没有默认值，非null表示有默认值
+     */
     protected $defaultValue = null;
-    
+    /**
+     * @var null ?
+     */
     protected $fixedValue = null;
-    
+    /**
+     * @var array 校验规则，如['required']，表单模式下生效
+     */
     protected $rules = [];
     protected $view = null;
     protected $variables = [];
-    
+    /**
+     * 当前条目
+     * grid模式：当前条目
+     * form模式：edit当前编辑条目
+     *
+     * @var Model|\stdClass
+     */
     protected $item;
 
     protected $fluentAttributes = [
@@ -77,7 +205,10 @@ class AbstractField implements Renderable
         'gridFixed',
         'gridEditable',
     ];
-    
+    /**
+     * 字段渲染模式，默认为 add，请查看 @see FieldRenderMode
+     * @var string
+     */
     protected $listable = true;
     protected $addable = true;
     protected $editable = true;
@@ -91,22 +222,45 @@ class AbstractField implements Renderable
     protected $styleFormField = null;
     protected $width = '';
     protected $readonly = false;
-    
+    /**
+     * 格式化值
+     * @var \Closure
+     */
     protected $hookFormatValue;
-    
+    /**
+     * 将DB中的值反序列化
+     * @var \Closure
+     */
     protected $hookValueUnserialize;
-    
+    /**
+     * 将值序列化存储在DB中
+     * @var \Closure
+     */
     protected $hookValueSerialize;
-    
+    /**
+     * 保存已完成
+     * @var \Closure
+     */
     protected $hookValueSaved;
     protected $hookRendering;
-    
+    /**
+     * 是否为布局类
+     * @var bool
+     */
     protected $isLayoutField = false;
-    
+    /**
+     * 是否为自定义字段（自定义字段不参与Form中的addRequest、editRequest计算）
+     * @var bool
+     */
     protected $isCustomField = false;
-    
+    /**
+     * 数据表示模式下浮动布局
+     * @var string null|left|right
+     */
     protected $gridFixed = null;
-    
+    /**
+     * @var bool 行内编辑
+     */
     protected $gridEditable = false;
 
     public static function getAssets()
@@ -154,7 +308,8 @@ class AbstractField implements Renderable
         if (is_null($rule)) {
             return $this->rules;
         }
-                if (is_array($rule)) {
+        // echo json_encode([$this->column, $this->rules]) . "\n";
+        if (is_array($rule)) {
             $rule = array_filter($rule);
             $this->rules = array_merge($this->rules, $rule);
         } else {
@@ -162,28 +317,39 @@ class AbstractField implements Renderable
                 $this->rules[] = $rule;
             }
         }
-                        return $this;
+        // $rules = array_filter(explode('|', "{$this->rules}|$rules"));
+        // $this->rules = implode('|', $rules);
+        return $this;
     }
 
-    
+    /**
+     * @return $this|array
+     */
     public function required()
     {
         return $this->rules('required');
     }
 
-    
+    /**
+     * @return $this|array
+     */
     public function ruleRegex($regex)
     {
         return $this->rules('regex:' . $regex);
     }
 
-    
+    /**
+     * 匹配 Url
+     * @return $this|array
+     */
     public function ruleUrl()
     {
         return $this->ruleRegex('/^https?:\/\//');
     }
 
-    
+    /**
+     * @return $this|array
+     */
     public function ruleUnique($table, $field = null)
     {
         if (null === $field) {
@@ -264,7 +430,10 @@ class AbstractField implements Renderable
         return $this;
     }
 
-    
+    /**
+     * @param null $item
+     * @return $this|Model|\stdClass
+     */
     public function item($item = null)
     {
         if (null === $item) {
@@ -274,25 +443,43 @@ class AbstractField implements Renderable
         return $this;
     }
 
-    
+    /**
+     * 数据反序列化
+     * @param $value
+     * @param $model
+     * @return mixed
+     */
     public function unserializeValue($value, AbstractField $field)
     {
         return $value;
     }
 
-    
+    /**
+     * 值序列化
+     * @param $value
+     * @param $model
+     * @return mixed
+     */
     public function serializeValue($value, $model)
     {
         return $value;
     }
 
-    
+    /**
+     * 转换从view到提交值
+     * @param mixed $value
+     * @param array $dataSubmitted
+     * @return mixed
+     */
     public function prepareInput($value, $dataSubmitted)
     {
         return $value;
     }
 
-    
+    /**
+     * 填充字段值，data包含当前记录
+     * @param Arrayable|array $item
+     */
     public function fill($item)
     {
         if ($this->isLayoutField()) {
@@ -321,7 +508,8 @@ class AbstractField implements Renderable
             } else {
                 $value = isset($item->{$this->column}) ? $item->{$this->column} : null;
             }
-                    }
+            // echo $this->column . " - " . json_encode($item) . "\n";
+        }
         if ($this->hookValueUnserialize) {
             $value = call_user_func($this->hookValueUnserialize, $value, $this);
         }
@@ -332,7 +520,13 @@ class AbstractField implements Renderable
         $this->value = $value;
     }
 
-    
+    /**
+     * Add variables to field view.
+     *
+     * @param array $variables
+     *
+     * @return $this
+     */
     public function addVariables(array $variables = [])
     {
         $this->variables = array_merge($this->variables, $variables);
@@ -353,7 +547,13 @@ class AbstractField implements Renderable
         return $default;
     }
 
-    
+    /**
+     * Get validator for this field.
+     *
+     * @param array $input
+     *
+     * @return bool|Validator
+     */
     public function getValidator(array $input)
     {
         $rules = $attributes = [];
@@ -385,7 +585,8 @@ class AbstractField implements Renderable
 
     protected function variables()
     {
-                $variables = array_merge($this->fluentAttributeVariables(), $this->variables, [
+        // echo $this->column . " : " . json_encode($this->value()) . "\n";
+        $variables = array_merge($this->fluentAttributeVariables(), $this->variables, [
             'id' => $this->id,
             'name' => $this->name(),
             'value' => $this->value(),
@@ -395,7 +596,8 @@ class AbstractField implements Renderable
             'placeholder' => $this->placeholder(),
             'rules' => $this->rules,
         ]);
-                return $variables;
+        // echo json_encode($variables, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+        return $variables;
     }
 
     private function transformVariables($variables, $param)
@@ -462,7 +664,8 @@ class AbstractField implements Renderable
                     return View::make($this->view($this->renderMode, 'text'), $variables)->render();
                 case FieldRenderMode::GRID:
                     if (view()->exists($view = $this->view($this->renderMode))) {
-                                                $variables = $this->transformVariables($variables, [
+                        // echo json_encode($this->variables())."\n";
+                        $variables = $this->transformVariables($variables, [
                             'item' => $item,
                             'index' => $index,
                         ]);
@@ -476,7 +679,8 @@ class AbstractField implements Renderable
                     }
                     if (str_contains($column, '.')) {
                         $value = (string)ModelUtil::traverse($item, $column);
-                                            } else {
+                        // echo $column . ' - ' . json_encode($value) . "\n";
+                    } else {
                         $value = (string)$item->{$column};
                     }
                     return htmlspecialchars($value);

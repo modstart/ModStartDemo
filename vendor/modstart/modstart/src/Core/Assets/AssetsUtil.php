@@ -112,7 +112,13 @@ class AssetsUtil
         return rtrim($host, '/') . '/' . ltrim($path, '/');
     }
 
-    
+    /**
+     * @param $path
+     * @param bool $hash
+     * @return mixed|string
+     * @throws BizException
+     * @deprecated delete at 2024-06-12
+     */
     public static function fixFullInJob($path, $hash = true)
     {
         if (empty($path)) {
@@ -130,7 +136,13 @@ class AssetsUtil
         return rtrim($domainUrl, '/') . '/' . ltrim($path, '/');
     }
 
-    
+    /**
+     * @param $path
+     * @param $cdn
+     * @param bool $hash
+     * @return string|array
+     * @since 1.5.0
+     */
     public static function fixFullWithCdn($path, $cdn, $hash = true)
     {
         if (is_array($path)) {

@@ -25,7 +25,9 @@ class RedisUtil
         }
     }
 
-    
+    /**
+     * @return \Predis\Client
+     */
     public static function client()
     {
         static $client = null;

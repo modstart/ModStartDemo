@@ -25,28 +25,46 @@ use ModStart\Form\Type\FormEngine;
 
 class EloquentRepository extends Repository
 {
-    
+    /**
+     * @var string
+     */
     protected $eloquentClass;
 
-    
+    /**
+     * @var Model
+     */
     protected $model;
 
-    
+    /**
+     * @var Builder
+     */
     protected $queryBuilder;
 
-    
+    /**
+     * @var array
+     */
     protected $relations = [];
 
-    
+    /**
+     * @var \Illuminate\Database\Eloquent\Collection
+     */
     protected $collection;
 
-    
+    /**
+     * EloquentRepository constructor.
+     *
+     * @param Model|array|string $modelOrRelations $modelOrRelations
+     */
     public function __construct($modelOrRelations = [])
     {
         $this->initModel($modelOrRelations);
     }
 
-    
+    /**
+     * 初始化模型.
+     *
+     * @param Model|Builder|array|string $modelOrRelations
+     */
     protected function initModel($modelOrRelations)
     {
         if (is_string($modelOrRelations) && class_exists($modelOrRelations)) {
@@ -78,37 +96,59 @@ class EloquentRepository extends Repository
     }
 
 
-    
+    /**
+     * @return string
+     */
     public function getCreatedAtColumn()
     {
         return $this->eloquent()->getCreatedAtColumn();
     }
 
-    
+    /**
+     * @return string
+     */
     public function getUpdatedAtColumn()
     {
         return $this->eloquent()->getUpdatedAtColumn();
     }
 
-    
+    /**
+     * 获取列表页面查询的字段.
+     *
+     * @return array
+     */
     public function getTableColumns()
     {
         return ['*'];
     }
 
-    
+    /**
+     * 获取表单页面查询的字段.
+     *
+     * @return array
+     */
     public function getFormColumns()
     {
         return ['*'];
     }
 
-    
+    /**
+     * 获取详情页面查询的字段.
+     *
+     * @return array
+     */
     public function getShowColumns()
     {
         return ['*'];
     }
 
-    
+    /**
+     * 设置关联关系.
+     *
+     * @param mixed $relations
+     *
+     * @return $this
+     */
     public function with($relations)
     {
         $this->relations = (array)$relations;
@@ -118,7 +158,8 @@ class EloquentRepository extends Repository
     public function getQuery(\ModStart\Grid\Model $model)
     {
         $this->setOrder($model);
-                $query = $this->newQuery();
+        // $this->setPaginate($model);
+        $query = $this->newQuery();
         if ($this->relations) {
             $query->with($this->relations);
         }
@@ -136,8 +177,11 @@ class EloquentRepository extends Repository
                 }
             }
         }
-                        $joins = $model->grid()->gridFilterJoins();
-                if (!empty($joins)) {
+        // var_dump($model->getQueries());exit();
+        // var_dump($model->grid()->isDynamicModel());exit();
+        $joins = $model->grid()->gridFilterJoins();
+        // var_dump($joins);
+        if (!empty($joins)) {
             $methodMap = [
                 'left' => 'leftJoin',
                 'right' => 'rightJoin',
@@ -149,7 +193,8 @@ class EloquentRepository extends Repository
                 call_user_func_array([$query, $methodMap[$mode]], $join);
             }
         }
-                $model->getQueries()->each(function ($value) use (&$query, $tableColumns) {
+        // var_dump($model->getQueries());exit();
+        $model->getQueries()->each(function ($value) use (&$query, $tableColumns) {
             if ($value['method'] == 'paginate') {
                 $value['arguments'][1] = $tableColumns;
             } elseif ($value['method'] == 'get') {
@@ -161,31 +206,46 @@ class EloquentRepository extends Repository
     }
 
 
-    
+    /**
+     * execute paginate or get all records.
+     *
+     * @param \ModStart\Grid\Model $model
+     *
+     * @return LengthAwarePaginator|Collection|array
+     */
     public function get(\ModStart\Grid\Model $model)
     {
-                $this->setOrder($model);
+        // print_r($model->getQueries()->toArray());exit();
+        $this->setOrder($model);
         $this->setPaginate($model);
         $query = $this->newQuery();
-                                if ($this->relations) {
+        // var_dump($this->relations);exit();
+        // $this->relations = ['doc','memberUser'];
+        // var_dump($this->relations);exit();
+        if ($this->relations) {
             $query->with($this->relations);
         }
-                $treePid = $this->getArgument('treePid', null);
+        // print_r($model->getQueries()->toArray());exit();
+        $treePid = $this->getArgument('treePid', null);
         if (null !== $treePid) {
             $query->where($this->getTreePidColumn(), $treePid);
         }
         $model->grid()->repositoryFilter()->executeQueries($query);
         $model->grid()->scopeExecuteQueries($query);
         $tableColumns = $this->getTableColumns();
-                if ($model->grid()->isDynamicModel()) {
+        // var_dump($model->grid()->isDynamicModel());exit();
+        if ($model->grid()->isDynamicModel()) {
             foreach ($tableColumns as $k => $v) {
                 if ($v == '*') {
                     $tableColumns[$k] = $model->grid()->getDynamicModelTableName() . '.*';
                 }
             }
         }
-                        $joins = $model->grid()->gridFilterJoins();
-                if (!empty($joins)) {
+        // print_r($model->getQueries()->toArray());exit();
+        // var_dump($model->grid()->isDynamicModel());exit();
+        $joins = $model->grid()->gridFilterJoins();
+        // var_dump($joins);exit();
+        if (!empty($joins)) {
             $methodMap = [
                 'left' => 'leftJoin',
                 'right' => 'rightJoin',
@@ -197,19 +257,29 @@ class EloquentRepository extends Repository
                 call_user_func_array([$query, $methodMap[$mode]], $join);
             }
         }
-                $model->getQueries()->each(function ($value) use (&$query, $tableColumns) {
-                        if ($value['method'] == 'paginate') {
+        // print_r($model->getQueries()->toArray());exit();
+        $model->getQueries()->each(function ($value) use (&$query, $tableColumns) {
+            // print_r($value);
+            if ($value['method'] == 'paginate') {
                 $value['arguments'][1] = $tableColumns;
             } elseif ($value['method'] == 'get') {
                 $value['arguments'] = [$tableColumns];
             }
             $query = call_user_func_array([$query, $value['method']], $value['arguments'] ? $value['arguments'] : []);
         });
-                        return $query;
+        // var_dump($query);
+        // var_dump($this->relations);exit();
+        return $query;
     }
 
 
-    
+    /**
+     * 设置表格数据排序.
+     *
+     * @param \ModStart\Grid\Model $model
+     *
+     * @return void
+     */
     protected function setOrder(\ModStart\Grid\Model $model)
     {
         $order = $model->getOrder();
@@ -224,15 +294,47 @@ class EloquentRepository extends Repository
             }
             if (Str::contains($column, '.')) {
                 exit('Under Dev');
-                            } else {
+                // $this->setRelationSort($model, $column, $type);
+            } else {
                 $model->addQuery('orderBy', [$column, $type]);
             }
         }
     }
 
-    
+    /**
+     * 设置关联数据排序.
+     *
+     * @param Model $model
+     * @param string $column
+     * @param string $type
+     *
+     * @return void
+     */
+//    protected function setRelationSort(Grid\Model $model, $column, $type)
+//    {
+//        list($relationName, $relationColumn) = explode('.', $column);
+//
+//        if ($model->getQueries()->contains(function ($query) use ($relationName) {
+//            return $query['method'] == 'with' && in_array($relationName, $query['arguments']);
+//        })) {
+//            $model->addQuery('select', [$this->getTableColumns()]);
+//
+//            $model->resetOrderBy();
+//
+//            $model->addQuery('orderBy', [
+//                $relationColumn,
+//                $type,
+//            ]);
+//        }
+//    }
 
-    
+    /**
+     * 设置分页参数.
+     *
+     * @param \ModStart\Grid\Model $model
+     *
+     * @return void
+     */
     protected function setPaginate(\ModStart\Grid\Model $model)
     {
         $paginate = $model->findQueryByMethod('paginate');
@@ -244,10 +346,20 @@ class EloquentRepository extends Repository
         }
     }
 
-    
+    /**
+     * 获取分页参数.
+     *
+     * @param \ModStart\Grid\Model $model
+     * @param array|Model|null $paginate
+     *
+     * @return array
+     */
     protected function resolvePaginateArguments(\ModStart\Grid\Model $model, $paginate)
     {
-        
+        /**
+         * 返回分页函数调用参数
+         * model->paginate($pageSize, ['*'], 'page', $page)
+         */
         if ($paginate && is_array($paginate)) {
             if ($pageSize = intval($this->getArgument('pageSize'))) {
                 $paginate['arguments'][0] = $pageSize;
@@ -262,7 +374,13 @@ class EloquentRepository extends Repository
         ];
     }
 
-    
+    /**
+     * 查询编辑页面数据.
+     *
+     * @param Form $form
+     *
+     * @return Model
+     */
     public function editing(Form $form)
     {
         $query = $this->newQuery();
@@ -276,7 +394,13 @@ class EloquentRepository extends Repository
         return $this->model;
     }
 
-    
+    /**
+     * 查询详情页面数据.
+     *
+     * @param Detail $show
+     *
+     * @return Model
+     */
     public function show(Detail $detail)
     {
         $query = $this->newQuery();
@@ -368,7 +492,11 @@ class EloquentRepository extends Repository
         return $model->getKey();
     }
 
-    
+    /**
+     * 统一处理数据库异常
+     * @param \Exception $e
+     * @throws BizException
+     */
     private function throwDatabaseException(\Exception $e)
     {
         $message = $e->getMessage();
@@ -396,10 +524,16 @@ class EloquentRepository extends Repository
         throw $e;
     }
 
-    
+    /**
+     * 更新数据
+     *
+     * @param Form $form
+     * @return array|Arrayable|void|null
+     * @throws BizException
+     */
     public function edit(Form $form)
     {
-        
+        /* @var Model $builder */
         $model = $this->eloquent();
         if (!$model->getKey()) {
             $model->exists = true;
@@ -456,7 +590,7 @@ class EloquentRepository extends Repository
         if ($this->isSoftDeletes) {
             $queryAll->withTrashed();
         }
-        
+        /** @var Collection $allModels */
         if ($form->engine() === FormEngine::TREE || $form->engine() === FormEngine::TREE_MASS) {
             $sortColumn = $this->getTreeSortColumn();
             $allModels = $queryAll
@@ -486,7 +620,8 @@ class EloquentRepository extends Repository
                 break;
             }
         }
-                BizException::throwsIf('Sort id not found', $existsIndex < 0);
+        // var_dump($existsIndex);print_r($allModels);exit();
+        BizException::throwsIf('Sort id not found', $existsIndex < 0);
         $form->item($allModels);
         switch ($direction) {
             case SortDirection::UP:
@@ -545,14 +680,21 @@ class EloquentRepository extends Repository
     }
 
 
-    
+    /**
+     * 删除数据.
+     *
+     * @param Form $form
+     * @param array $originalData
+     *
+     * @return bool
+     */
     public function delete(Form $form, Arrayable $originalData)
     {
         $models = $this->collection->keyBy($this->getKeyName());
         DB::transaction(function () use ($form, $models) {
             ResultException::throwsIfFail($form->hookCall($form->hookDeleting()));
             collect($form->itemId())->filter()->each(function ($id) use ($form, $models) {
-                
+                /** @var Model $model */
                 $model = $models->get($id);
                 if (!$model) {
                     return;
@@ -564,10 +706,12 @@ class EloquentRepository extends Repository
                     );
                 }
                 if ($this->isSoftDeletes && $model->trashed()) {
-                                        $model->forceDelete();
+                    // $form->deleteFiles($data, true);
+                    $model->forceDelete();
                     return;
                 } elseif (!$this->isSoftDeletes) {
-                                    }
+                    // $form->deleteFiles($data);
+                }
                 $model->delete();
             });
             ResultException::throwsIfFail($form->hookCall($form->hookDeleted()));
@@ -624,7 +768,7 @@ class EloquentRepository extends Repository
             $query->with($this->relations);
         }
         $context->scopeExecuteQueries($query);
-        
+        /** @var Collection $collection */
         $collection = $query
             ->orderBy($this->getTreeSortColumn(), 'ASC')
             ->get($this->getTableColumns());
@@ -659,7 +803,9 @@ class EloquentRepository extends Repository
     }
 
 
-    
+    /**
+     * @return Builder
+     */
     protected function newQuery()
     {
         if ($this->queryBuilder) {
@@ -669,13 +815,21 @@ class EloquentRepository extends Repository
         return $builder;
     }
 
-    
+    /**
+     * 获取model对象
+     *
+     * @return Model
+     */
     public function eloquent()
     {
         return $this->model ? $this->model : ($this->model = $this->createEloquent());
     }
 
-    
+    /**
+     * @param array $data
+     *
+     * @return Model
+     */
     public function createEloquent(array $data = [])
     {
         $model = new $this->eloquentClass();
@@ -685,13 +839,24 @@ class EloquentRepository extends Repository
         return $model;
     }
 
-    
+    /**
+     * 获取模型的所有关联关系.
+     *
+     * @return array
+     */
     private function getRelations()
     {
         return $this->relations;
     }
 
-    
+    /**
+     * 获取模型关联关系的表单数据.
+     *
+     * @param Model $model
+     * @param array $inputs
+     *
+     * @return array
+     */
     private function getRelationInputs($model, $inputs = [])
     {
         $map = [];
@@ -715,7 +880,16 @@ class EloquentRepository extends Repository
         return [&$relations, $map];
     }
 
-    
+    /**
+     * 更新关联关系数据.
+     *
+     * @param Form $form
+     * @param Model $model
+     * @param array $relationsData
+     * @param array $relationKeyMap
+     *
+     * @throws \Exception
+     */
     private function updateRelation(Form $form, Model $model, array $relationsData, array $relationKeyMap)
     {
 
@@ -749,7 +923,8 @@ class EloquentRepository extends Repository
 
                     $related = $model->$relationName;
 
-                                        if (is_null($related)) {
+                    // if related is empty
+                    if (is_null($related)) {
                         $related = $relation->getRelated();
                         $qualifiedParentKeyName = $relation->getQualifiedParentKeyName();
                         $localKey = Arr::last(explode('.', $qualifiedParentKeyName));
@@ -767,7 +942,8 @@ class EloquentRepository extends Repository
 
                     $parent = $model->$relationName;
 
-                                        if (is_null($parent)) {
+                    // if related is empty
+                    if (is_null($parent)) {
                         $parent = $relation->getRelated();
                     }
 
@@ -777,7 +953,8 @@ class EloquentRepository extends Repository
 
                     $parent->save();
 
-                                        $foreignKeyMethod = version_compare(app()->version(), '5.8.0', '<') ? 'getForeignKey' : 'getForeignKeyName';
+                    // When in creating, associate two models
+                    $foreignKeyMethod = version_compare(app()->version(), '5.8.0', '<') ? 'getForeignKey' : 'getForeignKeyName';
                     if (!$model->{$relation->{$foreignKeyMethod}()}) {
                         $model->{$relation->{$foreignKeyMethod}()} = $parent->getKey();
 
@@ -807,7 +984,7 @@ class EloquentRepository extends Repository
                     BizException::throwsIf("Field $name ( HasMany|MorphMany ) is not array", !is_array($prepared[$name]));
 
                     foreach ($prepared[$name] as $related) {
-                        
+                        /** @var Relations\Relation $relation */
                         $relation = $model->$relationName();
 
                         $keyName = $relation->getRelated()->getKeyName();

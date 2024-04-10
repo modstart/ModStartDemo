@@ -7,7 +7,9 @@ use ModStart\Core\Exception\BizException;
 use ModStart\Core\Input\Response;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-
+/**
+ * @Util 文件
+ */
 class FileUtil
 {
     private static $mimeMap = [
@@ -87,14 +89,22 @@ class FileUtil
         '7z' => 'application/x-7z-compressed',
     ];
 
-    
+    /**
+     * @Util 根据文件后缀获取MIME类型字符串
+     * @param $ext string 文件后缀
+     * @return string|null
+     */
     public static function mime($ext)
     {
         $ext = strtolower($ext);
         return isset(self::$mimeMap[$ext]) ? self::$mimeMap[$ext] : null;
     }
 
-    
+    /**
+     * @Util 根据MIME类型字符串获取文件后缀
+     * @param $mime string MIME类型字符串
+     * @return string|null
+     */
     public static function mimeToExt($mime)
     {
         $mime = strtolower($mime);
@@ -106,7 +116,10 @@ class FileUtil
         return null;
     }
 
-    
+    /**
+     * @param UploadedFile $file
+     * @return string
+     */
     public static function getUploadFileNameWithExt($file)
     {
         $filename = $file->getClientOriginalName();
@@ -145,7 +158,8 @@ class FileUtil
             if (false === FileUtil::write($checkFile, 'ok')) {
                 return Response::generate(-1, '目录不可写：' . $file);
             }
-                        if (!file_exists($checkFile)) {
+            // echo "$checkFile\n";
+            if (!file_exists($checkFile)) {
                 return Response::generateError('目录' . $file . '测试写入失败，请检查权限');
             }
             @unlink($checkFile);
@@ -153,7 +167,12 @@ class FileUtil
         return Response::generateSuccess();
     }
 
-    
+    /**
+     * @Util 写入文件
+     * @param $path string
+     * @param $content string
+     * @return bool 是否写入成功
+     */
     public static function write($path, $content)
     {
         $dir = dirname($path);
@@ -172,7 +191,11 @@ class FileUtil
         }
     }
 
-    
+    /**
+     * @Util 获取文件后缀
+     * @param $pathname string 文件路径
+     * @return string
+     */
     public static function extension($pathname)
     {
         $ext = strtolower(pathinfo($pathname, PATHINFO_EXTENSION));
@@ -202,7 +225,12 @@ class FileUtil
         return chr(239) . chr(187) . chr(191) . join("\r\n", $lines);
     }
 
-    
+    /**
+     * @Util 递归列出目录所有文件
+     * @param $dir string 目录
+     * @param $filter Closure 过滤器，为空表示不过滤
+     * @return array
+     */
     public static function listAllFiles($dir, $filter = null, &$results = array(), $prefix = '')
     {
         $files = self::listFiles($dir, '*|.*');
@@ -219,7 +247,12 @@ class FileUtil
         return $results;
     }
 
-    
+    /**
+     * @Util 列出目录所有文件
+     * @param $filename string
+     * @param $pattern string 后缀过滤，如 *.txt *.php 等
+     * @return array
+     */
     public static function listFiles($filename, $pattern = '*')
     {
         if (strpos($pattern, '|') !== false) {
@@ -291,7 +324,17 @@ class FileUtil
         return pathinfo($pathname, PATHINFO_BASENAME);
     }
 
-    
+    /**
+     * @Util 格式化字节
+     * @param $bytes int 字节数
+     * @param $decimals int 小数最多保留位数，默认为2
+     * @return string
+     * @example
+     * // 返回 1 MB
+     * FileUtil::formatByte(1024*1024)
+     * // 返回 1.5 GB
+     * FileUtil::formatByte(1024*1024*1024*1.5)
+     */
     public static function formatByte($bytes, $decimals = 2)
     {
         $size = sprintf("%u", $bytes);
@@ -302,7 +345,17 @@ class FileUtil
         return round($size / pow(1024, ($i = floor(log($size, 1024)))), $decimals) . $units[$i];
     }
 
-    
+    /**
+     * @Util 格式化字节（简化）
+     * @param $bytes int 字节数
+     * @param $decimals int 小数最多保留位数，默认为2
+     * @return string
+     * @example
+     * // 返回 1 M
+     * FileUtil::formatByte(1024*1024)
+     * // 返回 1.5 G
+     * FileUtil::formatByte(1024*1024*1024*1.5)
+     */
     public static function formatByteSimple($bytes, $decimals = 2)
     {
         $size = sprintf("%u", $bytes);
@@ -313,7 +366,11 @@ class FileUtil
         return round($size / pow(1024, ($i = floor(log($size, 1024)))), $decimals) . $units[$i];
     }
 
-    
+    /**
+     * @Util 格式化的文件大小转换为字节
+     * @param $sizeString string 如 1M
+     * @return int
+     */
     public static function formattedSizeToBytes($sizeString)
     {
         $sizeString = strtolower($sizeString);
@@ -367,7 +424,15 @@ class FileUtil
         return join('/', $dirs);
     }
 
-    
+    /**
+     * @Util 复制目录
+     * @param $src string 源路径，必须给出，不能为空
+     * @param $dst string 源路径，必须给出，不能为空
+     * @param $replaceExt string|null 如果文件存在需要添加的后缀名，作为备份使用，如果不传表示不备份
+     * @param $callback Closure|null 复制回调
+     * @param $filter Closure|null 复制过滤器
+     * @return null 注意：src 和 dst 如果是文件，需同时是文件，如果是目录，需同时是目录
+     */
     public static function copy($src, $dst, $replaceExt = null, $callback = null, $filter = null)
     {
         if (!file_exists($src)) {
@@ -384,7 +449,8 @@ class FileUtil
                 if (!file_exists($dir = dirname($dst))) {
                     @mkdir($dir, 0755, true);
                 }
-                                if ($callback) {
+                // echo "COPY: ${src} -> ${dst}\n";
+                if ($callback) {
                     call_user_func($callback, $src, $dst);
                 }
                 copy($src, $dst);
@@ -412,7 +478,8 @@ class FileUtil
                         if (null !== $replaceExt && file_exists($dst . $file)) {
                             @rename($dst . $file, $dst . $file . $replaceExt);
                         }
-                                                if ($callback) {
+                        // echo "COPY: ${src}${file} -> ${dst}${file}\n";
+                        if ($callback) {
                             call_user_func($callback, $src . $file, $dst . $file);
                         }
                         copy($src . $file, $dst . $file);
@@ -423,7 +490,13 @@ class FileUtil
         closedir($dir);
     }
 
-    
+    /**
+     * @Util 删除目录
+     *
+     * @param $dir string 目录
+     * @param $removeSelf bool 是否删除本身
+     * @return bool
+     */
     public static function rm($dir, $removeSelf = true)
     {
         if (is_dir($dir)) {
@@ -458,7 +531,10 @@ class FileUtil
         return false;
     }
 
-    
+    /**
+     * 删除使用 savePathToLocalTemp 或 generateLocalTempPath 产生的本地临时路径
+     * @param $path string
+     */
     public static function safeCleanLocalTemp($path)
     {
         if (empty($path)) {
@@ -474,7 +550,8 @@ class FileUtil
     {
         $path = realpath($path);
         if (empty($path)) {
-                        BizException::throws('FileSafePath File Not Exists');
+            // realpath() returns false on failure, e.g. if the file does not exist.
+            BizException::throws('FileSafePath File Not Exists');
         }
         $whiteList = [];
         foreach ($permit as $p) {
@@ -500,7 +577,12 @@ class FileUtil
         return $path;
     }
 
-    
+    /**
+     * Safe get user generated file content
+     * @param $path
+     * @return false|string
+     * @throws BizException
+     */
     public static function safeGetContent($path, $permit = ['public/temp', 'public/data'])
     {
         $path = self::safePath($path, $permit);
@@ -521,7 +603,13 @@ class FileUtil
         ]);
     }
 
-    
+    /**
+     * 将远程文件保存为本地可用
+     * @param $path string 可以为 http://example.com/xxxxx.xxx /data/xxxxx.xxx
+     * @param $ext string 文件后缀
+     * @param $downloadStream boolean 是否使用流下载，默认为false
+     * @return string|null 返回本地临时路径或本地文件绝对路径，注意使用 safeCleanLocalTemp 来清理文件，如果是本地其他路径可能会误删
+     */
     public static function savePathToLocalTemp($path, $ext = null, $downloadStream = false)
     {
         if (@file_exists($path)) {
@@ -577,7 +665,15 @@ class FileUtil
         return $tempPath;
     }
 
-    
+    /**
+     * 产生一个本地临时路径
+     *
+     * @param $ext string 文件后缀
+     * @param $hash string 用于产生唯一路径的hash，相同的hash会产生相同的路径
+     * @param $realpath bool 是否返回绝对路径
+     * @return string
+     * @throws BizException
+     */
     public static function generateLocalTempPath($ext = 'tmp', $hash = null, $realpath = true)
     {
         if (!file_exists(public_path('temp'))) {
@@ -598,7 +694,13 @@ class FileUtil
         return $realpath ? public_path($p) : $p;
     }
 
-    
+    /**
+     * 将目标文件或目录创建为符号链接。如果目标是文件，则在Windows上创建硬链接。
+     *
+     * @param string $target
+     * @param string $link
+     * @return void
+     */
     public static function link($target, $link)
     {
         if (PlatformUtil::isWindows()) {

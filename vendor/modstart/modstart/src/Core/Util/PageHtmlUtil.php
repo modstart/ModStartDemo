@@ -2,7 +2,9 @@
 
 namespace ModStart\Core\Util;
 
-
+/**
+ * @Util 分页渲染工具
+ */
 class PageHtmlUtil
 {
     private static function itemRender($start, $end, $currentPage, $url, $template)
@@ -23,7 +25,13 @@ class PageHtmlUtil
         return join('', $html);
     }
 
-    
+    /**
+     * @Util 渲染下一页分页链接
+     * @param $total int 总记录数
+     * @param $pageSize int 每页记录数
+     * @param $currentPage int 当前页
+     * @param $url string 分页链接，页码使用 {page} 占位
+     */
     public static function nextPageUrl($total, $pageSize, $currentPage, $url = '/url/for/path?page={page}')
     {
         $totalPage = ceil($total / $pageSize);
@@ -33,7 +41,13 @@ class PageHtmlUtil
         return null;
     }
 
-    
+    /**
+     * @Util 渲染上一页分页链接
+     * @param $total int 总记录数
+     * @param $pageSize int 每页记录数
+     * @param $currentPage int 当前页
+     * @param $url string 分页链接，页码使用 {page} 占位
+     */
     public static function prevPageUrl($total, $pageSize, $currentPage, $url = '/url/for/path?page={page}')
     {
         if ($currentPage > 1) {
@@ -52,7 +66,14 @@ class PageHtmlUtil
         return str_replace('{page}', $page, $url);
     }
 
-    
+    /**
+     * @Util 渲染分页工具
+     * @param $total int 总记录数
+     * @param $pageSize int 每页记录数
+     * @param $currentPage int 当前页
+     * @param $url string 分页链接，页码使用 {page} 占位
+     * @param $template string 模板
+     */
     public static function render($total, $pageSize, $currentPage, $url = '/url/for/path?page={page}', $template = null)
     {
         if (is_null($template)) {

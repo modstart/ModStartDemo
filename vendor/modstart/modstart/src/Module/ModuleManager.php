@@ -16,11 +16,17 @@ use ModStart\ModStart;
 
 class ModuleManager
 {
-    
+    /**
+     * 用户已安装模块，仅存在于数据库配置的模块，不一定真实存在
+     */
     const USER_INSTALLED_MODULES = 'ModuleList';
-    
+    /**
+     * 所有已安装模块，增加了模块是否真实存在的判断
+     */
     const CACHE_KEY_ALL_INSTALLED_MODULES = 'AllInstalledModules';
-    
+    /**
+     * 系统模块配置保存
+     */
     const MODULE_SYSTEM_OVERWRITE_CONFIG = 'ModuleSystemOverwriteConfig';
 
     public static function clearCache()
@@ -28,7 +34,11 @@ class ModuleManager
         Cache::forget(ModStart::cacheKey(self::CACHE_KEY_ALL_INSTALLED_MODULES));
     }
 
-    
+    /**
+     * 获取模块的基本信息
+     * @param $name
+     * @return array|null
+     */
     public static function getModuleBasic($name)
     {
         static $basic = [];
@@ -50,11 +60,30 @@ class ModuleManager
                 'types' => [],
                 'tags' => [],
                 'require' => [
-                                                                                                                                        ],
+                    // 'Xxx:*'
+                    // 'Xxx:>=*'
+                    // 'Xxx:==*'
+                    // 'Xxx:<=*'
+                    // 'Xxx:>*'
+                    // 'Xxx:<*'
+                ],
                 'suggest' => [
-                                                                                                                                        ],
-                                'conflicts' => [
-                                                                                                                                        ],
+                    // 'Xxx:*'
+                    // 'Xxx:>=*'
+                    // 'Xxx:==*'
+                    // 'Xxx:<=*'
+                    // 'Xxx:>*'
+                    // 'Xxx:<*'
+                ],
+                // 已知冲突模块
+                'conflicts' => [
+                    // 'Xxx:*'
+                    // 'Xxx:>=*'
+                    // 'Xxx:==*'
+                    // 'Xxx:<=*'
+                    // 'Xxx:>*'
+                    // 'Xxx:<*'
+                ],
                 'modstartVersion' => '*',
                 'author' => 'Author',
                 'description' => 'Description',
@@ -93,7 +122,14 @@ class ModuleManager
         }
     }
 
-    
+    /**
+     * 模块安装
+     *
+     * @param $module string
+     * @param $force bool
+     * @param $option array
+     * @return array
+     */
     public static function install($module, $force = false, $option = [])
     {
         $param = ['module' => $module];
@@ -106,50 +142,84 @@ class ModuleManager
         return self::callCommand('modstart:module-install', $param);
     }
 
-    
+    /**
+     * 模块卸载
+     * @param $module
+     * @return array
+     */
     public static function uninstall($module)
     {
         return self::callCommand('modstart:module-uninstall', ['module' => $module]);
     }
 
-    
+    /**
+     * 模块启用
+     * @param $module
+     * @return array
+     */
     public static function enable($module)
     {
         return self::callCommand('modstart:module-enable', ['module' => $module]);
     }
 
-    
+    /**
+     * 模块禁用
+     * @param $module
+     * @return array
+     */
     public static function disable($module)
     {
         return self::callCommand('modstart:module-disable', ['module' => $module]);
     }
 
-    
+    /**
+     * 检查模块是否存在
+     * @param $name
+     * @return bool
+     */
     public static function isExists($name)
     {
         return file_exists(self::path($name, 'config.json'));
     }
 
-    
+    /**
+     * 模块绝对路径
+     * @param $module
+     * @param string $path
+     * @return string
+     */
     public static function path($module, $path = '')
     {
         return base_path(self::relativePath($module, $path));
     }
 
-    
+    /**
+     * 模块相对路径
+     * @param $module
+     * @param string $path
+     * @return string
+     */
     public static function relativePath($module, $path = '')
     {
         return "module/$module" . ($path ? "/" . trim($path, '/') : '');
     }
 
-    
+    /**
+     * 检测是否是系统模块
+     * @param $name
+     * @return bool
+     */
     public static function isSystemModule($module)
     {
         $modules = config('module.system', []);
         return isset($modules[$module]);
     }
 
-    
+    /**
+     * 检测模块是否已安装
+     * @param $name
+     * @return bool
+     */
     public static function isModuleInstalled($name)
     {
         if (!self::isExists($name)) {
@@ -159,7 +229,11 @@ class ModuleManager
         return isset($modules[$name]);
     }
 
-    
+    /**
+     * 检测模块是否启用
+     * @param $name
+     * @return bool
+     */
     public static function isModuleEnabled($name)
     {
         $modules = self::listAllInstalledModules();
@@ -167,7 +241,16 @@ class ModuleManager
     }
 
 
-    
+    /**
+     * 检测模块是否匹配
+     * @param $name
+     * @param $version
+     * @return bool
+     * @since 2.0.0
+     *
+     * @example
+     * Ad >=1.4.0
+     */
     public static function isModuleEnableMatch($name, $version)
     {
         if (!self::isModuleEnabled($name)) {
@@ -180,7 +263,10 @@ class ModuleManager
         return VersionUtil::match($basic['version'], $version);
     }
 
-    
+    /**
+     * 列出本地所有的模块
+     * @return array
+     */
     public static function listModules()
     {
         $files = FileUtil::listFiles(base_path('module'));
@@ -216,7 +302,10 @@ class ModuleManager
         return $modules;
     }
 
-    
+    /**
+     * 列出所有已安装系统模块
+     * @return array
+     */
     public static function listSystemInstalledModules()
     {
         $modules = array_build(config('module.system', []), function ($k, $v) {
@@ -251,10 +340,14 @@ class ModuleManager
             }
         } catch (\Exception $e) {
         }
-                return $modules;
+        // print_r($modules);exit();
+        return $modules;
     }
 
-    
+    /**
+     * 列出所有已安装用户模块
+     * @return array|mixed
+     */
     public static function listUserInstalledModules()
     {
         try {
@@ -270,13 +363,19 @@ class ModuleManager
         }
     }
 
-    
+    /**
+     * 列出所有已安装的模块名称
+     * @return string[]
+     */
     public static function listAllEnableModuleNames()
     {
         return array_keys(self::listAllEnabledModules());
     }
 
-    
+    /**
+     * 列出所有已安装模块，包括系统和用户安装
+     * @return array
+     */
     public static function listAllEnabledModules()
     {
         return array_filter(self::listAllInstalledModules(), function ($item) {
@@ -284,7 +383,11 @@ class ModuleManager
         });
     }
 
-    
+    /**
+     * 列出所有模块，包括系统和用户安装
+     * @param $forceReload boolean
+     * @return array|mixed
+     */
     public static function listAllInstalledModules($forceReload = false)
     {
         static $modules = null;
@@ -296,7 +399,9 @@ class ModuleManager
         }
         $modules = Cache::remember(ModStart::cacheKey(self::CACHE_KEY_ALL_INSTALLED_MODULES), 60, function () {
             $modules = array_merge(self::listUserInstalledModules(), self::listSystemInstalledModules());
-            
+            /**
+             * 过滤出真实可用的模块
+             */
             $modules = array_filter($modules, function ($v, $k) {
                 return file_exists(self::path($k, 'config.json'));
             }, ARRAY_FILTER_USE_BOTH);
@@ -305,7 +410,10 @@ class ModuleManager
         return $modules;
     }
 
-    
+    /**
+     * 保存用户模块信息
+     * @param $modules
+     */
     public static function saveUserInstalledModules($modules)
     {
         $modules = array_map(function ($item) {
@@ -318,7 +426,12 @@ class ModuleManager
         modstart_config()->setArray(self::USER_INSTALLED_MODULES, $modules);
     }
 
-    
+    /**
+     * 获取已安装模块的依赖数
+     * @param $ignoreError
+     * @return array
+     * @throws BizException
+     */
     public static function listAllInstalledModulesInRequiredOrder($ignoreError = false)
     {
         $modules = self::listAllInstalledModules();
@@ -376,14 +489,22 @@ class ModuleManager
         return $orderedModules;
     }
 
-    
+    /**
+     * 获取已安装模块信息
+     * @param $module
+     * @return mixed|null
+     */
     public static function getInstalledModuleInfo($module)
     {
         $modules = self::listAllInstalledModules();
         return isset($modules[$module]) ? $modules[$module] : null;
     }
 
-    
+    /**
+     * 保存模块设置
+     * @param $module
+     * @param $config
+     */
     public static function saveUserInstalledModuleConfig($module, $config)
     {
         $modules = self::listUserInstalledModules();
@@ -396,7 +517,12 @@ class ModuleManager
         self::saveUserInstalledModules($modules);
     }
 
-    
+    /**
+     * 保存模块至系统配置
+     * @param $module
+     * @param $config
+     * @since 1.8.0
+     */
     public static function saveSystemOverwriteModuleConfig($module, $config)
     {
         $current = modstart_config()->getArray(self::MODULE_SYSTEM_OVERWRITE_CONFIG);
@@ -404,7 +530,13 @@ class ModuleManager
         modstart_config()->setArray(self::MODULE_SYSTEM_OVERWRITE_CONFIG, $current);
     }
 
-    
+    /**
+     * 获取模块配置信息
+     * @param $module string 模块名
+     * @param $key string 配置项
+     * @param $default mixed 默认值
+     * @return mixed|null
+     */
     public static function getModuleConfig($module, $key, $default = null)
     {
         $moduleInfo = self::getInstalledModuleInfo($module);
@@ -430,7 +562,13 @@ class ModuleManager
         return $default;
     }
 
-    
+    /**
+     * @param $module
+     * @param $key
+     * @param array $default
+     * @return array|mixed
+     * @deprecated delete after 2023-09-26
+     */
     public static function getModuleConfigArray($module, $key, $default = [])
     {
         $value = self::getModuleConfig($module, $key);
@@ -444,7 +582,13 @@ class ModuleManager
         return $value;
     }
 
-    
+    /**
+     * @param $module
+     * @param $key
+     * @param false $default
+     * @return bool
+     * @deprecated delete after 2023-09-26
+     */
     public static function getModuleConfigBoolean($module, $key, $default = false)
     {
         return !!self::getModuleConfig($module, $key, $default);
@@ -473,7 +617,9 @@ class ModuleManager
         return $default;
     }
 
-    
+    /**
+     * 动态重载
+     */
     public static function hotReloadSystemConfig()
     {
         $configSystem = config('module.system', []);
@@ -491,7 +637,13 @@ class ModuleManager
         self::listAllInstalledModules(true);
     }
 
-    
+    /**
+     * 动态调用模块ModuleServiceProvider的方法
+     *
+     * @param $module
+     * @param $method
+     * @param array $args
+     */
     public static function callHook($module, $method, $args = [])
     {
         $cls = '\\Module\\' . $module . '\\Core\\ModuleHook';
@@ -503,7 +655,10 @@ class ModuleManager
         }
     }
 
-    
+    /**
+     * 获取
+     * @return string
+     */
     public static function getEnv()
     {
         if (PHP_VERSION_ID >= 80000) {

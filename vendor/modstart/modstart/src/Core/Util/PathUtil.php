@@ -78,7 +78,11 @@ class PathUtil
         return self::fixFull($path, $cdn, $schema);
     }
 
-    
+    /**
+     * 将外网地址转换为内网地址
+     * @param $path string
+     * @return string
+     */
     public static function convertPublicToInternal($path)
     {
         if (empty($path)) {

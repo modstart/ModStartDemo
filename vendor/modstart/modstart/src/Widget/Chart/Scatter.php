@@ -86,7 +86,12 @@ class Scatter extends Chart
         return $this;
     }
 
-    
+    /**
+     * @param $series
+     * @param $limit
+     * @return $this
+     * @deprecated
+     */
     public function tableDailyCountLatest($series = [], $limit = 15)
     {
         $end = date('Y-m-d');
@@ -96,7 +101,13 @@ class Scatter extends Chart
         return $this->tableDailyCount($start, $end, $series);
     }
 
-    
+    /**
+     * @param $start
+     * @param $end
+     * @param $series
+     * @return $this
+     * @deprecated
+     */
     public function tableDailyCount($start, $end, $series = [])
     {
         $data = ReportUtil::tableCountSeriesDaily($start, $end, $series);
@@ -122,7 +133,12 @@ class Scatter extends Chart
         return $this;
     }
 
-    
+    /**
+     * @param $series
+     * @param $limit
+     * @return $this
+     * @deprecated
+     */
     public function tableDailySumLatest($series = [], $limit = 15)
     {
         $end = date('Y-m-d');
@@ -132,7 +148,13 @@ class Scatter extends Chart
         return $this->tableDailySum($start, $end, $series);
     }
 
-    
+    /**
+     * @param $start
+     * @param $end
+     * @param $series
+     * @return $this
+     * @deprecated
+     */
     public function tableDailySum($start, $end, $series = [])
     {
         $data = ReportUtil::tableSumSeriesDaily($start, $end, $series);

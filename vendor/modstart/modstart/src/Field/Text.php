@@ -18,7 +18,11 @@ class Text extends AbstractField
         ]);
     }
 
-    
+    /**
+     * 保存时自动清除空格
+     * @param bool $enable
+     * @return $this
+     */
     public function autoTrim($enable = true)
     {
         $this->addVariables(['autoTrim' => $enable]);

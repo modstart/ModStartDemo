@@ -4,16 +4,27 @@ namespace ModStart\Widget;
 
 use ModStart\Core\Util\RenderUtil;
 
-
+/**
+ * Class Box
+ * @package ModStart\Widget
+ *
+ * @method Box style($value)
+ */
 class ContentBox extends AbstractWidget
 {
-    
+    /**
+     * @var string
+     */
     protected $view = 'modstart::widget.contentBox';
 
-    
+    /**
+     * @var string
+     */
     protected $classList = '';
 
-    
+    /**
+     * @var string
+     */
     protected $content = '';
 
 
@@ -34,21 +45,37 @@ class ContentBox extends AbstractWidget
         return $ins;
     }
 
-    
+    /**
+     * Set box content.
+     *
+     * @param string $content
+     *
+     * @return $this
+     */
     public function content($content)
     {
         $this->content = $content;
         return $this;
     }
 
-    
+    /**
+     * Set box title.
+     *
+     * @param string $classList
+     *
+     * @return $this
+     */
     public function classList($classList)
     {
         $this->classList = $classList;
         return $this;
     }
 
-    
+    /**
+     * Variables in view.
+     *
+     * @return array
+     */
     public function variables()
     {
         return [

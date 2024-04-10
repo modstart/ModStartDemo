@@ -7,7 +7,11 @@ namespace ModStart\Field;
 use ModStart\Core\Exception\BizException;
 use ModStart\Core\Util\SerializeUtil;
 
-
+/**
+ * Json多组键值对字段
+ * Class ComplexFields
+ * @package ModStart\Field
+ */
 class ComplexFieldsList extends AbstractField
 {
     protected $value = [];
@@ -18,7 +22,17 @@ class ComplexFieldsList extends AbstractField
     {
         $this->addVariables([
             'fields' => [
-                                                                                                                                                                            ],
+                // ['name' => 'xxx', 'title' => '开关', 'type' => 'switch', 'defaultValue' => false, 'placeholder'=>'', 'tip'=>'', ],
+                // ['name' => 'xxx', 'title' => '文本', 'type' => 'text', 'defaultValue' => '', 'placeholder'=>'', 'tip'=>'', ],
+                // ['name' => 'xxx', 'title' => '图标', 'type' => 'icon', 'defaultValue' => 'iconfont icon-home', 'placeholder'=>'', 'tip'=>'', ],
+                // ['name' => 'xxx', 'title' => '数字', 'type' => 'number', 'defaultValue' => 0, 'placeholder'=>'', 'tip'=>'', ],
+                // ['name' => 'xxx', 'title' => '数字', 'type' => 'number-text', 'defaultValue' => 0, 'placeholder'=>'', 'tip'=>'', ],
+                // ['name' => 'xxx', 'title' => '图片', 'type' => 'image', 'defaultValue' => '', 'placeholder'=>'', 'tip'=>'', ],
+                // ['name' => 'xxx', 'title' => '多字符串值', 'type' => 'values', 'defaultValue' => 0, 'placeholder'=>'', 'tip'=>'', ],
+                // ['name' => 'xxx', 'title' => '单选', 'type' => 'select', 'option' => ['a'=>'aa','b'=>'bb'], 'defaultValue' => '', 'placeholder' => '', 'tip' => '',],
+                // ['name' => 'xxx', 'title' => '链接', 'type' => 'link', 'defaultValue' => '', 'placeholder' => '', 'tip' => '',],
+                // ['name' => 'xxx', 'title' => '颜色', 'type' => 'color', 'defaultValue' => '', 'placeholder' => '', 'tip' => '',],
+            ],
             'valueItem' => new \stdClass(),
             'iconServer' => modstart_admin_url('widget/icon'),
             'iconGroups' => ['iconfont', 'font-awesome'],
@@ -46,7 +60,11 @@ class ComplexFieldsList extends AbstractField
         return $this;
     }
 
-    
+    /**
+     * 指定图标组
+     * @param $iconGroups array 图标组 iconfont font-awesome
+     * @return $this
+     */
     public function iconGroups($iconGroups)
     {
         $this->addVariables(['iconGroups' => $iconGroups]);

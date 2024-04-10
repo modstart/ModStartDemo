@@ -72,7 +72,8 @@ class EnvUtil
     {
         switch ($key) {
             case 'uploadMaxSize':
-                                if (FileManager::$slowDebug) {
+                // 模拟分片上传时，每个分片的大小
+                if (FileManager::$slowDebug) {
                     return 100;
                 }
                 $upload_max_filesize = @ini_get('upload_max_filesize');
@@ -86,8 +87,10 @@ class EnvUtil
                 $upload_max_filesize = FileUtil::formattedSizeToBytes($upload_max_filesize);
                 $post_max_size = FileUtil::formattedSizeToBytes($post_max_size);
                 $size = min($upload_max_filesize, $post_max_size);
-                                $size -= 10 * 1024;
-                                return min(max($size, 100 * 1024), 2 * 1024 * 1024);
+                // 文件上传时附加信息会占用部分
+                $size -= 10 * 1024;
+                // 最少100KB，最大2M
+                return min(max($size, 100 * 1024), 2 * 1024 * 1024);
         }
         return null;
     }
@@ -97,7 +100,10 @@ class EnvUtil
         return @ini_get($key);
     }
 
-    
+    /**
+     * 环境的安全 Key，通常用于系统级临时加密、签名等操作，修改环境配置后会变更
+     * @return string
+     */
     public static function securityKey()
     {
         static $key = null;

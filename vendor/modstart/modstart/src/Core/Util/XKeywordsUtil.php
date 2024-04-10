@@ -5,7 +5,12 @@ namespace ModStart\Core\Util;
 
 class XKeywordsUtil
 {
-    
+    /**
+     * 规则匹配
+     * @param $keywords string 关键词，使用逗号或换行符分割
+     * @param $content string 需要匹配的内容
+     * @param $matKeyword string 匹配到的关键词
+     */
     public static function match($keywords, $content, &$matKeyword = null)
     {
         $keywords = trim($keywords);

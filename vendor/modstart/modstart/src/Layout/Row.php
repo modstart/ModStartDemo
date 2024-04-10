@@ -6,13 +6,21 @@ use Illuminate\Contracts\Support\Renderable;
 
 class Row implements Buildable, Renderable
 {
-    
+    /**
+     * @var Column[]
+     */
     protected $columns = [];
 
-    
+    /**
+     * @var Renderable[] flex columns
+     */
     protected $flexColumns = [];
 
-    
+    /**
+     * row classes.
+     *
+     * @var array
+     */
     protected $class = [];
 
     public static function make($content)
@@ -21,7 +29,11 @@ class Row implements Buildable, Renderable
         return $ins;
     }
 
-    
+    /**
+     * Row constructor.
+     *
+     * @param string $content
+     */
     public function __construct($content = '')
     {
         if (!empty($content)) {
@@ -33,7 +45,12 @@ class Row implements Buildable, Renderable
         }
     }
 
-    
+    /**
+     * Add a column.
+     *
+     * @param int|array $width
+     * @param $content
+     */
     public function column($width, $content)
     {
         if (is_float($width)) {
@@ -50,13 +67,17 @@ class Row implements Buildable, Renderable
         $this->flexColumns[] = $renderable;
     }
 
-    
+    /**
+     * @param Column $column
+     */
     protected function addColumn(Column $column)
     {
         $this->columns[] = $column;
     }
 
-    
+    /**
+     * Build row column.
+     */
     public function build()
     {
         $this->startRow();
@@ -75,7 +96,9 @@ class Row implements Buildable, Renderable
         $this->endRow();
     }
 
-    
+    /**
+     * Start row.
+     */
     protected function startRow()
     {
         $class = $this->class;
@@ -83,13 +106,19 @@ class Row implements Buildable, Renderable
         echo '<div class="' . implode(' ', $class) . '">';
     }
 
-    
+    /**
+     * End column.
+     */
     protected function endRow()
     {
         echo '</div>';
     }
 
-    
+    /**
+     * Render row.
+     *
+     * @return string
+     */
     public function render()
     {
         ob_start();

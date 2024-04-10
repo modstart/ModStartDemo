@@ -4,10 +4,15 @@ namespace ModStart\Widget;
 
 use ModStart\Core\Util\IdUtil;
 
-
+/**
+ * Class Box
+ * @package ModStart\Widget
+ */
 abstract class AbstractRawWidget extends AbstractWidget
 {
-    
+    /**
+     * @var string
+     */
     protected $view = 'modstart::widget.raw';
 
     protected $id;
@@ -20,7 +25,11 @@ abstract class AbstractRawWidget extends AbstractWidget
     }
 
 
-    
+    /**
+     * Variables in view.
+     *
+     * @return array
+     */
     public function variables()
     {
         return [

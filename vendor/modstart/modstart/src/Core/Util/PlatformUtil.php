@@ -66,8 +66,10 @@ class PlatformUtil
                 }
             }
         } else if (self::isWindows()) {
-                    } else if (self::isOsx()) {
-                    }
+            // todo
+        } else if (self::isOsx()) {
+            // todo
+        }
         return $info;
     }
 

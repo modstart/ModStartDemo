@@ -11,7 +11,9 @@ class LockUtil
 {
     static $instance = null;
 
-    
+    /**
+     * @return MutexFabric
+     */
     private static function instance()
     {
         if (null === self::$instance) {

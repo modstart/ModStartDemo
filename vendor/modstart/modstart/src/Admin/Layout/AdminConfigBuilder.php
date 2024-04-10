@@ -17,12 +17,20 @@ use ModStart\Layout\Page;
 use ModStart\Repository\RepositoryUtil;
 use ModStart\Widget\Box;
 
-
+/**
+ * Class AdminConfigBuilder
+ * @package ModStart\Admin\Layout
+ *
+ * @mixin Page
+ * @mixin Form
+ * @method $this disableBoxWrap($disable)
+ * @method $this hookFormWrap($callback)
+ */
 class AdminConfigBuilder implements Renderable
 {
-    
+    /** @var Page */
     private $page;
-    
+    /** @var Form */
     private $form;
     private $pagePrepend = [];
     private $pageAppend = [];
@@ -91,7 +99,12 @@ class AdminConfigBuilder implements Renderable
         return $this->page->render();
     }
 
-    
+    /**
+     * @param $item \stdClass|null|false 表示使用默认的 modstart_config 配置获取，false 表示不使用任何内容初始化
+     * @param $callback \Closure = function (Form $form) { return Response::generateSuccess('ok'); }
+     * @param $callbackPreCheck \Closure = function (Form $form) { BizException::throws('error') }
+     * @return $this
+     */
     public function perform($item = null, $callback = null, $callbackPreCheck = null)
     {
         if (Request::isPost()) {
@@ -118,7 +131,7 @@ class AdminConfigBuilder implements Renderable
             $item = [];
             $config = modstart_config();
             foreach ($this->form->fields() as $field) {
-                
+                /** @var $field AbstractField */
                 if ($field->isLayoutField()) {
                     continue;
                 }
@@ -136,7 +149,7 @@ class AdminConfigBuilder implements Renderable
         } else if (false === $item) {
             $item = [];
             foreach ($this->form->fields() as $field) {
-                
+                /** @var $field AbstractField */
                 if ($field->isLayoutField()) {
                     continue;
                 }

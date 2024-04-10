@@ -27,7 +27,7 @@ class DatabaseMonitor
                 $sql = $query;
                 if (method_exists(\ModStart\ModStart::class, 'env')
                     && \ModStart\ModStart::env() == 'laravel9') {
-                    
+                    /** @var QueryExecuted $query */
                     $sql = $query->sql;
                     $bindings = $query->bindings;
                     $time = $query->time;
@@ -36,7 +36,8 @@ class DatabaseMonitor
                     'sql' => $sql,
                     'bindings' => $bindings,
                 ];
-                                if ($time > config('modstart.trackLongSqlThreshold', 5000)) {
+                // Log::info("SQL $sql, " . json_encode($bindings));
+                if ($time > config('modstart.trackLongSqlThreshold', 5000)) {
                     Log::warning("LONG_SQL ${time}ms, $sql, " . ArrayUtil::serializeForLog($bindings));
                 }
             });

@@ -12,7 +12,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Response
 {
-    
+    /**
+     * 从另外一个接口返回data数据
+     * 如果ret是一个标准错误会抛出BizException异常，该异常会被同一捕获
+     * 如果ret是一个JsonResponse，会尝试获取实际值
+     *
+     * @param $ret
+     * @param $key
+     * @return mixed
+     * @throws BizException
+     */
     public static function tryGetData($ret, $key = null)
     {
         if ($ret instanceof JsonResponse) {
@@ -46,7 +55,11 @@ class Response
         return !self::isSuccess($result);
     }
 
-    
+    /**
+     * 需要独立处理的返回结果，原始返回结果
+     * @param $result
+     * @return bool
+     */
     public static function isRaw($result)
     {
         if ($result instanceof \Illuminate\Http\Response) {
@@ -214,13 +227,20 @@ class Response
         return self::sendError($e->getMessage());
     }
 
-    
+    /**
+     * 中断操作，会停止程序执行并输出提示信息，无返回
+     * @param $msg
+     * @return void
+     */
     public static function abortMsg($msg)
     {
         abort(200, $msg);
     }
 
-    
+    /**
+     * 返回一个404页面
+     * @return void|JsonResponse
+     */
     public static function page404()
     {
         if (Request::isAjax()) {
@@ -230,7 +250,11 @@ class Response
         }
     }
 
-    
+    /**
+     * 页面无权限
+     * @param null $msg
+     * @return void|JsonResponse
+     */
     public static function pagePermissionDenied($msg = null)
     {
         if (Request::isAjax()) {
@@ -310,7 +334,8 @@ class Response
             $filenameFallback
         );
         $response->headers->set('Content-Disposition', $disposition);
-                if (!isset($headers['Content-Type'])) {
+        // 已知部分浏览器（QQ手机浏览器）不设置Content-Type，会导致下载文件失败
+        if (!isset($headers['Content-Type'])) {
             $response->headers->set('Content-Type', 'application/octet-stream');
         }
         foreach ($headers as $k => $v) {
@@ -332,7 +357,10 @@ class Response
     {
         $response = new StreamedResponse();
         $response->setCallback(function () use (&$callback) {
-                                                $sendCallback = function ($type, $data = null) {
+            // {"type":"data","data":...}
+            // {"type":"error","data":...}
+            // {"type":"end"}
+            $sendCallback = function ($type, $data = null) {
                 $payload = [];
                 $payload['type'] = $type;
                 if (!is_null($data)) {

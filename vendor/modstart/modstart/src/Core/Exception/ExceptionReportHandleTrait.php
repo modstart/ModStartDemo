@@ -62,7 +62,8 @@ trait ExceptionReportHandleTrait
             }
             CurlUtil::get($errorReportUrl, ['data' => SerializeUtil::jsonEncode($error)]);
         } catch (\Exception $e) {
-                    }
+            // do nothing
+        }
     }
 
     private function isExceptionIgnore($exception)

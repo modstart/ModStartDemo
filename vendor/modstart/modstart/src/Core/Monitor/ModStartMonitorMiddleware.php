@@ -8,7 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use ModStart\Core\Util\SerializeUtil;
 
-
+/**
+ * Class ModStartMonitorMiddleware
+ * @package ModStart\Core\Monitor
+ * @deprecated
+ * @delete after 20220417
+ */
 class ModStartMonitorMiddleware
 {
     public function handle(Request $request, \Closure $next)

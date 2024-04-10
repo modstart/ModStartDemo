@@ -7,7 +7,18 @@ use ModStart\Core\Dao\ModelUtil;
 
 class ReportUtil
 {
-    
+    /**
+     * @param $start
+     * @param $end
+     * @param array $series
+     * @return array
+     *
+     * @example
+     * $series = [
+     *  ['title'=>'总数','table'=>'table1',],
+     *  ['title'=>'成功','table'=>'table2','where'=>[]],
+     * ]
+     */
     public static function tableCountSeriesDaily($start, $end, $series = [])
     {
         $startTime = $start . ' 00:00:00';
@@ -52,7 +63,18 @@ class ReportUtil
         ];
     }
 
-    
+    /**
+     * @param $start
+     * @param $end
+     * @param $series array
+     * @return array
+     *
+     * @example
+     * $series = [
+     *  ['title'=>'总数','table'=>'table1','field'=>'payFee'],
+     *  ['title'=>'成功','table'=>'table2','field'=>'payFee','where'=>[]],
+     * ]
+     */
     public static function tableSumSeriesDaily($start, $end, $series = [])
     {
         $startTime = $start . ' 00:00:00';

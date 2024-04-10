@@ -6,7 +6,22 @@ namespace ModStart\Widget;
 
 use ModStart\ModStart;
 
-
+/**
+ * Class Label
+ * @package ModStart\Widget
+ *
+ * @method static string primary($text, $link, $attributes = '')
+ * @method static string muted($text, $link, $attributes = '')
+ * @method static string warning($text, $link, $attributes = '')
+ * @method static string danger($text, $link, $attributes = '')
+ * @method static string success($text, $link, $attributes = '')
+ *
+ * @method void text($text)
+ * @method void type($type)
+ * @method void link($type)
+ * @method void attr($type)
+ * @method void disabled($boolean)
+ */
 class TextLink extends AbstractWidget
 {
     public static function getAssets()
@@ -16,7 +31,12 @@ class TextLink extends AbstractWidget
         ];
     }
 
-    
+    /**
+     * @param $type string
+     * @param $text string
+     * @param $text url
+     * @return TextDialogRequest
+     */
     public static function make(...$arguments)
     {
         $ins = new static();

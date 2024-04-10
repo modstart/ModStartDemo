@@ -4,7 +4,12 @@
 namespace ModStart\Support\Concern;
 
 
-
+/**
+ * 支持自定义属性
+ *
+ * Trait HasVariables
+ * @package ModStart\Support\Concern
+ */
 trait HasVariables
 {
     protected $variables = [];
@@ -14,7 +19,11 @@ trait HasVariables
         return $this->variables;
     }
 
-    
+    /**
+     * 设定一个属性
+     * @param $name string|array
+     * @param void
+     */
     public function setVariable($name, $value = null)
     {
         if (is_array($name)) {
@@ -26,7 +35,12 @@ trait HasVariables
         }
     }
 
-    
+    /**
+     * 获取一个属性
+     * @param $name string
+     * @param $default null|mixed
+     * @return mixed
+     */
     public function getVariable($name, $default = null)
     {
         return isset($this->variables[$name]) ? $this->variables[$name] : $default;

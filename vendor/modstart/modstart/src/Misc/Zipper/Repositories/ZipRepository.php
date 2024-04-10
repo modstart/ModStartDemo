@@ -9,10 +9,21 @@ class ZipRepository implements RepositoryInterface
 {
     private $archive;
 
-    
+    /**
+     * Construct with a given path
+     *
+     * @param $filePath
+     * @param bool $create
+     * @param $archive
+     *
+     * @return ZipRepository
+     * @throws \Exception
+     *
+     */
     public function __construct($filePath, $create = false, $archive = null)
     {
-                if (!class_exists('ZipArchive')) {
+        //Check if ZipArchive is available
+        if (!class_exists('ZipArchive')) {
             throw new Exception('Error: Your PHP version is not compiled with zip support');
         }
         $this->archive = $archive ? $archive : new ZipArchive();
@@ -23,37 +34,67 @@ class ZipRepository implements RepositoryInterface
         }
     }
 
-    
+    /**
+     * Add a file to the opened Archive
+     *
+     * @param $pathToFile
+     * @param $pathInArchive
+     */
     public function addFile($pathToFile, $pathInArchive)
     {
         $this->archive->addFile($pathToFile, $pathInArchive);
     }
 
-    
+    /**
+     * Add an empty directory
+     *
+     * @param $dirName
+     */
     public function addEmptyDir($dirName)
     {
         $this->archive->addEmptyDir($dirName);
     }
 
-    
+    /**
+     * Add a file to the opened Archive using its contents
+     *
+     * @param $name
+     * @param $content
+     */
     public function addFromString($name, $content)
     {
         $this->archive->addFromString($name, $content);
     }
 
-    
+    /**
+     * Remove a file permanently from the Archive
+     *
+     * @param $pathInArchive
+     */
     public function removeFile($pathInArchive)
     {
         $this->archive->deleteName($pathInArchive);
     }
 
-    
+    /**
+     * Get the content of a file
+     *
+     * @param $pathInArchive
+     *
+     * @return string
+     */
     public function getFileContent($pathInArchive)
     {
         return $this->archive->getFromName($pathInArchive);
     }
 
-    
+    /**
+     * Get the stream of a file
+     *
+     * @param $pathInArchive
+     *
+     * @return mixed
+     */
     public function getFileStream($pathInArchive)
     {
         return $this->archive->getStream($pathInArchive);
@@ -73,55 +114,92 @@ class ZipRepository implements RepositoryInterface
 )*$%xs', $string);
     }
 
-    
+    /**
+     * Will loop over every item in the archive and will execute the callback on them
+     * Will provide the filename for every item
+     *
+     * @param $callback
+     */
     public function each($callback)
     {
         $records = [];
-                for ($i = 0; $i < $this->archive->numFiles; ++$i) {
-                        $stats = $this->archive->statIndex($i);
+        // $hasUtf8 = false;
+        for ($i = 0; $i < $this->archive->numFiles; ++$i) {
+            //skip if folder
+            $stats = $this->archive->statIndex($i);
             if ($stats['size'] === 0 && $stats['crc'] === 0) {
                 continue;
             }
             $name = $this->archive->getNameIndex($i, 0x0001 << 6);
             $encoding = mb_detect_encoding($name, ['ASCII', 'GBK', 'UTF-8']);
-                                                $record = [
+            // if ('UTF-8' === $encoding) {
+            // $hasUtf8 = true;
+            // }
+            $record = [
                 $encoding,
                 $name,
                 $stats
             ];
-                        $records[] = $record;
+            // print_r($record);
+            $records[] = $record;
         }
-                                foreach ($records as $record) {
+        // print_r($records);
+        // print_r(json_encode($hasUtf8));
+        // echo "\n";
+        foreach ($records as $record) {
             list($encoding, $name, $stats) = $record;
-                        if (!$this->isUtf8($name)) {
+            // echo $this->isUtf8($name) . "\n";
+            if (!$this->isUtf8($name)) {
                 $name = mb_convert_encoding($name, 'UTF-8', $encoding);
             }
-                                                call_user_func_array($callback, [
+            //if (!$hasUtf8 && 'CP936' == $encoding) {
+            //    $name = mb_convert_encoding($name, 'UTF-8', 'GBK');
+            //}
+            call_user_func_array($callback, [
                 $name,
                 $stats
             ]);
         }
     }
 
-    
+    /**
+     * Checks whether the file is in the archive
+     *
+     * @param $fileInArchive
+     *
+     * @return bool
+     */
     public function fileExists($fileInArchive)
     {
         return $this->archive->locateName($fileInArchive) !== false;
     }
 
-    
+    /**
+     * Sets the password to be used for decompressing
+     * function named usePassword for clarity
+     *
+     * @param $password
+     *
+     * @return bool
+     */
     public function usePassword($password)
     {
         return $this->archive->setPassword($password);
     }
 
-    
+    /**
+     * Returns the status of the archive as a string
+     *
+     * @return string
+     */
     public function getStatus()
     {
         return $this->archive->getStatusString();
     }
 
-    
+    /**
+     * Closes the archive and saves it
+     */
     public function close()
     {
         @$this->archive->close();

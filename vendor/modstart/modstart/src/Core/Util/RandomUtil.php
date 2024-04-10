@@ -3,10 +3,19 @@
 namespace ModStart\Core\Util;
 
 
-
+/**
+ * Class RandomUtil
+ * @package ModStart\Core\Util
+ *
+ * @Util 随机字符串
+ */
 class RandomUtil
 {
-    
+    /**
+     * @Util 随机数字
+     * @param $length int 长度
+     * @return string 字符串
+     */
     public static function number($length)
     {
         $pool = '0123456789';
@@ -14,68 +23,111 @@ class RandomUtil
     }
 
 
-    
+    /**
+     * @Util 随机字符串
+     * @param $length int 长度
+     * @return string 字符串
+     */
     public static function string($length)
     {
         $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
 
-    
+    /**
+     * @Util 随机可读字符串
+     * @param $length int 长度
+     * @return string 字符串
+     * @desc 去掉0、O等相似字符
+     */
     public static function readableString($length)
     {
         $pool = '2345678abcdefghijkmnoprstuvwxyzABCDEFGHIJKMNPQRSTUVWXYZ';
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
 
-    
+    /**
+     * @Util 随机可读字符串（小写）
+     * @param $length int 长度
+     * @return string 字符串
+     */
     public static function lowerReadableString($length)
     {
         return strtolower(self::readableString($length));
     }
 
-    
+    /**
+     * @Util 随机可读字符串（大写）
+     * @param $length int 长度
+     * @return string 字符串
+     */
     public static function upperReadableString($length)
     {
         return strtoupper(self::readableString($length));
     }
 
-    
+    /**
+     * @Util 随机Hex字符串
+     * @param $length int 长度
+     * @return string 字符串
+     */
     public static function hexString($length)
     {
         $pool = '0123456789abcdef';
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
 
-    
+    /**
+     * @Util 随机小写字符串
+     * @param $length int 长度
+     * @return string 字符串
+     */
     public static function lowerString($length)
     {
         $pool = '0123456789abcdefghijklmnopqrstuvwxyz';
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
 
-    
+    /**
+     * @Util 随机小写字符串
+     * @param $length int 长度
+     * @return string 字符串
+     * @desc 只包含字母
+     */
     public static function lowerChar($length)
     {
         $pool = 'abcdefghijklmnopqrstuvwxyz';
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
 
-    
+    /**
+     * @Util 随机大写字符串
+     * @param $length int 长度
+     * @return string 字符串
+     * @desc 只包含字母
+     */
     public static function upperChar($length)
     {
         $pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
 
-    
+    /**
+     * @Util 随机大写字符串
+     * @param $length int 长度
+     * @return string 字符串
+     */
     public static function upperString($length)
     {
         $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
 
-    
+    /**
+     * @Util 随机UUID
+     * @return string UUID
+     * @desc 使用年月日构造
+     */
     public static function uuid()
     {
         return date('Ymd')
@@ -90,7 +142,11 @@ class RandomUtil
             . self::hexString(12);
     }
 
-    
+    /**
+     * @Util 随机概率
+     * @param $value int 概率值
+     * @return bool 是否成功
+     */
     public static function percent($value)
     {
         return rand(0, 99) < $value;

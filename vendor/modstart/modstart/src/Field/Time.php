@@ -6,9 +6,13 @@ namespace ModStart\Field;
 
 class Time extends AbstractField
 {
-    
+    /**
+     * 使用JSON
+     */
     const SERIALIZE_TYPE_DEFAULT = null;
-    
+    /**
+     * 使用冒号分割
+     */
     const SERIALIZE_TYPE_SECOND = 1;
 
     protected function setup()

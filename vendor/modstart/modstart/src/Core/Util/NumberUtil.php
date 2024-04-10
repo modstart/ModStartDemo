@@ -68,13 +68,15 @@ class NumberUtil
             if ($digit != 0) {
                 $result .= $chineseNumber[$digit] . $chineseUnit[$unit];
             } else {
-                                if ($result[strlen($result) - 1] !== $chineseNumber[0]) {
+                // 处理零的情况，避免出现连续多个零
+                if ($result[strlen($result) - 1] !== $chineseNumber[0]) {
                     $result .= $chineseNumber[$digit];
                 }
             }
         }
 
-                if ($strLen > 1 && $strNumber[0] == 1 && $result[0] == $chineseNumber[1]) {
+        // 处理十位数以一开头的情况（如：一十一）
+        if ($strLen > 1 && $strNumber[0] == 1 && $result[0] == $chineseNumber[1]) {
             $result = substr($result, 1);
         }
 

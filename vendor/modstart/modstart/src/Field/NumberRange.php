@@ -12,12 +12,18 @@ class NumberRange extends AbstractField
     protected function setup()
     {
         $this->addVariables([
-                        'autoColor' => false,
-                        'signShow' => false,
-                        'unit' => null,
-                        'min' => null,
-                        'max' => null,
-                        'step' => null,
+            // 自动着色，正数绿色，负数红色
+            'autoColor' => false,
+            // 是否显示符号
+            'signShow' => false,
+            // 单位
+            'unit' => null,
+            // 最小值
+            'min' => null,
+            // 最大值
+            'max' => null,
+            // stepping interval
+            'step' => null,
         ]);
     }
 

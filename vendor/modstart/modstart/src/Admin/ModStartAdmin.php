@@ -13,13 +13,14 @@ class ModStartAdmin
 {
     public static function registerAuthRoutes()
     {
-                Route::group([
+        // echo config('modstart.admin.prefix');exit();
+        Route::group([
             'prefix' => config('modstart.admin.prefix'),
             'namespace' => '\\ModStart\\Admin\\Controller',
             'middleware' => ['admin.bootstrap', 'admin.auth'],
         ], function ($router) {
 
-            
+            /* @var \Illuminate\Routing\Router $router */
             $router->match(['get', 'post'], 'login', 'AuthController@login');
             $router->match(['get', 'post'], 'login_quick', 'AuthController@loginQuick');
             $router->match(['get'], 'logout', 'AuthController@logout');
@@ -80,7 +81,9 @@ class ModStartAdmin
         if (config('env.APP_DEBUG')) {
             $routesFiles = self::listModuleRoutes();
         } else {
-            
+            /**
+             * @deprecated delete at 2024-06-08
+             */
             if (method_exists(ModStart::class, 'cacheKey')) {
                 $routesFiles = Cache::rememberForever(ModStart::cacheKey('ModStartAdminRoutes'), function () {
                     return self::listModuleRoutes();

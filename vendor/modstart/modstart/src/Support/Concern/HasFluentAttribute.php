@@ -3,7 +3,10 @@
 
 namespace ModStart\Support\Concern;
 
-
+/**
+ * Trait HasFluentAttribute
+ * @package ModStart\Support\Concern
+ */
 trait HasFluentAttribute
 {
     protected function addFluentAttributeVariable($name)

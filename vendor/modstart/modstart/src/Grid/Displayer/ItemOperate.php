@@ -10,10 +10,21 @@ use ModStart\Field\AbstractField;
 use ModStart\Widget\TextAction;
 use ModStart\Widget\TextLink;
 
-
+/**
+ * Class ItemOperate
+ * @package ModStart\Grid\Displayer
+ *
+ *
+ * @method ItemOperate|Model|\stdClass item($value = null)
+ * @method ItemOperate|integer index($value = null)
+ * @method ItemOperate|mixed canShow($value = null)
+ * @method ItemOperate|mixed canEdit($value = null)
+ * @method ItemOperate|mixed canDelete($value = null)
+ * @method ItemOperate|mixed canCopy($value = null)
+ */
 class ItemOperate extends AbstractDisplayer
 {
-    
+    /** @var AbstractField */
     protected $field;
     protected $item;
     protected $index;

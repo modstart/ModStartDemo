@@ -8,14 +8,19 @@ use ModStart\Core\Util\ConvertUtil;
 use ModStart\Core\Util\IdUtil;
 use ModStart\Support\Manager\WidgetManager;
 
-
+/**
+ * Class AbstractWidget
+ * @package ModStart\Widget
+ */
 class AbstractWidget extends Fluent implements Renderable
 {
 
     protected $view;
     protected $id;
 
-    
+    /**
+     * AbstractWidget constructor.
+     */
     public function __construct()
     {
         parent::__construct();

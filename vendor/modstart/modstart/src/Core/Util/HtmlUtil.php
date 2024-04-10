@@ -86,7 +86,11 @@ class HtmlUtil
         ], $text);
     }
 
-    
+    /**
+     * 富文本过滤
+     * @param $content
+     * @return mixed
+     */
     public static function filter($content)
     {
         if (empty($content)) {
@@ -95,7 +99,11 @@ class HtmlUtil
         return Purifier::cleanHtml($content);
     }
 
-    
+    /**
+     * @param $content
+     * @return mixed
+     * @deprecated
+     */
     public static function filter2($content)
     {
         if (empty($content)) {
@@ -104,7 +112,13 @@ class HtmlUtil
         return Purifier::cleanHtml($content);
     }
 
-    
+    /**
+     * 将未格式化的文本进行HTML格式化
+     *
+     * @param string $text
+     * @param boolean $htmlspecialchars
+     * @return string
+     */
     public static function text2html($text, $htmlspecialchars = true)
     {
         if (empty($text)) {
@@ -119,7 +133,13 @@ class HtmlUtil
         return '<p>' . $text . '</p>';
     }
 
-    
+    /**
+     * 将未格式化的文本进行HTML格式化，会自动解析网址、邮箱
+     *
+     * @param $text
+     * @param bool $htmlspecialchars
+     * @return string
+     */
     public static function text2htmlSimpleRich($text, $htmlspecialchars = true)
     {
         $content = self::text2html($text, $htmlspecialchars);
@@ -127,7 +147,12 @@ class HtmlUtil
         return $content;
     }
 
-    
+    /**
+     * 将使用text2html格式化的文本进行反HTML格式化
+     *
+     * @param string $text
+     * @return string
+     */
     public static function html2text($text)
     {
         return str_replace(array(
@@ -142,9 +167,11 @@ class HtmlUtil
     public static function workCount($content)
     {
         $content = preg_replace('/<[^>]+>/', '^', $content);
-                preg_match_all('/[a-z0-9]+/i', $content, $mat);
+        // 统计英文
+        preg_match_all('/[a-z0-9]+/i', $content, $mat);
         $englishCount = count($mat[0]);
-                $content = str_replace('^', '', $content);
+        // 统计中文
+        $content = str_replace('^', '', $content);
         $content = preg_replace('/[^\x{4e00}-\x{9fa5}]+/u', '', $content);
         $chineseCount = mb_strlen($content, 'utf-8');
         return $englishCount + $chineseCount;

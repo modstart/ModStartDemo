@@ -14,7 +14,7 @@ class ModStartRequestHandled
     public $method;
     public $time;
     public $statusCode;
-    
+    /** @var Response */
     public $response;
 
     public function isHtml()

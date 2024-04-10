@@ -48,7 +48,8 @@ class SystemController extends Controller
                 if (!file_exists(storage_path('install.lock'))) {
                     file_put_contents(storage_path('install.lock'), 'ok');
                 }
-                                if (!file_exists(storage_path('install.lock'))) {
+                // check write failed
+                if (!file_exists(storage_path('install.lock'))) {
                     return Response::json(-1, L('Operate Failed'));
                 }
                 return Response::json(0, L('Operate Success'), null, '[reload]');
@@ -57,7 +58,8 @@ class SystemController extends Controller
                 if (file_exists(public_path('install.php'))) {
                     @unlink(public_path('install.php'));
                 }
-                                if (file_exists(public_path('install.php'))) {
+                // check delete failed
+                if (file_exists(public_path('install.php'))) {
                     return Response::json(-1, L('Operate Failed'));
                 }
                 return Response::json(0, L('Operate Success'), null, '[reload]');

@@ -23,7 +23,10 @@ use ModStart\Core\Monitor\StatisticMonitor;
 use ModStart\Core\Util\ShellUtil;
 use ModStart\Module\ModuleManager;
 
-
+/**
+ * Class ModStartServiceProvider
+ * @package ModStart
+ */
 class ModStartServiceProvider extends ServiceProvider
 {
     protected $commands = [
@@ -169,7 +172,9 @@ class ModStartServiceProvider extends ServiceProvider
         if (config('env.APP_DEBUG')) {
             $providers = $this->listModuleServiceProviders();
         } else {
-            
+            /**
+             * @deprecated delete at 2024-06-08
+             */
             if (method_exists(ModStart::class, 'cacheKey')) {
                 $providers = Cache::rememberForever(ModStart::cacheKey('ModStartServiceProviders'), function () {
                     return $this->listModuleServiceProviders();

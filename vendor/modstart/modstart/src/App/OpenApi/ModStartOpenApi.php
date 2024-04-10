@@ -28,7 +28,9 @@ class ModStartOpenApi
         if (config('env.APP_DEBUG')) {
             $routesFiles = self::listModuleRoutes();
         } else {
-            
+            /**
+             * @deprecated delete at 2024-06-08
+             */
             if (method_exists(ModStart::class, 'cacheKey')) {
                 $routesFiles = Cache::rememberForever(ModStart::cacheKey('ModStartOpenApiRoutes'), function () {
                     return self::listModuleRoutes();

@@ -14,13 +14,20 @@ class Decimal extends AbstractField
     protected function setup()
     {
         $this->addVariables([
-                        'autoColor' => false,
-                        'signShow' => false,
-                        'min' => null,
-                        'max' => null,
-                        'step' => null,
-                        'unit' => null,
-                        'unitPosition' => null,
+            // 自动着色，正数绿色，负数红色
+            'autoColor' => false,
+            // 是否显示符号
+            'signShow' => false,
+            // 最小值
+            'min' => null,
+            // 最大值
+            'max' => null,
+            // stepping interval
+            'step' => null,
+            // 单位
+            'unit' => null,
+            // 单位位置，before, after
+            'unitPosition' => null,
         ]);
     }
 

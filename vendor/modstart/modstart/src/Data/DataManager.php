@@ -15,10 +15,17 @@ use ModStart\Data\Event\DataDeletedEvent;
 use ModStart\Data\Event\DataFileUploadedEvent;
 use ModStart\Data\Storage\FileDataStorage;
 
-
+/**
+ * Class DataManager
+ * @package ModStart\Data
+ *
+ * @example
+ * 测试新存储
+ * var_dump(DataManager::upload('file', 'test111.txt', 'test', ['driver' => 'DataStorage_DataSFtp']));
+ */
 class DataManager
 {
-    
+    /** @var AbstractDataStorage[] */
     private static $storages = [];
     private static $config = null;
 
@@ -37,7 +44,10 @@ class DataManager
         ];
     }
 
-    
+    /**
+     * 从用户配置中获取文件上传相关配置
+     * @return array|null
+     */
     public static function getConfigOption()
     {
         static $option = null;
@@ -73,7 +83,11 @@ class DataManager
         return $option;
     }
 
-    
+    /**
+     * @param null $option
+     * @return AbstractDataStorage
+     * @throws BizException
+     */
     public static function storage($option = null)
     {
         if (null === $option) {
@@ -84,7 +98,16 @@ class DataManager
         return self::$storages[$hash];
     }
 
-    
+    /**
+     * 文件上传
+     * @param $category string 上传分类
+     * @param $input array 上传参数
+     * @param $extra array 附加参数
+     * @param $option null|array 上传驱动配置
+     * @param $param array 其他参数
+     * @return array
+     * @throws \Exception
+     */
     public static function uploadHandle($category, $input, $extra = [], $option = null, $param = [])
     {
         if (null === $option) {
@@ -133,7 +156,15 @@ class DataManager
         ]);
     }
 
-    
+    /**
+     * 上传文件到 data_temp
+     * @param $category string
+     * @param $filename string
+     * @param $content string
+     * @param $option array|null
+     * @param $param array
+     * @return array
+     */
     public static function uploadToTemp($category, $filename, $content, $option = null, $param = [])
     {
         if (null === $option) {
@@ -189,7 +220,21 @@ class DataManager
         ]);
     }
 
-    
+    /**
+     * 上传文件内容
+     * @param string $category
+     * @param string $filename 包含后缀名的文件
+     * @param string $content
+     * @param array|null $option
+     * @param array $param
+     * @return array [
+     *     'data' => [
+     *         'id'=>1,
+     *     ],
+     *     'path' => 'data/image/xxxx.jpg',
+     *     'fullPath' => '/data/image/xxx.jpg',
+     * ]
+     */
     public static function upload($category, $filename, $content, $option = null, $param = [])
     {
         if (null === $option) {
@@ -249,7 +294,13 @@ class DataManager
         ]);
     }
 
-    
+    /**
+     * 根据TempData完整路径存储
+     * @param $dataTempFullPath
+     * @param null $option
+     * @return array
+     * @throws \Exception
+     */
     public static function storeTempDataByPath($dataTempFullPath, $option = null)
     {
         if (null === $option) {
@@ -263,7 +314,14 @@ class DataManager
         return Response::generate(-1, 'TempPath Invalid', null);
     }
 
-    
+    /**
+     * 根据Category和TempData路径存储
+     * @param $category
+     * @param $tempPath
+     * @param null $option
+     * @return array
+     * @throws \Exception
+     */
     public static function storeTempData($category, $dataTempPath, $option = null)
     {
         if (null === $option) {
@@ -306,7 +364,11 @@ class DataManager
         ]);
     }
 
-    
+    /**
+     * 根据ID删除文件（包括物理软删除）
+     * @param $id
+     * @param $option
+     */
     public static function deleteById($id, $option = null)
     {
         if (null === $option) {
@@ -324,7 +386,13 @@ class DataManager
         DataDeletedEvent::fire($data);
     }
 
-    
+    /**
+     * 根据路径删除
+     *
+     * @param $path
+     * @param null $option
+     * @throws \Exception
+     */
     public static function deleteByPath($path, $option = null)
     {
         if (null === $option) {
@@ -344,7 +412,13 @@ class DataManager
         DataDeletedEvent::fire($data);
     }
 
-    
+    /**
+     * 根据路径删除DataTemp
+     *
+     * @param $tempDataPath
+     * @param null $option
+     * @throws \Exception
+     */
     public static function deleteDataTempByPath($tempDataPath, $option = null)
     {
         if (null === $option) {
@@ -376,7 +450,12 @@ class DataManager
     }
 
 
-    
+    /**
+     * 解析已上传文件路径
+     *
+     * @param $url string 文件路径 /data/xxxxxxx.xxx http://xxx.com/data/xxxxxxx.xxx
+     * @return array
+     */
     public static function parseDataUrl($url)
     {
         if (preg_match(AbstractDataStorage::PATTERN_DATA_STRING, $url, $mat)) {
@@ -389,7 +468,12 @@ class DataManager
         return Response::generateError('parse error');
     }
 
-    
+    /**
+     * 准备文件到本地可用
+     * @param $path string 文件路径 /data/xxxxxxx.xxx data_temp/xxxxxx.xxx /data_temp/xxxxxxx.xxx http://www.example.com/data/xxxxx.xxx
+     * @param $option
+     * @return array
+     */
     public static function preparePathForLocal($path, $option = null)
     {
         if (null === $option) {
@@ -411,7 +495,14 @@ class DataManager
     }
 
 
-    
+    /**
+     * 准备文件到本地可用（使用内网域名）
+     * @param $path string 文件路径 /data/xxxxxxx.xxx /data_temp/xxxxxxx.xxx http://www.example.com/data/xxxxx.xxx
+     * @param $option
+     * @return array
+     * @throws
+     * @deprecated delete at 2024-04-25 使用 preparePathForLocal 即可
+     */
     public static function preparePathInternalForLocal($path, $option = null)
     {
         if (null === $option) {

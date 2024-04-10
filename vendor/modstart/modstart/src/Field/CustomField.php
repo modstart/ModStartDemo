@@ -10,7 +10,10 @@ use ModStart\Core\Input\InputPackage;
 use ModStart\Core\Util\SerializeUtil;
 use ModStart\Field\Type\CustomFieldType;
 
-
+/**
+ * 自定义字段，推荐单租户使用，如果是多租户推荐 DynamicFields 使用垂直表
+ * @package ModStart\Field
+ */
 class CustomField extends AbstractField
 {
     protected $listable = false;
@@ -151,7 +154,15 @@ class CustomField extends AbstractField
     }
 
 
-    
+    /**
+     * 准备详情数据
+     * @param $keyRecord array 携带自定义字段数据的记录
+     * @param $valueRecord array 携带自定义字段值的记录
+     * @param $prefix string
+     * @param $fieldCount int
+     * @return array
+     * @deprecated delete at 2024-06-15
+     */
     public static function buildRecordFieldsValues($keyRecord, $valueRecord, $prefix = 'fieldCustom', $fieldCount = 5)
     {
         self::buildFieldsData($keyRecord, $prefix, $fieldCount);
@@ -171,7 +182,13 @@ class CustomField extends AbstractField
         return $pairs;
     }
 
-    
+    /**
+     * @param $data
+     * @param string $prefix
+     * @param int $fieldCount
+     * @return bool
+     * @deprecated delete at 2024-06-15
+     */
     public static function hasFields($data, $prefix = 'fieldCustom', $fieldCount = 5)
     {
         for ($i = 1; $i <= $fieldCount; $i++) {
@@ -190,7 +207,27 @@ class CustomField extends AbstractField
         return false;
     }
 
-    
+    /**
+     * 对表中的自定义字段进行构建，会自动过滤掉空的自定义字段
+     * @param $data array 包含了多个自定义字段的数据
+     * @param $fieldPrefix string 多个自定义字段格式应该为 fieldCustom1,fieldCustom2,fieldCustom3
+     * @param $fieldCount int 自定义字段数量
+     * @example 会对自定义字段进行构建，同时生成自定义字段数组
+     * {
+     *    ...
+     *    "_fieldCustom": [
+     *         {
+     *             "type": "Text",
+     *             "title": "文本字段",
+     *             "data": {
+     *                 "option": []
+     *             },
+     *             "_name": "fieldCustom1"
+     *         },
+     *     ]
+     *     ...
+     * }
+     */
     public static function buildFieldsData(&$data, $fieldPrefix = 'fieldCustom', $fieldCount = 5)
     {
         if (empty($data)) {
@@ -212,7 +249,14 @@ class CustomField extends AbstractField
         $data['_' . $fieldPrefix] = $fieldModules;
     }
 
-    
+    /**
+     * @param $field
+     * @param $fieldName
+     * @param InputPackage $input
+     * @return array|false|mixed|string|string[]
+     * @throws BizException
+     * @deprecated delete at 2024-06-15
+     */
     public static function prepareInputOrFail($field, $fieldName, InputPackage $input)
     {
         if (empty($field['type']) || empty($field['title'])) {
@@ -234,7 +278,12 @@ class CustomField extends AbstractField
         BizException::throws('未知的自定义字段类型:' . SerializeUtil::jsonEncode($field));
     }
 
-    
+    /**
+     * @param $field
+     * @param $value
+     * @return array|mixed|string|null
+     * @deprecated delete at 2024-06-15
+     */
     public static function prepareDetail($field, $value)
     {
         if (empty($field['type']) || empty($field['title'])) {
@@ -269,7 +318,14 @@ class CustomField extends AbstractField
         ])->render();
     }
 
-    
+    /**
+     * @param $field
+     * @param $fieldName
+     * @param $value
+     * @param array $param
+     * @return string
+     * @deprecated delete at 2024-06-15
+     */
     public static function renderForm($field, $fieldName, $value, $param = [])
     {
         if (empty($field['type']) || empty($field['title'])) {
@@ -287,7 +343,12 @@ class CustomField extends AbstractField
         ])->render();
     }
 
-    
+    /**
+     * @param $field
+     * @param $value
+     * @return string
+     * @deprecated delete at 2024-06-15
+     */
     public static function renderDetail($field, $value)
     {
         if (empty($field['type']) || empty($field['title'])) {

@@ -46,7 +46,8 @@ class UeditorManager
     {
         $dataUploadConfig = config('data.upload', []);
         $config = [
-                        "imageActionName" => "image",
+            // 上传图片配置项
+            "imageActionName" => "image",
             "imageFieldName" => "file",
             "imageMaxSize" => $dataUploadConfig['image']['maxSize'],
             "imageAllowFiles" => array_map(function ($v) {
@@ -57,17 +58,20 @@ class UeditorManager
             "imageInsertAlign" => "none",
             "imageUrlPrefix" => "",
 
-                        "scrawlActionName" => "crawl",
+            // [暂未开启] 涂鸦图片上传配置项
+            "scrawlActionName" => "crawl",
             "scrawlFieldName" => "file",
             "scrawlMaxSize" => $dataUploadConfig['image']['maxSize'],
             "scrawlUrlPrefix" => "",
             "scrawlInsertAlign" => "none",
 
-                        "snapscreenActionName" => "snap",
+            // [暂未开启] 截图工具上传
+            "snapscreenActionName" => "snap",
             "snapscreenUrlPrefix" => "",
             "snapscreenInsertAlign" => "none",
 
-                        "catcherLocalDomain" => self::listCatcherIgnoreDomains(),
+            // 抓取
+            "catcherLocalDomain" => self::listCatcherIgnoreDomains(),
             "catcherActionName" => "catch",
             "catcherFieldName" => "source",
             "catcherUrlPrefix" => "",
@@ -76,7 +80,8 @@ class UeditorManager
                 return '.' . $v;
             }, $dataUploadConfig['image']['extensions']),
 
-                        "videoActionName" => "video",
+            // 上传视频配置
+            "videoActionName" => "video",
             "videoFieldName" => "file",
             "videoUrlPrefix" => "",
             "videoMaxSize" => $dataUploadConfig['video']['maxSize'],
@@ -84,7 +89,8 @@ class UeditorManager
                 return '.' . $v;
             }, $dataUploadConfig['video']['extensions']),
 
-                        "fileActionName" => "file",
+            // 上传文件配置
+            "fileActionName" => "file",
             "fileFieldName" => "file",
             "fileUrlPrefix" => "",
             "fileMaxSize" => $dataUploadConfig['file']['maxSize'],
@@ -92,7 +98,8 @@ class UeditorManager
                 return '.' . $v;
             }, $dataUploadConfig['file']['extensions']),
 
-                        "imageManagerActionName" => "listImage",
+            // 列出图片
+            "imageManagerActionName" => "listImage",
             "imageManagerListSize" => 20,
             "imageManagerUrlPrefix" => "",
             "imageManagerInsertAlign" => "none",
@@ -100,14 +107,16 @@ class UeditorManager
                 return '.' . $v;
             }, $dataUploadConfig['image']['extensions']),
 
-                        "fileManagerActionName" => "listFile",
+            // 列出指定目录下的文件
+            "fileManagerActionName" => "listFile",
             "fileManagerUrlPrefix" => "",
             "fileManagerListSize" => 20,
             "fileManagerAllowFiles" => array_map(function ($v) {
                 return '.' . $v;
             }, $dataUploadConfig['file']['extensions']),
 
-                        "formulaConfig" => [
+            // 公式编辑
+            "formulaConfig" => [
                 "imageUrlTemplate" => modstart_config('UEditor_FormulaImageUrlTemplate', 'https://r.latexeasy.com/image.svg?{}'),
                 'editorMode' => modstart_config('UEditor_FormulaEditorMode', 'live'),
                 'editorLiveServer' => modstart_config('UEditor_FormulaEditorLiveServer', 'https://latexeasy.com'),
@@ -161,7 +170,7 @@ class UeditorManager
                     'state' => 'SUCCESS',
                     'url' => null
                 ];
-                
+                /** @var UploadedFile $file */
                 $file = Input::file('file');
                 if (empty($file)) {
                     return self::resultError($editorRet, 'File Empty');

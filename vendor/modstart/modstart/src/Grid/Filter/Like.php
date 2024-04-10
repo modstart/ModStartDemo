@@ -9,7 +9,13 @@ class Like extends AbstractFilter
 {
     private $handle = null;
 
-    
+    /**
+     * Get condition of this filter.
+     *
+     * @param array $search
+     *
+     * @return array|mixed|void
+     */
     public function condition($searchInfo)
     {
         if (isset($searchInfo['like']) && $searchInfo['like'] !== '') {

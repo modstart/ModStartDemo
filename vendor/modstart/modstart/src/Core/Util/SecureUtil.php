@@ -8,12 +8,22 @@ class SecureUtil
 {
     const DEFAULT_CIPHER_ALGO = 'aes-256-cbc';
 
-    
+    /**
+     * 默认模式
+     */
     const MODE_DEFAULT = 'default';
-    
+    /**
+     * 适配encrypt-js模式
+     */
     const MODE_SALTED = 'salted';
 
-    
+    /**
+     * @param $key string base64后的key
+     * @param $data string 需要加密的数据
+     * @param $keyIsBase64 bool key是否是base64后的
+     * @param $mode string 加密模式，default默认模式
+     * @return string base64后的加密数据
+     */
     public static function aesEncode($key, $data, $keyIsBase64 = false, $mode = 'default')
     {
         $encryptionKey = $key;
@@ -37,7 +47,12 @@ class SecureUtil
         }
     }
 
-    
+    /**
+     * @param $key string base64后的key
+     * @param $data string base64后的加密数据
+     * @param $keyIsBase64 bool key是否是base64后的
+     * @return false|string 解密后的数据
+     */
     public static function aesDecode($key, $data, $keyIsBase64 = false)
     {
         BizException::throwsIfEmpty('SecureUtil.Error KeyEmpty', $key);

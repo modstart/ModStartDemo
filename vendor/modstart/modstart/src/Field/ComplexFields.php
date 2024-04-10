@@ -6,7 +6,11 @@ namespace ModStart\Field;
 
 use ModStart\Core\Util\SerializeUtil;
 
-
+/**
+ * Json多组键值对字段
+ * Class ComplexFields
+ * @package ModStart\Field
+ */
 class ComplexFields extends AbstractField
 {
     protected $width = 300;
@@ -16,7 +20,13 @@ class ComplexFields extends AbstractField
     {
         $this->addVariables([
             'fields' => [
-                                                                                                            ],
+                // ['name' => 'xxx', 'title' => '开关', 'type' => 'switch', 'defaultValue' => false, 'tip'=>'xxx', ],
+                // ['name' => 'xxx', 'title' => '文本', 'type' => 'text', 'defaultValue' => '', 'tip'=>'xxx', ],
+                // ['name' => 'xxx', 'title' => '图标', 'type' => 'icon', 'defaultValue' => 'iconfont icon-home', 'tip'=>'xxx', ],
+                // ['name' => 'xxx', 'title' => '数字', 'type' => 'number', 'defaultValue' => 0, 'tip'=>'xxx', ],
+                // ['name' => 'xxx', 'title' => '数字', 'type' => 'slider', 'defaultValue' => 0, 'min' => 1, 'max' => 5, 'step' => 1, 'tip'=>'xxx', ],
+                // ['name' => 'xxx', 'title' => '链接', 'type' => 'link', 'defaultValue' => '', 'placeholder' => '', 'tip' => '',],
+            ],
             'iconServer' => modstart_admin_url('widget/icon'),
             'linkServer' => modstart_admin_url('widget/link_select'),
         ]);

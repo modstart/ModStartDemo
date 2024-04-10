@@ -64,13 +64,17 @@ class ZipUtil
     {
         usort($nodes, function ($a, $b) {
             if (isset($a['type']) && isset($b['type'])) {
-                                return strcmp($a['name'], $b['name']);
+                // file
+                return strcmp($a['name'], $b['name']);
             } else if (isset($a['type'])) {
-                                return 1;
+                // file
+                return 1;
             } else if (isset($b['type'])) {
-                                return -1;
+                // file
+                return -1;
             }
-                        return strcmp($a['name'], $b['name']);
+            // dir
+            return strcmp($a['name'], $b['name']);
         });
         return $nodes;
     }
@@ -115,11 +119,13 @@ class ZipUtil
         if ($option['ignoreSystem']) {
             $tree = self::fileTreeFilter($tree, function ($node, $depth) {
                 if (isset($node['type'])) {
-                                        if (in_array($node['type'], ['DS_Store',])) {
+                    // file
+                    if (in_array($node['type'], ['DS_Store',])) {
                         return false;
                     }
                 } else {
-                                        if (in_array($node['name'], ['__MACOSX',])) {
+                    // dir
+                    if (in_array($node['name'], ['__MACOSX',])) {
                         return false;
                     }
                 }

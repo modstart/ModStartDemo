@@ -9,7 +9,12 @@ use Symfony\Component\Process\Process;
 
 class ShellUtil
 {
-    
+    /**
+     * 在指定路径下执行命令
+     * @param $command string 命令
+     * @param $path string 路径
+     * @return string
+     */
     public static function runCommandInPath($command, $path)
     {
         $process = new Process($command, $path);
@@ -20,7 +25,12 @@ class ShellUtil
         return $process->getOutput();
     }
 
-    
+    /**
+     * 运行命令（该方法会共享当前进程的环境变量）
+     * @param $command string 命令
+     * @param $log bool 是否记录日志
+     * @return string
+     */
     public static function run($command, $log = true)
     {
         if ($log) {
@@ -34,7 +44,12 @@ class ShellUtil
         return $ret;
     }
 
-    
+    /**
+     * 在新进程中运行命令
+     * @param $command string 命令
+     * @param $log bool 是否记录日志
+     * @return string
+     */
     public static function runInNewProcess($command, $log = true)
     {
         if ($log) {
@@ -51,7 +66,11 @@ class ShellUtil
         return $ret;
     }
 
-    
+    /**
+     * @param $commandFilter
+     * @return array|string|null
+     * @since 1.7.0
+     */
     public static function commandStatus($commandFilter)
     {
         $cmd = "ps -eo pid,etimes,cmd";
@@ -82,7 +101,11 @@ class ShellUtil
         return null;
     }
 
-    
+    /**
+     * @param $command
+     * @param null $outputFile
+     * @since 1.7.0
+     */
     public static function commandRunBackground($command, $outputFile = null)
     {
         if (null === $outputFile) {
@@ -99,7 +122,8 @@ class ShellUtil
 
     public static function cleanDirWithPattern($dir, $keepMinute, $pattern)
     {
-                shell_exec("/usr/bin/find $dir -maxdepth 1 -mmin +$keepMinute -name \"$pattern\" -exec rm -rfv {} \;");
+        // /usr/bin/find / -maxdepth 1 -mmin +1 -name "core.*" -exec rm -rfv {} \;
+        shell_exec("/usr/bin/find $dir -maxdepth 1 -mmin +$keepMinute -name \"$pattern\" -exec rm -rfv {} \;");
     }
 
     public static function isCli()

@@ -9,12 +9,16 @@ use ModStart\Widget\AbstractWidget;
 
 class Chart extends AbstractWidget
 {
-    
+    /**
+     * @var string
+     */
     protected $view = 'modstart::widget.chart';
     protected $height = 300;
     protected $option = [];
 
-    
+    /**
+     * Chart constructor.
+     */
     public function __construct()
     {
         parent::__construct();

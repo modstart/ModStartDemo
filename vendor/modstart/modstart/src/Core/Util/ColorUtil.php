@@ -81,7 +81,11 @@ class ColorUtil
 
     }
 
-    
+    /**
+     * 将 #FFFFFFFF/#FFFFFF 转换为 rgba(255,255,255,1)
+     * @param $hexColor string 颜色值，RGBA
+     * @return string rgba(255,255,255,1)
+     */
     public static function hexToRgba($hexColor)
     {
         $hexColor = strtoupper($hexColor);
@@ -100,7 +104,11 @@ class ColorUtil
         return "rgba(0,0,0,1)";
     }
 
-    
+    /**
+     * 将 #FFFFFFFF/#FFFFFF 转换为 [ 'r' => 255, 'g' => 255, 'b' => 255, 'a' => 1 ]
+     * @param $hexColor string 颜色值，RGBA
+     * @return array
+     */
     public static function hexToRgbaArray($hexColor)
     {
         $hexColor = strtoupper($hexColor);

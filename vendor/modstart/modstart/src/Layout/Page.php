@@ -29,7 +29,13 @@ class Page implements Renderable
         return $this->row($content);
     }
 
-    
+    /**
+     * Add one row for content body.
+     *
+     * @param $content string|Closure function(Row $row){}
+     *
+     * @return $this
+     */
     public function row($content)
     {
         if ($content instanceof Closure) {
@@ -48,7 +54,10 @@ class Page implements Renderable
         return $this;
     }
 
-    
+    /**
+     * @param null $view
+     * @return $this
+     */
     public function view($view = null)
     {
         if (null === $view) {
@@ -103,13 +112,21 @@ class Page implements Renderable
     }
 
 
-    
+    /**
+     * Add Row.
+     *
+     * @param Row $row
+     */
     private function addRow(Row $row)
     {
         $this->rows[] = $row;
     }
 
-    
+    /**
+     * Build html of content.
+     *
+     * @return string
+     */
     public function build()
     {
         ob_start();
@@ -129,7 +146,10 @@ class Page implements Renderable
         return $contents;
     }
 
-    
+    /**
+     * @param Grid $grid
+     * @return $this
+     */
     public function handleGrid($grid)
     {
         if (Request::isPost()) {
@@ -138,7 +158,12 @@ class Page implements Renderable
         return $this;
     }
 
-    
+    /**
+     * @param $form Form
+     * @param $callback Closure function(Form $form){ $data = $form->dataForming(); return Response::generateSuccess(); }
+     * @param $data array|null
+     * @return $this
+     */
     public function handleForm($form, $callback, array $data = null)
     {
         if (Request::isPost()) {
@@ -147,7 +172,10 @@ class Page implements Renderable
         return $this;
     }
 
-    
+    /**
+     * @return string
+     * @throws \Throwable
+     */
     public function render()
     {
         $data = [
