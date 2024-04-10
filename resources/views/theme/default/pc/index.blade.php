@@ -37,8 +37,8 @@
                 <div class="tw-pt-10 tw-text-2xl">
                     基于 Laravel 的模块化全栈开发框架
                 </div>
-                <div class="tw-pt-20 tw-pb-32">
-                    <a href="{{modstart_admin_url('')}}" class="btn btn-lg btn-round btn-primary-line">
+                <div class="tw-pt-10">
+                    <a href="{{modstart_admin_url('login',['username'=>'demo','password'=>'123456'])}}" class="btn btn-lg btn-round btn-primary-line">
                         后台登录
                     </a>
                     <a href="https://modstart.com" target="_blank" class="btn btn-lg btn-round btn-primary-line">
@@ -50,6 +50,9 @@
                     <a href="https://modstart.com/doc" target="_blank" class="btn btn-lg btn-round btn-primary-line">
                         开发文档
                     </a>
+                </div>
+                <div class="tw-pt-10 tw-pb-32">
+                    后台管理系统演示 账号：demo 密码：123456
                 </div>
             </div>
         </div>
