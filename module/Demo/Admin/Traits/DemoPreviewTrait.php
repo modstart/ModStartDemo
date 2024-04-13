@@ -54,8 +54,24 @@ trait DemoPreviewTrait
         $html[] = '<div class="tw-h-20"></div>';
         $html[] = '</div>';
 
+        $css = <<<CSS
+[data-demo-preview-dialog]{
+    width:calc(100vw - 3rem);
+    height:calc(100vh - 3rem);
+}
+@media (max-width:40rem) {
+    [data-demo-preview-dialog]{
+        width:calc(100vw - 3rem);
+        height:calc(100vh - 3rem);
+    }
+}
+CSS;
+
+        ModStart::style($css);
+
+
         $dialogContent = [];
-        $dialogContent[] = '<div>';
+        $dialogContent[] = '<div data-demo-preview-dialog>';
         $dialogContent[] = '<div data-demo-preview-code-tab class="margin-bottom">';
         foreach ($codes as $codeIndex => $code) {
             $dialogContent[] = "<a href='javascript:;' class='btn btn-round " . (0 === $codeIndex ? 'btn-primary' : '') . " tw-mr-1'><i class='iconfont icon-code'></i> {$code['name']}</a>";
@@ -63,12 +79,12 @@ trait DemoPreviewTrait
         $dialogContent[] = '</div>';
         $dialogContent[] = '<div data-demo-preview-code-path>';
         foreach ($codes as $codeIndex => $code) {
-            $dialogContent[] = "<div class='ub-alert tw-font-mono' style='display:" . (0 === $codeIndex ? 'block' : 'none') . ";' data-demo-preview-code-path-item>路径：{$code['path']}</div>";
+            $dialogContent[] = "<div class='ub-alert tw-font-mono' style='word-break:break-all;display:" . (0 === $codeIndex ? 'block' : 'none') . ";' data-demo-preview-code-path-item>路径：{$code['path']}</div>";
         }
         $dialogContent[] = '</div>';
         $dialogContent[] = '<div data-demo-preview-code-content>';
         foreach ($codes as $codeIndex => $code) {
-            $dialogContent[] = "<div style='display:" . (0 === $codeIndex ? 'block' : 'none') . ";' data-demo-preview-code-content-item><pre style='height:calc(100vh - 8rem);width:calc(100vw - 6rem);overflow-y:auto;' class='language-{$code['type']} line-numbers'><code>{$code['contentHtml']}</code></pre></div>";
+            $dialogContent[] = "<div style='display:" . (0 === $codeIndex ? 'block' : 'none') . ";' data-demo-preview-code-content-item><pre style='overflow:auto;' class='language-{$code['type']} line-numbers'><code>{$code['contentHtml']}</code></pre></div>";
         }
         $dialogContent[] = '</div>';
         $dialogContent[] = '</div>';

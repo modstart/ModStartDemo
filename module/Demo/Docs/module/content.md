@@ -5,12 +5,6 @@
 
 ## 包含功能
 
-- 新闻增删改查
-- 新闻分类增删改查
-- 自定义键值对基础配置
-- 基础的接口开发
-- 接口文档注解
-
-
+参考：[https://demo.modstart.com](https://demo.modstart.com)
 
 {ADMIN_MENUS}

@@ -13,6 +13,6 @@ return [
         'Demo' => [
             'enable' => true,
         ],
-        
+
     ],
 ];
