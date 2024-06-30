@@ -26,9 +26,11 @@
 @section('bodyContent')
 
     <div class="ub-container">
-        <div class="tw-relative margin-top margin-bottom tw-bg-white tw-rounded-lg">
+        <div class="tw-relative margin-top margin-bottom tw-bg-white tw-rounded-lg tw-flex tw-items-center"
+             style="min-height:calc(100vh - 350px);"
+        >
             <div class="demo-container-bg"></div>
-            <div class="tw-relative tw-text-center">
+            <div class="tw-relative tw-text-center tw-w-full">
                 <div class="tw-pt-32">
                     <span class="demo-container-text tw-text-5xl tw-font-bold">
                         ModStart 开发框架演示
