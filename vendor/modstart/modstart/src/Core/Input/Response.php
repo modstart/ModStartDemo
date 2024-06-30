@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\View;
 use ModStart\Core\Exception\BizException;
+use ModStart\Core\Util\AgentUtil;
 use ModStart\Core\Util\FileUtil;
 use ModStart\Core\Util\SerializeUtil;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -40,6 +41,17 @@ class Response
             return $ret['data'][$key];
         }
         return isset($ret['data']) ? $ret['data'] : null;
+    }
+
+    public static function onSuccess($result, $successCallback, $errorCallback = null)
+    {
+        if (self::isSuccess($result)) {
+            call_user_func($successCallback, $result);
+        } else {
+            if ($errorCallback) {
+                call_user_func($errorCallback, $result);
+            }
+        }
     }
 
     public static function isSuccess($result)
@@ -319,6 +331,50 @@ class Response
         }
     }
 
+    public static function downloadFile($filename, $filepath, $headers = [], $filenameFallback = null, $param = [])
+    {
+        $param = array_merge([
+            'deleteAfterSent' => false,
+        ], $param);
+        $response = new StreamedResponse();
+        $fileSize = filesize($filepath);
+        $response->setCallback(function () use ($filepath, $fileSize, $param) {
+            ob_get_clean();
+            $sentBytes = 0;
+            $f = fopen($filepath, 'rb');
+            while (!feof($f) && $sentBytes < $fileSize) {
+                $bytesToRead = 1024 * 1024;
+                if ($sentBytes + $bytesToRead >= $fileSize) {
+                    $bytesToRead = $fileSize - $sentBytes;
+                }
+                $data = fread($f, $bytesToRead);
+                echo $data;
+                flush();
+                $sentBytes += $bytesToRead;
+            }
+            fclose($fileStream);
+            if ($param['deleteAfterSent']) {
+                unlink($filepath);
+            }
+        });
+        $disposition = $response->headers->makeDisposition(
+            \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $filename,
+            $filenameFallback
+        );
+        $response->headers->set('Content-Length', $fileSize);
+        $response->headers->set('Content-Disposition', $disposition);
+        $response->headers->set('X-Accel-Buffering', 'no');
+        $response->headers->set('Cache-Control', 'no-cache');
+        if (!isset($headers['Content-Type'])) {
+            $response->headers->set('Content-Type', 'application/octet-stream');
+        }
+        foreach ($headers as $k => $v) {
+            $response->headers->set($k, $v);
+        }
+        $response->send();
+    }
+
     public static function download($filename, $content, $headers = [], $filenameFallback = null)
     {
         if (empty($filenameFallback)) {
@@ -328,6 +384,10 @@ class Response
         $filename = str_replace($fileNameInvalidChars, '_', $filename);
         $filenameFallback = str_replace($fileNameInvalidChars, '_', $filenameFallback);
         $response = new \Illuminate\Http\Response($content);
+        // 低版本 Safari 浏览器自定义名称不生效，还会出现文件名变为 URL 中的路径的问题
+        if (AgentUtil::isBrowser('safari', '<15')) {
+            $filename = $filenameFallback;
+        }
         $disposition = $response->headers->makeDisposition(
             \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_ATTACHMENT,
             $filename,

@@ -25,7 +25,7 @@ class TempFileCleanScheduleBiz extends AbstractScheduleBiz
         $tempPath = public_path('temp');
         if (PlatformUtil::isWindows()) {
                                 } else {
-            $command = 'find "' . $tempPath . '" -mtime +7 -maxdepth 1 -exec rm -rfv {} \\;';
+            $command = 'find "' . $tempPath . '" -maxdepth 1 -mtime +1 -exec rm -rfv {} \\; > /dev/null 2>&1 &';
         }
         if (!empty($command)) {
             ShellUtil::run($command);

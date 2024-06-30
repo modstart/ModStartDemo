@@ -121,8 +121,13 @@ class ImageUtil
             'imageSize' => 20,                                  // 图片大小
             'imageOpacity' => 40,                               // 图片透明度
         ], $option);
+        $extensionPermit = [
+            'jpg', 'jpeg', 'png', 'gif',
+        ];
         try {
-            BizException::throwsIf('Image not exists', !file_exists($image));
+            BizException::throwsIf('image not exists', !file_exists($image));
+            $imageExt = FileUtil::extension($image);
+            BizException::throwsIf('image type not support', !in_array($imageExt, $extensionPermit));
             BizException::throwsIf('watermark type error', !in_array($type, ['image', 'text']));
             BizException::throwsIf('watermark content empty', empty($content));
             BizException::throwsIf('watermark text color error', !preg_match('/^#[0-9a-fA-F]{6}$/', $option['textColor']));
@@ -136,6 +141,7 @@ class ImageUtil
             'processed' => false,
             'success' => false,
             'message' => '',
+            'content' => null,
         ];
 
         $img = Image::make($image);
@@ -201,12 +207,13 @@ class ImageUtil
                 $changed = true;
                 break;
         }
-        if ($option['return']) {
-            $result = $img->response('png');
-            $img->destroy();
-            return $result;
-        }
         $data['processed'] = true;
+        if ($option['return']) {
+            $data['content'] = $img->response('png');
+            $img->destroy();
+            $data['success'] = true;
+            return Response::generateSuccessData($data);
+        }
         if ($changed) {
             $data['success'] = true;
             $img->save($image);

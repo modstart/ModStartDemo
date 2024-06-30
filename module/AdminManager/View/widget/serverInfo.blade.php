@@ -16,7 +16,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="tw-flex ub-border-bottom tw-p-2">
                     <div class="tw-w-24 tw-flex-shrink-0 tw-font-bold">MSCore</div>
-                    <div class="tw-flex-grow">V{{\ModStart\ModStart::$version}} ( With <b>{{strtoupper(\ModStart\Module\ModuleManager::getEnv())}}</b> )</div>
+                    <div class="tw-flex-grow">V{{\ModStart\ModStart::$version}} ( With <b>{{strtoupper(ModStart\ModStart::env())}}</b> )</div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
@@ -86,7 +86,7 @@
         </div>
         <script type="text/javascript">
             // 请勿删除，用于获取最新的安全通告（比如框架、模块有重大缺陷的应急通知等）
-            $('body').append('<script src="https://modstart.com/api/modstart/notice?modules={{urlencode($modules)}}"><' + '/script>');
+            $('body').append('<script src="https://modstart.com/api/modstart/notice?modules={{urlencode($modules)}}&t={{date('YmdH')}}"><' + '/script>');
             $(function(){
                 var $serverTime = $('[data-server-time]');
                 var timeDiff = {{time()*1000}} - (new Date()).getTime()

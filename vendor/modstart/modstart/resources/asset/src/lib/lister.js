@@ -43,6 +43,9 @@ let Lister = function (container, option) {
         },
         render: function (data) {
 
+        },
+        error: function (msg) {
+
         }
     }, option);
 
@@ -75,9 +78,7 @@ let Lister = function (container, option) {
 
     this.initSearch = function () {
         $searchContainer.on('click', '[data-search-button]', function () {
-            param.page = 1;
-            me.prepareSearch();
-            me.load(true);
+            me.search();
             return false;
         });
         $searchContainer.on('click', '[data-reset-search-button]', function () {
@@ -105,7 +106,10 @@ let Lister = function (container, option) {
         param.search = [];
         $searchContainer.find('[data-grid-filter-field]').each(function (i, o) {
             if ($(o).data('get')) {
-                param.search.push($(o).data('get')());
+                var v = $(o).data('get')();
+                if (v) {
+                    param.search.push(v);
+                }
             }
         });
     };
@@ -114,7 +118,10 @@ let Lister = function (container, option) {
         param.search = [];
         $searchContainer.find('[data-grid-filter-field]').each(function (i, o) {
             if ($(o).data('reset')) {
-                param.search.push($(o).data('reset')());
+                var v = $(o).data('reset')();
+                if (v) {
+                    param.search.push(v);
+                }
             }
         });
     };
@@ -148,6 +155,11 @@ let Lister = function (container, option) {
     this.refresh = function () {
         me.load();
     };
+    this.search = function () {
+        param.page = 1;
+        me.prepareSearch();
+        me.load(true);
+    };
     this.load = function () {
         if (opt.showLoading) {
             Dialog.loadingOn();
@@ -166,8 +178,11 @@ let Lister = function (container, option) {
                 Form.defaultCallback(res, {
                     success: function (res) {
                         opt.render(res.data);
+                    },
+                    error: function (res) {
+                        opt.error(res.msg);
                     }
-                });
+                }, Dialog);
             })
             .fail(function (res) {
                 try {
@@ -175,7 +190,11 @@ let Lister = function (container, option) {
                         Dialog.loadingOff();
                     }
                     opt.customLoading(false)
-                    Form.defaultCallback(res);
+                    Form.defaultCallback(res, {
+                        error: function (res) {
+                            opt.error(res.msg);
+                        }
+                    }, Dialog);
                 } catch (e) {
                 }
             });

@@ -44,6 +44,19 @@ class ShellUtil
         return $ret;
     }
 
+    public static function runExec($command, &$exitCode, $log = true)
+    {
+        if ($log) {
+            Log::info("ShellUtil.Run -> " . $command);
+        }
+        exec($command, $output, $exitCode);
+        $output = @trim(join("\n", $output));
+        if ($log) {
+            Log::info("ShellUtil.Result -> " . $output);
+        }
+        return $output;
+    }
+
     /**
      * 在新进程中运行命令
      * @param $command string 命令
@@ -64,6 +77,30 @@ class ShellUtil
             Log::info("ShellUtil.Result -> " . $ret);
         }
         return $ret;
+    }
+
+    public static function runWithTimeout($command, $timeout = 60, $log = true)
+    {
+        if ($log) {
+            Log::info("ShellUtil.Run -> " . $command);
+        }
+        $process = new Process($command);
+        $process->setTimeout($timeout);
+        try {
+            $process->start();
+            $process->wait();
+            $ret = $process->getOutput();
+            $ret = @trim($ret);
+            if ($log) {
+                Log::info("ShellUtil.Result -> " . $ret);
+            }
+            return $ret;
+        } catch (\Exception $e) {
+            if ($log) {
+                Log::error("ShellUtil.Error -> " . $e->getMessage());
+            }
+            return "ERROR:" . $e->getMessage();
+        }
     }
 
     /**

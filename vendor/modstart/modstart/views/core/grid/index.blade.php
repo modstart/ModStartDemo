@@ -15,11 +15,11 @@
         @if($canAdd)
             @if($addBlankPage)
                 <a href="{{$urlAdd}}" class="btn btn-primary" data-tab-open data-refresh-grid-on-close>
-                    <i class="iconfont icon-plus"></i> {{L('Add')}}
+                    <i class="iconfont icon-plus"></i> {{$titleAdd?$titleAdd:L('Add')}}
                 </a>
             @else
                 <a href="javascript:;" class="btn btn-primary" data-add-button>
-                    <i class="iconfont icon-plus"></i> {{L('Add')}}
+                    <i class="iconfont icon-plus"></i> {{$titleAdd?$titleAdd:L('Add')}}
                 </a>
             @endif
         @endif
@@ -37,12 +37,12 @@
             @endif
         @endforeach
         <div class="field">
-            @if(!count($filters))
+            @if(!$hasVisibleFilters)
                 <button class="btn" data-search-button>
                     <i class="iconfont icon-refresh"></i> {{L('Refresh')}}
                 </button>
             @endif
-            @if(count($filters)>0)
+            @if($hasVisibleFilters)
                 <button class="btn btn-primary" data-search-button>
                     <i class="iconfont icon-search"></i> {{L('Search')}}
                 </button>

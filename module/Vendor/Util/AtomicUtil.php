@@ -5,6 +5,7 @@ namespace Module\Vendor\Util;
 use ModStart\Core\Dao\ModelUtil;
 use ModStart\Core\Util\RandomUtil;
 use ModStart\Core\Util\RedisUtil;
+use Module\Vendor\Model\Atomic;
 
 
 class AtomicUtil
@@ -12,7 +13,7 @@ class AtomicUtil
     private static function autoCleanDB()
     {
         if (RandomUtil::percent(20)) {
-            ModelUtil::model('atomic')->where('expire', '<', time())->delete();
+            ModelUtil::model(Atomic::class)->where('expire', '<', time())->delete();
         }
     }
 
@@ -25,10 +26,10 @@ class AtomicUtil
             RedisUtil::set($hash, $value);
             RedisUtil::expire($hash, $expire);
         } else {
-            if (ModelUtil::exists('atomic', ['name' => $name,])) {
-                ModelUtil::update('atomic', ['name' => $name,], ['value' => $value, 'expire' => time() + $expire]);
+            if (ModelUtil::exists(Atomic::class, ['name' => $name])) {
+                ModelUtil::update(Atomic::class, ['name' => $name], ['value' => $value, 'expire' => time() + $expire]);
             } else {
-                ModelUtil::insert('atomic', ['name' => $name, 'value' => $value, 'expire' => time() + $expire]);
+                ModelUtil::insertIgnoreUnique(Atomic::class, ['name' => $name, 'value' => $value, 'expire' => time() + $expire]);
             }
             self::autoCleanDB();
         }
@@ -46,17 +47,17 @@ class AtomicUtil
         } else {
             self::autoCleanDB();
             ModelUtil::transactionBegin();
-            $atomic = ModelUtil::getWithLock('atomic', ['name' => $name]);
+            $atomic = ModelUtil::getWithLock(Atomic::class, ['name' => $name]);
             if (empty($atomic)) {
                 ModelUtil::transactionCommit();
                 return false;
             }
             if ($atomic['expire'] < time() || $atomic['value'] < 0) {
-                ModelUtil::delete('atomic', ['name' => $name]);
+                ModelUtil::delete(Atomic::class, ['name' => $name]);
                 ModelUtil::transactionCommit();
                 return false;
             }
-            ModelUtil::update('atomic', ['name' => $name], ['value' => $atomic['value'] - 1]);
+            ModelUtil::update(Atomic::class, ['name' => $name], ['value' => $atomic['value'] - 1]);
             ModelUtil::transactionCommit();
             return true;
         }
@@ -69,7 +70,7 @@ class AtomicUtil
             $hash = "Atomic:$name";
             RedisUtil::delete($hash);
         } else {
-            ModelUtil::delete('atomic', ['name' => $name]);
+            ModelUtil::delete(Atomic::class, ['name' => $name]);
         }
     }
 
@@ -91,10 +92,10 @@ class AtomicUtil
         } else {
             self::autoCleanDB();
             ModelUtil::transactionBegin();
-            $atomic = ModelUtil::getWithLock('atomic', ['name' => $name]);
+            $atomic = ModelUtil::getWithLock(Atomic::class, ['name' => $name]);
             $ts = time() + $expire;
             if (empty($atomic)) {
-                ModelUtil::insert('atomic', [
+                ModelUtil::insert(Atomic::class, [
                     'name' => $name,
                     'value' => 1,
                     'expire' => $ts
@@ -103,7 +104,7 @@ class AtomicUtil
                 return true;
             }
             if ($atomic['expire'] < time()) {
-                ModelUtil::update('atomic', ['name' => $name], [
+                ModelUtil::update(Atomic::class, ['name' => $name], [
                     'value' => 1,
                     'expire' => $ts
                 ]);
@@ -122,7 +123,7 @@ class AtomicUtil
             $key = "Atomic:$name";
             RedisUtil::delete($key);
         } else {
-            ModelUtil::delete('atomic', ['name' => $name]);
+            ModelUtil::delete(Atomic::class, ['name' => $name]);
         }
     }
 }
