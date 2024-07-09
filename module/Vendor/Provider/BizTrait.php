@@ -32,6 +32,32 @@ trait BizTrait
         return self::$list;
     }
 
+    public static function listAllEnabled()
+    {
+        $records = [];
+        foreach (static::listAll() as $bizer) {
+            if (!$bizer->enable()) {
+                continue;
+            }
+            $records[] = $bizer;
+        }
+        return $records;
+    }
+
+    public static function first()
+    {
+        foreach (self::listAll() as $item) {
+            return $item;
+        }
+        return null;
+    }
+
+    public static function firstName()
+    {
+        $item = self::first();
+        return $item ? $item->name() : null;
+    }
+
     public static function getByName($name)
     {
         foreach (self::listAll() as $item) {
