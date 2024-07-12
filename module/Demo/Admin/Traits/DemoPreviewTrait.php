@@ -45,7 +45,7 @@ trait DemoPreviewTrait
         }
 
         $html = [];
-        $html[] = '<div>';
+        $html[] = '<div class="pb-demo-container">';
         $html[] = '<div class="ub-content-box tw-shadow-lg ub-alert warning tw-fixed tw-left-3 tw-right-3 tw-bottom-3 tw-flex tw-items-center">';
         $html[] = '<div class="tw-flex-grow"><div class="tw-font-bold">' . $description . '</div></div>';
         $html[] = '<div class="tw-mr-1"><a href="javascript:;" class="btn btn-round" id="demoPreviewCode"><i class="iconfont icon-code"></i> 查看代码</a></div>';
@@ -102,6 +102,9 @@ $('#demoPreviewCode').on('click',function(){
     });
     return false;
 });
+if($('.ub-panel-dialog').length>0){
+    $('.pb-demo-container .ub-content-box').css({bottom:'2.5rem'});
+}
 $(document).on('click','[data-demo-preview-code-tab] a',function(){
     var index = $(this).index();
     $(this).addClass('btn-primary').siblings().removeClass('btn-primary');

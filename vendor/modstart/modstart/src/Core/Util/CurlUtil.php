@@ -2,6 +2,8 @@
 
 namespace ModStart\Core\Util;
 
+use Illuminate\Support\Str;
+
 class CurlUtil
 {
     private static function JSONResult($code, $msg = '', $data = null)
@@ -151,6 +153,7 @@ class CurlUtil
         if (!isset($option['timeout'])) {
             $option['timeout'] = 30;
         }
+        $option['method'] = strtolower($option['method']);
 
         $result = [];
         $result['code'] = 0;
@@ -159,10 +162,17 @@ class CurlUtil
             $result['header'] = [];
             $result['headerMap'] = [];
         }
-        if ($option['method'] == 'get') {
-            if (!empty($param)) {
-                $url = $url . '?' . http_build_query($param);
-            }
+        if (!empty($option['query'])) {
+            $split = Str::contains($url, '?') ? '&' : '?';
+            $url = $url . $split . http_build_query($option['query']);
+        }
+        switch ($option['method']) {
+            case 'get':
+                if (!empty($param)) {
+                    $split = Str::contains($url, '?') ? '&' : '?';
+                    $url = $url . $split . http_build_query($param);
+                }
+                break;
         }
         $ch = curl_init($url);
 
@@ -182,7 +192,7 @@ class CurlUtil
         if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
-        switch (strtolower($option['method'])) {
+        switch ($option['method']) {
             case 'post':
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $param);
@@ -194,6 +204,9 @@ class CurlUtil
             case 'delete':
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $param);
+                break;
+            case 'get':
+                // ignore
                 break;
         }
         if (strpos($url, 'https://') === 0) {

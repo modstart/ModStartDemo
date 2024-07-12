@@ -39,6 +39,10 @@ class ModuleServiceProvider extends ServiceProvider
                             'title' => '自定义视图',
                             'url' => '\Module\Demo\Admin\Controller\GridCustomItemController@index',
                         ],
+                        [
+                            'title' => '表格自定义',
+                            'url' => '\Module\Demo\Admin\Controller\GridOperateController@index',
+                        ],
                     ]
                 ],
                 [

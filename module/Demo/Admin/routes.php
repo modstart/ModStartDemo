@@ -15,6 +15,13 @@ $router->match(['get', 'post'], 'demo/grid/edit', 'GridController@edit');
 $router->match(['post'], 'demo/grid/delete', 'GridController@delete');
 $router->match(['get'], 'demo/grid/show', 'GridController@show');
 
+$router->match(['get', 'post'], 'demo/grid_operate', 'GridOperateController@index');
+$router->match(['get', 'post'], 'demo/grid_operate/add', 'GridOperateController@add');
+$router->match(['get', 'post'], 'demo/grid_operate/edit', 'GridOperateController@edit');
+$router->match(['post'], 'demo/grid_operate/delete', 'GridOperateController@delete');
+$router->match(['get'], 'demo/grid_operate/show', 'GridOperateController@show');
+$router->match(['get', 'post'], 'demo/grid_operate/batch_edit', 'GridOperateController@batchEdit');
+
 $router->match(['get', 'post'], 'demo/grid_raw', 'GridRawController@index');
 $router->match(['get', 'post'], 'demo/grid_raw/add', 'GridRawController@add');
 $router->match(['get', 'post'], 'demo/grid_raw/edit', 'GridRawController@edit');
