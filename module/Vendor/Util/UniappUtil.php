@@ -61,6 +61,8 @@ class UniappUtil
         $replaces = [
             '"__cdn_url__/"' => 'window.__msCDN+"vendor/' . $module . '/"',
                         '"/static/' => 'window.__msCDN+"vendor/' . $module . '/static/',
+                        '"url(\'/static/' => '"url(\'"+window.__msCDN+"vendor/' . $module . '/static/',
+                        'Path:"static/' => 'Path:window.__msCDN+"vendor/' . $module . '/static/',
         ];
         $files = glob('dist/build/h5/static/js/*.js');
         foreach ($files as $file) {

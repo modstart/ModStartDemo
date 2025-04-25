@@ -7,7 +7,7 @@ return [
             'maxWidth' => 9999,
             'maxHeight' => 9999,
             'extensions' => [
-                'jpg', 'png', 'gif', 'jpeg', 'ico', 'webp'
+                'jpg', 'png', 'gif', 'jpeg', 'ico', 'webp', 'svg',
             ],
             // 是否上传前端压缩
             'compress' => true,
@@ -25,7 +25,7 @@ return [
         'audio' => [
             'maxSize' => 1024 * 1024 * 1024,
             'extensions' => [
-                'mp3'
+                'mp3', 'wav',
             ]
         ],
         'file' => [
@@ -39,6 +39,7 @@ return [
                 'ai', 'psd', 'dwg',
                 'css', 'html',
                 'ttf',
+                'log',
             ]
         ],
         'document' => [

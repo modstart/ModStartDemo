@@ -3,17 +3,29 @@ import {Message} from 'element-ui'
 
 let apiRequest = null, apiStore = null
 
+let Dialog = {
+    tipError(msg) {
+        Message({
+            message: msg, type: 'error', duration: 5 * 1000
+        })
+    }, tipSuccess(msg) {
+        Message({
+            message: msg, type: 'success', duration: 5 * 1000
+        })
+    }
+}
+
+if (window.MS && window.MS.dialog) {
+    Dialog.tipSuccess = window.MS.dialog.tipSuccess
+    Dialog.tipError = window.MS.dialog.tipError
+}
+
 const isInited = () => {
     return apiStore && apiStore.state.api.baseUrl
 }
 
 const isRemoteInited = () => {
-    return apiStore && apiStore.state.api.baseUrl &&
-        (
-            apiStore.state.api.baseUrl.startsWith('http://')
-            ||
-            apiStore.state.api.baseUrl.startsWith('https://')
-        )
+    return apiStore && apiStore.state.api.baseUrl && (apiStore.state.api.baseUrl.startsWith('http://') || apiStore.state.api.baseUrl.startsWith('https://'))
 }
 
 const init = (store) => {
@@ -22,45 +34,38 @@ const init = (store) => {
     }
     apiStore = store
     apiRequest = axios.create({
-        baseURL: apiStore ? apiStore.state.api.baseUrl : '',
-        timeout: 60 * 1000
+        baseURL: apiStore ? apiStore.state.api.baseUrl : '', timeout: 60 * 1000
     })
-    apiRequest.interceptors.request.use(
-        config => {
-            if (apiStore) {
-                let token = apiStore.state.api.token
-                if (token) {
-                    config.headers[apiStore.state.api.tokenKey] = token
-                }
-                config.baseURL = apiStore.state.api.baseUrl
-                // let additionalSendHeaders = Storage.getObject('ADDITIONAL_HEADERS', {})
-                // for (let k in additionalSendHeaders) {
-                //     config.headers[k] = additionalSendHeaders[k]
-                // }
+    apiRequest.interceptors.request.use(config => {
+        if (apiStore) {
+            let token = apiStore.state.api.token
+            if (token) {
+                config.headers[apiStore.state.api.tokenKey] = token
             }
-            config.headers['is-ajax'] = true
-            return config
-        },
-        error => {
-            Promise.reject(error)
+            config.baseURL = apiStore.state.api.baseUrl
+            // let additionalSendHeaders = Storage.getObject('ADDITIONAL_HEADERS', {})
+            // for (let k in additionalSendHeaders) {
+            //     config.headers[k] = additionalSendHeaders[k]
+            // }
         }
-    )
-    apiRequest.interceptors.response.use(
-        response => {
-            if (apiStore) {
-                try {
-                    if (response.headers[apiStore.state.api.tokenKey]) {
-                        apiStore.commit('SET_API_TOKEN', response.headers[apiStore.state.api.tokenKey])
-                    }
-                } catch (e) {
+        config.headers['is-ajax'] = true
+        return config
+    }, error => {
+        Promise.reject(error)
+    })
+    apiRequest.interceptors.response.use(response => {
+        if (apiStore) {
+            try {
+                if (response.headers[apiStore.state.api.tokenKey]) {
+                    apiStore.commit('SET_API_TOKEN', response.headers[apiStore.state.api.tokenKey])
                 }
+            } catch (e) {
             }
-            return response.data
-        },
-        error => {
-            return Promise.reject(error)
         }
-    )
+        return response.data
+    }, error => {
+        return Promise.reject(error)
+    })
 }
 
 const processResponse = (res, failCB, successCB) => {
@@ -84,41 +89,27 @@ const processResponse = (res, failCB, successCB) => {
         if (!processed) {
             // 只有返回 true 表示已经处理了响应
             if (true !== failCB(res)) {
-                Message({
-                    message: res.msg,
-                    type: 'error',
-                    duration: 5 * 1000
-                })
+                Dialog.tipError(res.msg)
             }
         }
     } else {
         // 只有返回 true 表示需要处理响应
         if (true === successCB(res)) {
-            Message({
-                message: res.msg,
-                type: 'success',
-                duration: 5 * 1000
-            })
+            Dialog.tipSuccess(res.msg)
         }
     }
 }
 
 const defaultFailCallback = function (res) {
-    Message({
-        message: res.msg,
-        type: 'error',
-        duration: 5 * 1000
-    })
+    if (res.msg) {
+        Dialog.tipError(res.msg)
+    }
     return true
 }
 
 const defaultSuccessCallback = function (res) {
     if (res.msg) {
-        Message({
-            message: res.msg,
-            type: 'success',
-            duration: 5 * 1000
-        })
+        Dialog.tipSuccess(res.msg)
     }
 }
 
@@ -189,7 +180,7 @@ const eventSource = (url, param, successCallback, errorCallback, endCallback) =>
     }
     var es = new EventSource(url, {withCredentials: true});
     es.onerror = function (event) {
-        errorCallback('ERROR:' + event)
+        errorCallback('ERROR')
         es.close();
     }
     es.onmessage = function (event) {
@@ -213,15 +204,18 @@ const eventSource = (url, param, successCallback, errorCallback, endCallback) =>
             es.close()
         }
     }
+    return {
+        isRunning: function () {
+            return es.readyState === EventSource.OPEN
+        },
+        close: function () {
+            es.close()
+        }
+    }
 }
 
 const Api = {
-    isInited,
-    isRemoteInited,
-    init,
-    post,
-    eventSource,
-    // postJson,
+    isInited, isRemoteInited, init, post, eventSource, // postJson,
     // setApiBaseUrl,
     // getApiTokenKey,
     // setApiTokenKey

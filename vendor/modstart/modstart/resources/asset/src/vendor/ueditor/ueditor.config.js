@@ -10,14 +10,8 @@
  **************************提示********************************/
 
 (function () {
-    /**
-     * 编辑器资源文件根路径。它所表示的含义是：以编辑器实例化页面为当前路径，指向编辑器资源文件（即dialog等文件夹）的路径。
-     * 鉴于很多同学在使用编辑器的时候出现的种种路径问题，此处强烈建议大家使用"相对于网站根目录的相对路径"进行配置。
-     * "相对于网站根目录的相对路径"也就是以斜杠开头的形如"/myProject/ueditor/"这样的路径。
-     * 如果站点中有多个不在同一层级的页面需要实例化编辑器，且引用了同一UEditor的时候，此处的URL可能不适用于每个页面的编辑器。
-     * 因此，UEditor提供了针对不同页面的编辑器可单独配置的根路径，具体来说，在需要实例化编辑器的页面最顶部写上如下代码即可。当然，需要令此处的URL等于对应的配置。
-     * window.UEDITOR_HOME_URL = "/xxxx/xxxx/";
-     */
+    // 资源文件根路径，如果你的页面不是放在根目录下，请注意修改这个路径
+    // 通常情况下这个可以配置成静态资源CDN的地址
     var URL, CORS_URL;
     if (window.UEDITOR_HOME_URL) {
         URL = window.UEDITOR_HOME_URL;
@@ -28,6 +22,8 @@
     } else {
         URL = getUEBasePath();
     }
+    // 需要能跨域的静态资源请求，主要用户弹窗页面等静态资源
+    // 通常情况下这个可以配置成静态资源CDN的地址
     if (window.UEDITOR_CORS_URL) {
         CORS_URL = window.UEDITOR_CORS_URL;
     } else if (window.__msRoot) {
@@ -53,6 +49,10 @@
 
         // 服务器统一请求接口路径
         serverUrl: "/ueditor-plus/_demo_server/handle.php",
+
+        // 从服务器获取配置
+        loadConfigFromServer: true,
+
         // 服务器统一请求头信息，会在所有请求中带上该信息
         serverHeaders: {
             // 'Authorization': 'Bearer xxx'
@@ -161,9 +161,14 @@
                 "searchreplace",       // 查询替换
                 "|",
                 "contentimport",
+                "ai",
                 "help",                // 帮助
             ]
         ]
+        // 动态选项配置，该值可以通过后端配置接口动态返回，动态控制toolbars的功能
+        , toolbarShows:{
+            // "ai": false,
+        }
 
         // 自定义工具栏按钮点击，返回 true 表示已经处理点击，会阻止默认事件
         , toolbarCallback: function (cmd, editor) {
@@ -182,6 +187,33 @@
             //     editor.execCommand('insertHtml', '<p><a href="xxx.zip">下载文件</a></p>');
             //     return true;
             // }
+        }
+
+        // 自定义上传功能
+        , uploadServiceEnable: false
+        // 自定义上传函数，需要在这个函数中实现自定义上传逻辑
+        // type 上传类型，image 图片，video 视频，audio 音频，attachment 附件
+        // file 文件对象
+        // callback 回调函数，需要在上传完成后调用 callback.success、callback.error、callback.progress
+        // option 上传配置，其他一些未来扩展配置
+        , uploadServiceUpload: function (type, file, callback, option) {
+            console.log('uploadServiceUpload', type, file, callback, option);
+            // var i = 0;
+            // var call = function(){
+            //     i++;
+            //     if(i > 3){
+            //         callback.success({
+            //             "state": "SUCCESS",
+            //             "url": "https://ms-assets.modstart.com/demo/modstart.jpg",
+            //         })
+            //         return;
+            //     }
+            //     setTimeout(function(){
+            //         callback.progress(0.3 * i);
+            //         call();
+            //     },500);
+            // }
+            // call();
         }
 
         // 插入图片自定义配置
@@ -453,32 +485,29 @@
 
         //快捷菜单
         , shortcutMenu: [
+            "ai",           // AI智能
             // "fontfamily",   // 字体
             // "fontsize",     // 字号
-            "bold",         // 加粗
-            "italic",       // 斜体
-            "underline",    // 下划线
-            "strikethrough",// 删除线
-            "fontborder",   // 字符边框
-            "forecolor",    // 字体颜色
-            // "shadowcolor", // 字体阴影
-            "backcolor",   // 背景色
-            "imagenone",
-            "imageleft",
-            "imagecenter",
-            "imageright",
-            "insertimage",
+            "bold",            // 加粗
+            "italic",          // 斜体
+            "underline",       // 下划线
+            "strikethrough",   // 删除线
+            "fontborder",      // 字符边框
+            "forecolor",       // 字体颜色
+            "backcolor",       // 背景色
+            "imagenone",       // 图片默认
+            "imageleft",       // 图片左浮动
+            "imagecenter",     // 图片居中
+            "imageright",      // 图片右浮动
+            "insertimage",     // 插入图片
             "formula",
             // "justifyleft",    // 居左对齐
             // "justifycenter",  // 居中对齐
             // "justifyright",   // 居右对齐
             // "justifyjustify", // 两端对齐
-            // "textindent",  // 首行缩进
             // "rowspacingtop",     // 段前距
             // "rowspacingbottom",  // 段后距
-            // "outpadding",        // 两侧距离
             // "lineheight",           // 行间距
-            // "letterspacing" ,    // 字间距
             // "insertorderedlist",    // 有序列表
             // "insertunorderedlist",  // 无序列表
             // "superscript",    // 上标
@@ -488,6 +517,10 @@
             // "touppercase",    // 字母大写
             // "tolowercase"     // 字母小写
         ]
+        // 动态选项配置，该值可以通过后端配置接口动态返回，动态控制shortcutMenu的功能
+        ,shortcutMenuShows: {
+            // "ai": false,
+        }
 
         // 是否启用元素路径，默认是显示
         , elementPathEnabled: true
@@ -593,6 +626,68 @@
 
         //allowLinkProtocol 允许的链接地址，有这些前缀的链接地址不会自动添加http
         //, allowLinkProtocols: ['http:', 'https:', '#', '/', 'ftp:', 'mailto:', 'tel:', 'git:', 'svn:']
+
+        // AI智能相关配置
+        , ai: {
+            // 大模型驱动 OpenAi ModStart
+            driver: 'OpenAi',
+            // 大模型对接配置
+            driverConfig: {
+                // 模型API地址，留空使用默认
+                url: '',
+                // 大模型平台Key
+                key: '',
+                // 大模型平台模型
+                model: '',
+            },
+            // 自定义接入
+            // driverRequest: function (option) {
+            //     var texts = []
+            //     var mock = function () {
+            //         var text = '测试' + (i++)
+            //         texts.push(text)
+            //         if (texts.length >= 10) {
+            //             // 调用 onFinish 方法表示结束
+            //             option.onFinish({code: 0, msg: 'ok', data: {text: texts.join("")}})
+            //             return
+            //         }
+            //         // 调用 onStream 方法模拟流式返回
+            //         option.onStream({code: 0, msg: 'ok', data: {text: text}})
+            //         setTimeout(mock, 50);
+            //     };
+            //     mock();
+            // },
+        }
+        , aiFunctions:[
+            {
+                text: '<i class="edui-iconfont edui-icon-translate"></i> 翻译',
+                prompt: "{selectText}\n\n请帮我翻译一下这段内容，并直接返回优化后的结果。\n注意：你应该先判断一下这句话是中文还是英文，如果是中文，请给我返回英文，如果是英文，请给我返回中文内容，只需要返回内容即可，不需要告知我是中文还是英文。",
+                enable: function (param) {
+                    return !!param.selectText
+                }
+            },
+            {
+                text: '<i class="edui-iconfont edui-icon-continue-write"></i> 续写',
+                prompt: "{selectText}\n\n请帮我续写一下这段内容，并直接返回续写后的结果。",
+                enable: function (param) {
+                    return !!param.selectText
+                }
+            },
+            {
+                text: '<i class="edui-iconfont edui-icon-text-shrink"></i> 简化内容',
+                prompt: "{selectText}\n\n请帮我简化一下这段内容，并直接返回简化后的结果。",
+                enable: function (param) {
+                    return !!param.selectText
+                }
+            },
+            {
+                text: '<i class="edui-iconfont edui-icon-text-extend"></i> 丰富内容',
+                prompt: "{selectText}\n\n请帮我丰富一下这段内容，并直接返回丰富后的结果。",
+                enable: function (param) {
+                    return !!param.selectText
+                }
+            }
+        ]
 
         //默认过滤规则相关配置项目
         //,disabledTableInTable:true  //禁止表格嵌套

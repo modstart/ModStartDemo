@@ -72,6 +72,24 @@ class ArrayUtil
     }
 
     /**
+     * 根据key映射数组
+     * @param $records
+     * @param $key
+     * @return array
+     * @example 
+     * input : [ ['id'=>1,'name'=>'a'], ['id'=>2,'name'=>'b'] ]
+     * output : [ 1=>['id'=>1,'name'=>'a'], 2=>['id'=>2,'name'=>'b'] ]
+     */
+    public static function mapItemsByKey(&$records, $key)
+    {
+        $map = [];
+        foreach ($records as $item) {
+            $map[$item[$key]] = $item;
+        }
+        return $map;
+    }
+
+    /**
      * 过滤 $record 中的 $keys 并返回
      *
      * @param array $record
@@ -513,6 +531,9 @@ class ArrayUtil
 
     public static function getByDotKey($array, $key, $defaultValue = null)
     {
+        if (empty($key)) {
+            return $defaultValue;
+        }
         if (empty($array)) {
             return $defaultValue;
         }

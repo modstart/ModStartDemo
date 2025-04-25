@@ -22,11 +22,52 @@ use ModStart\Core\Util\TreeUtil;
 use ModStart\Data\Event\DataUploadedEvent;
 use ModStart\Data\Event\DataUploadingEvent;
 use ModStart\Data\Support\FileManagerProvider;
+use ModStart\ModStart;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileManager
 {
     public static $slowDebug = false;
+
+    public static function prepareLang()
+    {
+        ModStart::lang([
+            "Add Category",
+            "Add Success",
+            "Category",
+            "Confirm",
+            "Confirm Delete ?",
+            "Copy Link",
+            "Custom Link",
+            "Delete",
+            "Delete Category",
+            "Delete Success",
+            "Edit",
+            "Edit Category",
+            "Edit File",
+            "Edit Success",
+            "File(s)",
+            "Filter",
+            "File Gallery",
+            "Loading",
+            "Local Upload",
+            "Name",
+            "No Records",
+            "Parent",
+            "Please Input",
+            "Please Select",
+            "Select %d item(s) at most",
+            "Select %d item(s) at least",
+            "Url",
+            "Select Local File",
+            "Copy Success",
+            "Copy Fail",
+            "Image Gallery",
+            "File Gallery",
+            "Copy Links",
+            "CompressingImage",
+        ]);
+    }
 
     public static function handleUpload($category, $option = null, $permitCheck = null, $param = [])
     {
@@ -59,9 +100,7 @@ class FileManager
         }
         switch ($action) {
             case 'config':
-                // upload and save to user space
             case 'uploadDirect':
-                // update and not save to user space
             case 'uploadDirectRaw':
             case 'categoryEdit':
             case 'categoryDelete':
@@ -218,13 +257,18 @@ class FileManager
         if ($retSaveUser['code']) {
             return Response::jsonError($ret['msg']);
         }
-        DataUploadedEvent::fire($uploadTable, $userId, $category, $ret['data']['data']['id']);
-        return Response::jsonSuccessData([
+        $data = [
+            'id' => $ret['data']['data']['id'],
             'path' => $ret['data']['path'],
             'fullPath' => $ret['data']['fullPath'],
             'filename' => $ret['data']['data']['filename'],
             'data' => $ret['data']['data'],
-        ]);
+        ];
+        if (Input::get('fullPath', false)) {
+            $data['fullPath'] = PathUtil::fixFull($data['fullPath']);
+        }
+        DataUploadedEvent::fire($uploadTable, $userId, $category, $data['id']);
+        return Response::jsonSuccessData($data);
     }
 
     private static function uploadAndSaveBase64Execute(InputPackage $input, $category, $uploadTable, $uploadCategoryTable, $userId, $option, $param)

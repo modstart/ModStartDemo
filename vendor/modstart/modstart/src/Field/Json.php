@@ -27,6 +27,7 @@ class Json extends AbstractField
             'editorHeight' => '200px',
             // api | default
             'jsonMode' => 'default',
+            'showMaxHeight' => '200px',
         ]);
     }
 
@@ -44,6 +45,15 @@ class Json extends AbstractField
     public function editorHeight($value)
     {
         $this->addVariables(['editorHeight' => $value]);
+        return $this;
+    }
+
+    public function showMaxHeight($value)
+    {
+        if (is_numeric($value)) {
+            $value = $value . 'px';
+        }
+        $this->addVariables(['showMaxHeight' => $value]);
         return $this;
     }
 
@@ -135,9 +145,13 @@ class Json extends AbstractField
         }
 
         $ret = CurlUtil::request($value['url'], $param, $option);
-
+        $resultData = [
+            'success' => true,
+            'body' => $ret['body'],
+        ];
         if (empty($value['responseEnable'])) {
-            return $ret;
+            $resultData['value'] = $resultData['body'];
+            return Response::generateSuccessData($resultData);
         }
 
         if (200 != $ret['code']) {
@@ -147,23 +161,23 @@ class Json extends AbstractField
         }
 
         if ('json' == $value['responseType']) {
-            $json = @json_decode($ret, true);
+            $json = @json_decode($ret['body'], true);
             if (empty($json)) {
                 return Response::generateError('返回数据格式错误', [
                     'raw' => $ret
                 ]);
             }
-            $status = ArrayUtil::getByDotKey($ret, $value['responseJsonStatusPath']);
-            if ($value['responseJsonStatusValue'] != $status) {
-                $msg = ArrayUtil::getByDotKey($ret, $value['responseJsonMsgPath']);
-                return Response::generateError($msg, [
-                    'raw' => $ret
-                ]);
+            $status = ArrayUtil::getByDotKey($json, $value['responseJsonStatusPath']);
+            $msg = ArrayUtil::getByDotKey($json, $value['responseJsonMsgPath']);
+            $responseJsonStatusValue = trim($value['responseJsonStatusValue']) . '';
+            $resultData['value'] = ArrayUtil::getByDotKey($json, $value['responseValuePath']);
+            if ('' !== $responseJsonStatusValue) {
+                if ($responseJsonStatusValue != $status . '') {
+                    $resultData['success'] = false;
+                    $resultData['raw'] = $ret;
+                }
             }
-            $value = ArrayUtil::getByDotKey($ret, $value['responseValuePath']);
-            return Response::generateSuccess([
-                'value' => $value,
-            ]);
+            return Response::generate(0, $msg, $resultData);
         }
         return Response::generateError('未知返回类型', [
             'raw' => $ret

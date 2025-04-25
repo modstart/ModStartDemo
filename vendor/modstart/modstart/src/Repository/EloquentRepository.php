@@ -17,6 +17,7 @@ use ModStart\Core\Exception\BizException;
 use ModStart\Core\Exception\ResultException;
 use ModStart\Core\Type\SortAddPosition;
 use ModStart\Core\Type\SortDirection;
+use ModStart\Core\Util\ExceptionUtil;
 use ModStart\Core\Util\ReUtil;
 use ModStart\Core\Util\TreeUtil;
 use ModStart\Detail\Detail;
@@ -292,41 +293,9 @@ class EloquentRepository extends Repository
             if (empty($column) || empty($type)) {
                 continue;
             }
-            if (Str::contains($column, '.')) {
-                exit('Under Dev');
-                // $this->setRelationSort($model, $column, $type);
-            } else {
-                $model->addQuery('orderBy', [$column, $type]);
-            }
+            $model->addQuery('orderBy', [$column, $type]);
         }
     }
-
-    /**
-     * 设置关联数据排序.
-     *
-     * @param Model $model
-     * @param string $column
-     * @param string $type
-     *
-     * @return void
-     */
-//    protected function setRelationSort(Grid\Model $model, $column, $type)
-//    {
-//        list($relationName, $relationColumn) = explode('.', $column);
-//
-//        if ($model->getQueries()->contains(function ($query) use ($relationName) {
-//            return $query['method'] == 'with' && in_array($relationName, $query['arguments']);
-//        })) {
-//            $model->addQuery('select', [$this->getTableColumns()]);
-//
-//            $model->resetOrderBy();
-//
-//            $model->addQuery('orderBy', [
-//                $relationColumn,
-//                $type,
-//            ]);
-//        }
-//    }
 
     /**
      * 设置分页参数.
@@ -487,41 +456,9 @@ class EloquentRepository extends Repository
                 ResultException::throwsIfFail($form->hookCall($form->hookChanged()));
             });
         } catch (\Exception $e) {
-            $this->throwDatabaseException($e);
+            ExceptionUtil::throwExcpectException($e);
         }
         return $model->getKey();
-    }
-
-    /**
-     * 统一处理数据库异常
-     * @param \Exception $e
-     * @throws BizException
-     */
-    private function throwDatabaseException(\Exception $e)
-    {
-        $message = $e->getMessage();
-        if (Str::contains($message, 'Duplicate entry')) {
-            BizException::throws(L('Records Duplicated'));
-        }
-        $formatErrorTemplates = [
-            ['Data too long for column', '/Data too long for column \'(.*)\' at row/'],
-            ['Data truncated for column', '/Data truncated for column \'(.*)\' at row/'],
-            ['Incorrect integer value', '/ for column \'(.*)\' at row/'],
-            ['Incorrect decimal value', '/ for column \'(.*)\' at row/'],
-            ['Incorrect datetime value', '/ for column \'(.*)\' at row/'],
-            ['Incorrect time value', '/ for column \'(.*)\' at row/'],
-            ['Incorrect date value', '/ for column \'(.*)\' at row/'],
-        ];
-        foreach ($formatErrorTemplates as $f) {
-            if (Str::contains($message, $f[0])) {
-                $column = ReUtil::group1($f[1], $message);
-                if (!empty($column)) {
-                    BizException::throws("FieldFormatError:$column");
-                }
-                throw $e;
-            }
-        }
-        throw $e;
     }
 
     /**
@@ -567,7 +504,7 @@ class EloquentRepository extends Repository
                 ResultException::throwsIfFail($form->hookCall($form->hookChanged()));
             });
         } catch (\Exception $e) {
-            $this->throwDatabaseException($e);
+            ExceptionUtil::throwExcpectException($e);
         }
         return $result;
     }

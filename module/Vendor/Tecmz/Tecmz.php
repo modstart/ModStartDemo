@@ -27,6 +27,11 @@ class Tecmz
         }
     }
 
+    public static function setApiBase($apiBase)
+    {
+        self::$API_BASE = $apiBase;
+    }
+
     
     public function signCheck($param)
     {
@@ -566,5 +571,35 @@ class Tecmz
         return $this->callFileConvertQuery('doc_smart_preview', $jobId);
     }
 
+    public function callCloudModelAvailable($type)
+    {
+        return $this->request('/' . $type . '/available', [
+                    ]);
+    }
+
+    public function callCloudModelQueue($type, $modelConfig = [], $option = [])
+    {
+        $option = array_merge([
+            'callback' => '',
+            'outId' => '',
+        ], $option);
+        return $this->request('/' . $type . '/queue', [
+            'modelConfig' => SerializeUtil::jsonEncode($modelConfig),
+            'callback' => $option['callback'],
+            'outId' => $option['outId'],
+        ]);
+    }
+
+    public function callCloudModelQuery($type, $taskId)
+    {
+        return $this->request('/' . $type . '/query', [
+            'taskId' => $taskId,
+        ]);
+    }
+
+    public function callCloudModelConfig($type, $name)
+    {
+        return $this->request('/' . $type . '/config/' . $name);
+    }
 
 }

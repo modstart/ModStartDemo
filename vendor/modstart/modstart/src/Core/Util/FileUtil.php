@@ -116,6 +116,14 @@ class FileUtil
         return null;
     }
 
+    public static function textToFilename($text, $limit = 10)
+    {
+        // 只保留中文、英文、数字
+        $text = preg_replace('/[^\x{4e00}-\x{9fa5}A-Za-z0-9]/u', '', $text);
+        $text = mb_substr($text, 0, $limit);
+        return $text;
+    }
+
     /**
      * @param UploadedFile $file
      * @return string
@@ -642,6 +650,7 @@ class FileUtil
                 $f = @fopen($path, 'rb', false, self::fopenGetContext());
                 if ($f) {
                     file_put_contents($tempPath, $f);
+                    fclose($f);
                 }
             } else {
                 $content = CurlUtil::getRaw($path, [], [
@@ -668,6 +677,20 @@ class FileUtil
     }
 
     /**
+     * 保存本地临时路径
+     * @param $content string 文件内容
+     * @param $ext string 文件后缀
+     * @return string 返回本地临时路径
+     * @throws BizException
+     */
+    public static function saveContentToLocalTempPath($content, $ext = 'tmp')
+    {
+        $p = self::generateLocalTempPath($ext);
+        file_put_contents($p, $content);
+        return $p;
+    }
+
+    /**
      * 产生一个本地临时路径
      *
      * @param $ext string 文件后缀
@@ -681,9 +704,13 @@ class FileUtil
         if (!file_exists(public_path('temp'))) {
             @mkdir(public_path('temp'));
         }
+        $extWithDot = '';
+        if ($ext) {
+            $extWithDot = '.' . ltrim($ext, '.');
+        }
         if (empty($hash)) {
             for ($i = 0; $i < 10; $i++) {
-                $p = 'temp/' . RandomUtil::lowerString(32) . '.' . $ext;
+                $p = 'temp/' . RandomUtil::lowerString(32) . $extWithDot;
                 $tempPath = public_path($p);
                 if (!file_exists($tempPath)) {
                     return $realpath ? $tempPath : $p;
@@ -692,7 +719,7 @@ class FileUtil
             BizException::throws('FileUtil generateLocalTempPath error');
         }
         $securityKey = EnvUtil::securityKey();
-        $p = 'temp/' . md5($securityKey . ':' . $hash) . '.' . $ext;
+        $p = 'temp/' . md5($securityKey . ':' . $hash) . $extWithDot;
         return $realpath ? public_path($p) : $p;
     }
 

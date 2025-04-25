@@ -38,6 +38,11 @@
                                 <el-input v-model="value[vIndex]['{{$f['name']}}']"
                                           placeholder="{{empty($f['placeholder'])?'':$f['placeholder']}}"
                                           size="mini"></el-input>
+                            @elseif($f['type']=='textarea')
+                                <el-input v-model="value[vIndex]['{{$f['name']}}']"
+                                          placeholder="{{empty($f['placeholder'])?'':$f['placeholder']}}"
+                                          type="textarea"
+                                          size="mini"></el-input>
                             @elseif($f['type']=='icon')
                                 <icon-input v-model="value[vIndex]['{{$f['name']}}']" :icons="iconsFilter"
                                             :inline="true"></icon-input>
@@ -57,7 +62,7 @@
                                 <el-select v-model="value[vIndex]['{{$f['name']}}']"
                                            placeholder="{{empty($f['placeholder'])?'':$f['placeholder']}}">
                                     @foreach($f['option'] as $k=>$v)
-                                        <el-option :key="{{\ModStart\Core\Util\SerializeUtil::jsonEncode($k)}}" :label="{{\ModStart\Core\Util\SerializeUtil::jsonEncode($k)}}" :value="{{\ModStart\Core\Util\SerializeUtil::jsonEncode($k)}}"></el-option>
+                                        <el-option :key="{{\ModStart\Core\Util\SerializeUtil::jsonEncode($k)}}" :label="{{\ModStart\Core\Util\SerializeUtil::jsonEncode($v)}}" :value="{{\ModStart\Core\Util\SerializeUtil::jsonEncode($k)}}"></el-option>
                                     @endforeach
                                 </el-select>
                             @elseif($f['type']=='link')

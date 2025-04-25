@@ -12,6 +12,7 @@ use ModStart\Core\Input\InputPackage;
 use ModStart\Core\Util\ArrayUtil;
 use ModStart\Core\Util\PageHtmlUtil;
 use ModStart\Core\Util\SerializeUtil;
+use ModStart\Repository\EmptyItem;
 
 /**
  * @Util 数据库
@@ -209,6 +210,41 @@ class ModelUtil
                 }
             }
         }
+    }
+
+    /**
+     * 根据条件新增、更新或删除已有数据
+     * @param $model string 数据表
+     * @param $records array 多条数据数组
+     * @param $where array 条件数组
+     * @param $keyName string 主键名称，默认为id
+     * @return array
+     */
+    public static function insertOrUpdateOrDelete($model, $records, $where = [], $idName = 'id')
+    {
+        if (empty($records)) {
+            return $records;
+        }
+        $existIds = self::values($model, $idName, $where);
+        $newIds = array_filter(ArrayUtil::flatItemsByKey($records, $idName));
+        list($_, $deleteIds) = ArrayUtil::diff($existIds, $newIds);
+        if (!empty($deleteIds)) {
+            self::model($model)->where($where)->whereIn($idName, $deleteIds)->delete();
+        }
+        foreach ($records as $i => $record) {
+            foreach ($where as $k => $v) {
+                $records[$i][$k] = $v;
+            }
+        }
+        foreach ($records as $i => $record) {
+            if (empty($record[$idName])) {
+                unset($record[$idName]);
+                $records[$i][$idName] = self::model($model)->insertGetId($record);
+            } else {
+                self::model($model)->where($idName, $record[$idName])->update($record);
+            }
+        }
+        return $records;
     }
 
     /**
@@ -1568,32 +1604,62 @@ class ModelUtil
      * @param $type
      * @param $column
      */
-    public static function queryRemoveCondition($query, $type, $column)
+    public static function queryRemoveCondition($query, $type, $column = null, $option = [])
     {
+        $option = array_merge($option, [
+            'cleanOrder' => true,
+        ]);
+
         $type = strtolower($type);
+        if (!is_callable($column)) {
+            $columnName = $column;
+            $column = function ($v) use ($columnName) {
+                return $v['column'] == $columnName;
+            };
+        }
+
         BizException::throwsIf('Unsupported type ' . $type, !in_array($type, ['basic', 'in']));
+
         $wheres = $query->getQuery()->wheres;
         $bindings = $query->getQuery()->getRawBindings();
         $bindingsWhere = $bindings['where'];
         $bindingIndex = 0;
-        $newWheres = $wheres;
-        $newBindingsWhere = $bindingsWhere;
-        // echo json_encode($newWheres, JSON_PRETTY_PRINT) . "\n";
-        // echo json_encode($newBindingsWhere, JSON_PRETTY_PRINT) . "\n";
-        foreach ($wheres as $i => $v) {
+        $wheresArray = [];
+        $bindingsWhereArray = [];
+        foreach ($wheres as $v) {
+            $wheresArray[] = $v;
             $bindingsCount = self::getBindingsCount([$v]);
-            if (strtolower($v['type']) == $type && $v['column'] == $column) {
-                array_splice($newWheres, $i, 1);
-                array_splice($newBindingsWhere, $bindingIndex, $bindingsCount);
-                break;
+            if ($bindingsCount > 0) {
+                $bindingsWhereArray[] = array_slice($bindingsWhere, 0, $bindingsCount);
+            } else {
+                $bindingsWhereArray[] = [];
             }
-            $bindingIndex += $bindingsCount;
         }
-        // echo json_encode($newWheres, JSON_PRETTY_PRINT) . "\n";
-        // echo json_encode($newBindingsWhere, JSON_PRETTY_PRINT) . "\n";
+
+        //echo '$type - ' . $type . PHP_EOL . PHP_EOL;
+        //echo '$column - ' . json_encode($column) . PHP_EOL . PHP_EOL;
+        //echo '$wheresArray - ' . json_encode($wheresArray, JSON_PRETTY_PRINT) . PHP_EOL . PHP_EOL;
+        //echo '$bindingsWhereArray - ' . json_encode($bindingsWhereArray, JSON_PRETTY_PRINT) . PHP_EOL . PHP_EOL;
+
+        $newWheres = [];
+        $newBindingsWhere = [];
+        foreach ($wheresArray as $i => $v) {
+            if (strtolower($v['type']) == $type && call_user_func($column, $v)) {
+                continue;
+            }
+            $newWheres[] = $v;
+            $newBindingsWhere = array_merge($newBindingsWhere, $bindingsWhereArray[$i]);
+        }
+        //echo '$newWheres - ' . json_encode($newWheres, JSON_PRETTY_PRINT) . PHP_EOL . PHP_EOL;
+        //echo '$newBindingsWhere - ' . json_encode($newBindingsWhere, JSON_PRETTY_PRINT) . PHP_EOL . PHP_EOL;
+        //exit();
         $query->getQuery()->wheres = $newWheres;
         $query->getQuery()->setBindings($newBindingsWhere);
-        // exit();
+
+        if (!empty($option['cleanOrder'])) {
+            $query->getQuery()->orders = null;
+        }
+
         return $query;
     }
 
@@ -1625,7 +1691,7 @@ class ModelUtil
 
     public static function hasAtttibute($item, $key)
     {
-        if ($item instanceof Model) {
+        if ($item instanceof Model || $item instanceof EmptyItem) {
             $attributes = $item->getAttributes();
             return array_key_exists($key, $attributes)
                 || method_exists($item, $key);
@@ -1633,6 +1699,17 @@ class ModelUtil
             return property_exists($item, $key);
         }
         return false;
+    }
+
+    public static function toArray($item)
+    {
+        if ($item instanceof Model) {
+            return $item->toArray();
+        } else if ($item instanceof \stdClass) {
+            return (array)$item;
+        } else {
+            return $item;
+        }
     }
 
 }

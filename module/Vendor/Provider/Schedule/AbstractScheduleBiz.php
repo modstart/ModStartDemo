@@ -11,6 +11,9 @@ abstract class AbstractScheduleBiz
 
     public function name()
     {
+        if(defined('static::NAME')) {
+            return static::NAME;
+        }
         return 'default';
     }
 

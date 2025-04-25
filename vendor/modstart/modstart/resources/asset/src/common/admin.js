@@ -37,6 +37,19 @@ window._pageTabManager = {
                 }
             }
         });
+    },
+    blurUrl: function (url) {
+        var $menu = _rootWindow.$('.ub-panel-frame .left .menu');
+        var normalUrl = _rootWindow._pageTabManager.normalTabUrl(url);
+        $menu.find('a').each(function (i, o) {
+            var url = $(o).attr('href');
+            if (url === 'javascript:;') {
+                return;
+            }
+            if (_rootWindow._pageTabManager.normalTabUrl(url) === normalUrl) {
+                $(o).parents('.menu-item').removeClass('active');
+            }
+        });
     }
 };
 
@@ -478,6 +491,9 @@ $(window).on('load', function () {
             _rootWindow._pageTabManager.open(url, title, {
                 focus: function () {
                     tabManager.activeUrl(url);
+                },
+                blur: function () {
+                    tabManager.blurUrl(url);
                 }
             });
             return false;
@@ -492,6 +508,28 @@ $(window).on('load', function () {
     $fullscreen.on('click', function () {
         MS.util.fullscreen.trigger();
         return false;
+    });
+
+    // 事件
+    window.addEventListener('message', function (e) {
+        const data = e.data;
+        if (!data.type) {
+            return
+        }
+        if (data.type !== 'FeedbackTicket:log' && data.type !== 'FeedbackTicket:env') {
+            return
+        }
+        const sendMsg = function (type, data) {
+            const iframe = $('iframe')[0]
+            iframe.contentWindow.postMessage({type: type, data: data}, '*');
+        }
+        MS.api.post(window.__msAdminRoot + 'collect', {data: JSON.stringify(data)}, function (res) {
+            MS.api.defaultCallback(res, {
+                success: function (res) {
+                    sendMsg(data.type, res.data)
+                }
+            })
+        });
     });
 
 });

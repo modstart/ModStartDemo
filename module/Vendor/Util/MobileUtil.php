@@ -6,6 +6,7 @@ namespace Module\Vendor\Util;
 
 use Illuminate\Support\Facades\Session;
 
+
 class MobileUtil
 {
     public static function putEntryData($key, $value)

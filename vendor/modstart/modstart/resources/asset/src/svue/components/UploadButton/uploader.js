@@ -91,7 +91,7 @@ WebUploader.Uploader.register({
 
 export const UploadButtonUploader = function (selector, option) {
     var opt = $.extend({
-        text: '上传文件',
+        text: 'Upload',
         swf: '/Uploader.swf',
         server: '/path/to/server',
         sizeLimit: 2 * 1024 * 1024,
@@ -177,8 +177,26 @@ export const UploadButtonUploader = function (selector, option) {
             });
         });
 
+        uploader.on('fileProcessStart', function (type, file) {
+            var $li = $('#' + file.id);
+            if (!$li.find('.status .iconfont').is('.icon-clues')) {
+                $li.find('.status').html('<i class="iconfont icon-clues tw-cursor-pointer tw-animate-spin tw-inline-block"></i>');
+            }
+            if ('imageCompress' === type) {
+                $li.attr('title', window.lang && lang['CompressingImage'] || 'CompressingImage');
+            }
+        });
+
+        uploader.on('fileProcessEnd', function (type, file) {
+            var $li = $('#' + file.id);
+            if ('imageCompress' === type) {
+                $li.attr('title', '');
+            }
+        });
+
         uploader.on('uploadProgress', function (file, percentage) {
             var $li = $('#' + file.id);
+            $li.attr('data-tip-popover', Math.floor(percentage * 100) + '%');
             $li.find('.progress-bar').css('width', percentage * 100 + '%');
             if (!$li.find('.status .iconfont').is('.icon-refresh')) {
                 $li.find('.status').html('<i class="iconfont icon-refresh tw-animate-spin tw-inline-block"></i>');
@@ -198,7 +216,9 @@ export const UploadButtonUploader = function (selector, option) {
             var f = {
                 name: res.data.data.filename,
                 size: res.data.data.size,
-                path: res.data.path
+                path: res.data.path,
+                fullPath: res.data.preview,
+                file: file,
             };
             $('#' + file.id).fadeOut(function () {
                 $('#' + file.id).remove();

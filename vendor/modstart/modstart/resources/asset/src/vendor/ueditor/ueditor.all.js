@@ -17,7 +17,19 @@ window.UE = baidu.editor = {
     instants: {},
     I18N: {},
     _customizeUI: {},
-    version: "4.0.0-beta",
+    version: "4.4.0",
+    plus: {
+        fileExt: function (filename) {
+            if (!filename) {
+                return '';
+            }
+            var pcs = filename.split('.');
+            if (pcs.length > 1) {
+                return pcs.pop().toLowerCase();
+            }
+            return '';
+        },
+    },
     constants: {
         STATEFUL: {
             DISABLED: -1,
@@ -1393,6 +1405,24 @@ var utils = (UE.utils = {
         } else {
             return new Function("return " + utils.trim(s || ""))();
         }
+    },
+    base64toBlob: function (base64Data, contentType) {
+        contentType = contentType || "";
+        var sliceSize = 1024;
+        var byteCharacters = atob(base64Data);
+        var bytesLength = byteCharacters.length;
+        var slicesCount = Math.ceil(bytesLength / sliceSize);
+        var byteArrays = new Array(slicesCount);
+        for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+            var begin = sliceIndex * sliceSize;
+            var end = Math.min(begin + sliceSize, bytesLength);
+            var bytes = new Array(end - begin);
+            for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+                bytes[i] = byteCharacters[offset].charCodeAt(0);
+            }
+            byteArrays[sliceIndex] = new Uint8Array(bytes);
+        }
+        return new Blob(byteArrays, { type: contentType });
     },
     json2str: (function () {
         if (window.JSON) {
@@ -7454,7 +7484,7 @@ var fillCharReg = new RegExp(domUtils.fillChar, "g");
                         me.options.lang +
                         "/" +
                         me.options.lang +
-                        ".js?7a537435",
+                        ".js?58c38108",
                     tag: "script",
                     type: "text/javascript",
                     defer: "defer"
@@ -7945,6 +7975,7 @@ var fillCharReg = new RegExp(domUtils.fillChar, "g");
                 shortcutkeys = this.shortcutkeys;
             me.addListener("keydown", function (type, e) {
                 var keyCode = e.keyCode || e.which;
+                // 快捷键
                 for (var i in shortcutkeys) {
                     var tmp = shortcutkeys[i].split(",");
                     for (var t = 0, ti; (ti = tmp[t++]);) {
@@ -7964,6 +7995,18 @@ var fillCharReg = new RegExp(domUtils.fillChar, "g");
                                 if (me.queryCommandState(i, param) != -1)
                                     me.execCommand(i, param);
                                 domUtils.preventDefault(e);
+                            }
+                        }
+                    }
+                }
+                // 其他一些特殊处理
+                var code = e.code
+                // 如视频之类的组建，不能删除
+                if (code) {
+                    if (code === 'Backspace') {
+                        if (e.target) {
+                            if (e.target.tagName === 'VIDEO') {
+                                e.target.remove()
                             }
                         }
                     }
@@ -8933,7 +8976,45 @@ var fillCharReg = new RegExp(domUtils.fillChar, "g");
             } else {
                 return "";
             }
-        }
+        },
+        tipError: function (msg, option) {
+            this.tip(msg, Object.assign({
+                type: 'error',
+            }, option));
+        },
+        tipSuccess: function (msg, option) {
+            this.tip(msg, Object.assign({
+                type: 'success',
+            }, option));
+        },
+        tip: function (msg, option) {
+            var exists = document.getElementById('EditorTipBox');
+            if (exists) {
+                document.body.removeChild(exists);
+            }
+            option = Object.assign({
+                type: 'success',
+                duration: 3000,
+            }, option)
+            var html = [
+                '<div class="editor-tip editor-tip-' + option.type + '" style="opacity:0;position: fixed; top: 10px; left: 50%; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); background: #FFF; z-index: 9999; border-radius: 5px; font-size: 13px; line-height: 30px; padding: 0 10px;">',
+                option.type === 'error' ? '<i class="edui-iconfont" style="color:#d31919;margin-right:5px;font-size:16px;vertical-align:top;">&#xe6a7;</i>' : '',
+                option.type === 'success' ? '<i class="edui-iconfont" style="color:#19ba21;margin-right:5px;font-size:16px;vertical-align:top;">&#xe7fc;</i>' : '',
+                msg,
+                '</div>'
+            ].join('');
+            var tip = document.createElement('div');
+            tip.innerHTML = html;
+            tip.id = 'EditorTipBox';
+            document.body.appendChild(tip);
+            var tipBox = tip.querySelector('.editor-tip');
+            var tipBoxWidth = tipBox.offsetWidth;
+            tipBox.style.marginLeft = -tipBoxWidth / 2 + 'px';
+            tipBox.style.opacity = 1;
+            setTimeout(function () {
+                document.body.removeChild(tip);
+            }, option.duration);
+        },
     };
     utils.inherits(Editor, EventBase);
 })();
@@ -8978,6 +9059,11 @@ UE.Editor.defaultOptions = function (editor) {
     UE.Editor.prototype.loadServerConfig = function () {
         var me = this;
         setTimeout(function () {
+
+            if(me.options.loadConfigFromServer===false){
+                return;
+            }
+
             try {
                 me.options.imageUrl &&
                 me.setOpt(
@@ -9010,13 +9096,15 @@ UE.Editor.defaultOptions = function (editor) {
                             me.fireEvent("serverConfigLoaded");
                             me._serverConfigLoaded = true;
                         } catch (e) {
-                            showErrorMsg(me.getLang("loadconfigFormatError"));
+                            showErrorMsg(me.getLang("loadconfigFormatError")+':'+e);
                         }
                     },
                     onerror: function () {
                         showErrorMsg(me.getLang("loadconfigHttpError"));
                     }
                 });
+
+
             } catch (e) {
                 showErrorMsg(me.getLang("loadconfigError"));
             }
@@ -15906,8 +15994,8 @@ UE.plugins["font"] = function () {
     me.setOpt({
         fontfamily: [
             {name: "default", val: "default"},
-            {name: "songti", val: "宋体,SimSun"},
-            {name: "yahei", val: "微软雅黑,Microsoft YaHei"},
+            {name: "songti", val: "SimSun"},
+            {name: "yahei", val: "'Microsoft YaHei'"},
             {name: "kaiti", val: "楷体,楷体_GB2312,SimKai"},
             {name: "heiti", val: "黑体,SimHei"},
             {name: "lishu", val: "隶书,SimLi"},
@@ -16018,6 +16106,13 @@ UE.plugins["font"] = function () {
                 }
             }
 
+            var father = span.parentElement;
+            try {
+                if(father.style.textIndent && span.style.fontSize !== father.style.fontSize){
+                    father.style.fontSize = span.style.fontSize
+                }
+            } catch (error) {
+            }
             mergeWithParent(span);
             if (browser.ie && browser.version > 8) {
                 //拷贝父亲们的特别的属性,这里只做背景颜色的处理
@@ -17050,7 +17145,18 @@ UE.commands["indent"] = {
             value = me.queryCommandState("indent")
                 ? "0em"
                 : me.options.indentValue || "2em";
-        me.execCommand("Paragraph", "p", {style: "text-indent:" + value});
+        // 首行缩进不准确
+        // https://gitee.com/modstart-lib/ueditor-plus/issues/IAW75Z
+        var pN = domUtils.filterNodeList(
+            this.selection.getStartElementPath(),
+            "p h1 h2 h3 h4 h5 h6"
+        )
+        try {
+            me.execCommand("Paragraph", "p", {style: "text-indent:" + value + ';font-size:' + pN.firstChild.style.fontSize});
+        } catch (error) {
+            me.execCommand("Paragraph", "p", {style: "text-indent:" + value});
+        }
+        // me.execCommand("Paragraph", "p", {style: "text-indent:" + value});
     },
     queryCommandState: function () {
         var pN = domUtils.filterNodeList(
@@ -19575,7 +19681,7 @@ UE.plugins["paste"] = function () {
     var txtContent, htmlContent, address;
 
     function getPureHtml(html) {
-        return html.replace(/<(\/?)([\w\-]+)([^>]*)>/gi, function (
+        var result = html.replace(/<(\/?)([\w\-]+)([^>]*)>/gi, function (
             a,
             b,
             tagName,
@@ -19608,9 +19714,12 @@ UE.plugins["paste"] = function () {
             ) {
                 return "";
             } else {
-                return "<" + b + tagName + " " + utils.trim(attrs) + ">";
+                attrs = utils.trim(attrs);
+                return "<" + b + tagName + (attrs? (" " + attrs): '') + ">";
             }
         });
+        result = result.replace(/<\/p >/g, '</p>');
+        return result;
     }
 
     function filter(div) {
@@ -25874,10 +25983,12 @@ UE.plugins["audio"] = function () {
         utils.each(tds, function (td) {
             td.removeAttribute("width");
         });
-        table.setAttribute(
-            "width",
-            getTableWidth(editor, true, getDefaultValue(editor, table))
-        );
+        // bugfix https://gitee.com/modstart-lib/ueditor-plus/issues/I8N5ON
+        // table.setAttribute(
+        //     "width",
+        //     getTableWidth(editor, true, getDefaultValue(editor, table))
+        // );
+        table.setAttribute("width", '100%');
         var tdsWidths = [];
         setTimeout(function () {
             utils.each(tds, function (td) {
@@ -29056,12 +29167,15 @@ UE.plugins["formatmatch"] = function () {
         }
 
         me.undoManger && me.undoManger.save();
-        me.removeListener("mouseup", addList);
-        flag = 0;
+
+        // 新增：格式化默认使用连续格式模式，支持快速格式化
+        // me.removeListener("mouseup", addList);
+        // flag = 0;
     }
 
     me.commands["formatmatch"] = {
         execCommand: function (cmdName) {
+
             if (flag) {
                 flag = 0;
                 list = [];
@@ -29673,6 +29787,8 @@ UE.plugins["catchremoteimage"] = function () {
     }
 
     function catchRemoteImage() {
+        // console.log('catchRemoteImage',catchRemoteImageCatching);
+
         if (catchRemoteImageCatching) {
             return;
         }
@@ -29695,7 +29811,10 @@ UE.plugins["catchremoteimage"] = function () {
             };
 
         for (var i = 0, ci; (ci = imgs[i++]);) {
-            if (ci.getAttribute("data-word-image") || ci.getAttribute('data-catch-result')) {
+            if (ci.getAttribute("data-word-image")
+                || ci.getAttribute('data-catch-result')
+                || ci.getAttribute('data-formula-image')
+            ) {
                 continue;
             }
             if (ci.nodeName === "IMG") {
@@ -29703,7 +29822,7 @@ UE.plugins["catchremoteimage"] = function () {
                 if (/^(https?|ftp):/i.test(src) && !test(src, catcherLocalDomain)) {
                     catchElement('image', ci, src);
                     domUtils.setAttributes(ci, {
-                        class: "loadingclass",
+                        class: "uep-loading",
                         _src: src,
                         src: loadingIMG
                     })
@@ -29721,7 +29840,7 @@ UE.plugins["catchremoteimage"] = function () {
                 }
             }
         }
-
+        catchRemoteImageCatching = false;
     };
 
     me.addListener("catchremoteimage", function () {
@@ -29847,6 +29966,7 @@ UE.plugin.register("autoupload", function () {
             errorHandler,
             successHandler,
             filetype = /image\/\w+/i.test(file.type) ? "image" : "file",
+            fileExt = UE.plus.fileExt(file.name),
             loadingId = "loading_" + (+new Date()).toString(36);
 
         fieldName = me.getOpt(filetype + "FieldName");
@@ -29931,21 +30051,37 @@ UE.plugin.register("autoupload", function () {
         }
 
         var upload = function (file) {
-            const formData = new FormData();
+            if(me.getOpt('uploadServiceEnable')){
+                me.getOpt('uploadServiceUpload')('image', file, {
+                    success: function( res ) {
+                        successHandler( res );
+                    },
+                    error: function( err ) {
+                        errorHandler(me.getLang("autoupload.loadError") + ' : ' + err);
+                    },
+                    progress: function( percent ) {
+
+                    }
+                }, {
+                    from: 'paste'
+                });
+                return;
+            }
+            var formData = new FormData();
             formData.append(fieldName, file, file.name);
             UE.api.requestAction(me, me.getOpt(filetype + "ActionName"), {
                 data: formData
             }).then(function (res) {
-                successHandler(res.data);
+                successHandler(me.getOpt('serverResponsePrepare')( res.data ));
             }).catch(function (err) {
-                errorHandler(me.getLang("autoupload.loadError"));
+                errorHandler(me.getLang("autoupload.loadError") + ' : ' + err);
             });
         };
 
         var imageCompressEnable = me.getOpt('imageCompressEnable'),
             imageMaxSize = me.getOpt('imageMaxSize'),
             imageCompressBorder = me.getOpt('imageCompressBorder');
-        if ('image' === filetype && imageCompressEnable) {
+        if ('image' === filetype && imageCompressEnable && ['jpg', 'jpeg', 'png'].includes(fileExt)) {
             UE.image.compress(file, {
                 maxSizeMB: imageMaxSize / 1024 / 1024,
                 maxWidthOrHeight: imageCompressBorder
@@ -29994,12 +30130,16 @@ UE.plugin.register("autoupload", function () {
     }
 
     function getPasteImage(e) {
-        return e.clipboardData &&
-        e.clipboardData.items &&
-        e.clipboardData.items.length == 1 &&
-        /^image\//.test(e.clipboardData.items[0].type)
-            ? e.clipboardData.items
-            : null;
+        var images = []
+        if (e.clipboardData && e.clipboardData.items) {
+            var items = e.clipboardData.items
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    images.push(items[i])
+                }
+            }
+        }
+        return images;
     }
 
     function getDropImage(e) {
@@ -30033,7 +30173,7 @@ UE.plugin.register("autoupload", function () {
                         var hasImg = false,
                             items;
                         //获取粘贴板文件列表或者拖放文件列表
-                        items = e.type == "paste" ? getPasteImage(e) : getDropImage(e);
+                        items = e.type === "paste" ? getPasteImage(e) : getDropImage(e);
                         if (items) {
                             var len = items.length,
                                 file;
@@ -30459,52 +30599,78 @@ UE.plugin.register("simpleupload", function () {
                 return;
             }
 
+            var successHandler = function (res) {
+                const loader = me.document.getElementById(loadingId);
+                domUtils.removeClasses(loader, "uep-loading");
+                const link = me.options.imageUrlPrefix + res.url;
+                loader.setAttribute("src", link);
+                loader.setAttribute("_src", link);
+                loader.setAttribute("alt", res.original || "");
+                loader.removeAttribute("id");
+                me.fireEvent("contentchange");
+                // 触发上传图片事件
+                me.fireEvent("uploadsuccess", {
+                    res: res,
+                    type: 'image'
+                });
+            };
+
+            var errorHandler = function (err) {
+                UE.dialog.removeLoadingPlaceholder(me, loadingId);
+                UE.dialog.tipError(me, err);
+            };
+
             var upload = function (file) {
+                if(me.getOpt('uploadServiceEnable')){
+                    me.getOpt('uploadServiceUpload')('image', file, {
+                        success: function( res ) {
+                            successHandler( res );
+                        },
+                        error: function( err ) {
+                            errorHandler(me.getLang("simpleupload.loadError") + ' : ' + err);
+                        },
+                        progress: function( percent ) {
+
+                        }
+                    }, {
+                        from: 'upload'
+                    });
+                    return;
+                }
                 const formData = new FormData();
                 formData.append(me.getOpt('imageFieldName'), file, file.name);
                 UE.api.requestAction(me, me.getOpt("imageActionName"), {
                     data: formData
                 }).then(function (res) {
-                    var resData = me.getOpt('serverResponsePrepare')( res.data )
-                    if ('SUCCESS' === resData.state && resData.url) {
-                        const loader = me.document.getElementById(loadingId);
-                        domUtils.removeClasses(loader, "uep-loading");
-                        const link = me.options.imageUrlPrefix + resData.url;
-                        loader.setAttribute("src", link);
-                        loader.setAttribute("_src", link);
-                        loader.setAttribute("alt", resData.original || "");
-                        loader.removeAttribute("id");
-                        me.fireEvent("contentchange");
-                        // 触发上传图片事件
-                        me.fireEvent("uploadsuccess", {
-                            res: resData,
-                            type: 'image'
-                        });
+                    res = me.getOpt('serverResponsePrepare')( res.data )
+                    if ('SUCCESS' === res.state && res.url) {
+                        successHandler(res)
                     } else {
-                        UE.dialog.removeLoadingPlaceholder(me, loadingId);
-                        UE.dialog.tipError(me, resData.state);
+                        errorHandler(res.state);
                     }
+                    input.value = '';
                 }).catch(function (err) {
-                    UE.dialog.removeLoadingPlaceholder(me, loadingId);
-                    UE.dialog.tipError(me, err);
+                    errorHandler(err)
+                    input.value = '';
                 });
             };
             var file = input.files[0];
+            var fileExt = UE.plus.fileExt(file.name);
             // console.log('file',file);
             var imageCompressEnable = me.getOpt('imageCompressEnable'),
                 imageMaxSize = me.getOpt('imageMaxSize'),
                 imageCompressBorder = me.getOpt('imageCompressBorder');
-            if (imageCompressEnable) {
+            if (imageCompressEnable && ['jpg', 'jpeg', 'png'].includes(fileExt)) {
                 UE.image.compress(file, {
                     maxSizeMB: imageMaxSize / 1024 / 1024,
                     maxWidthOrHeight: imageCompressBorder
                 }).then(function (compressedFile) {
                     if (me.options.debug) {
-                        console.log('SimpleUpload.CompressImage', (compressedFile.size / file.size * 100).toFixed(2) + '%');
+                        console.log('UEditorPlus.SimpleUpload.CompressImage', (compressedFile.size / file.size * 100).toFixed(2) + '%');
                     }
                     upload(compressedFile);
                 }).catch(function (err) {
-                    console.error('SimpleUpload.CompressImage.error', err);
+                    console.error('UEditorPlus.SimpleUpload.CompressImage.error', err);
                     upload(file);
                 });
             } else {
@@ -33645,9 +33811,11 @@ UE.ui = baidu.editor.ui = {};
             // console.log('fitSize.dialog')
             var popBodyEl = this.getDom("body");
             var $foot = popBodyEl.querySelector('.edui-dialog-foot');
-            var heightWithoutBody = 70;
+            var headHeight = 30;
+            var footHeight = 50;
+            var heightWithoutBody = headHeight + footHeight;
             if (!$foot) {
-                heightWithoutBody = 30;
+                heightWithoutBody -= footHeight;
             }
             var size = this.mesureSize();
             var winSize = uiUtils.getViewportRect();
@@ -34183,9 +34351,9 @@ UE.ui = baidu.editor.ui = {};
                         continue;
                     }
                     var item = this.items[i].toLowerCase();
-
                     if (UI[item]) {
                         this.items[i] = new UI[item](this.editor);
+                        this.items[i]._name = item;
                         this.items[i].className += " edui-short-cut-sub-menu ";
                     }
                 }
@@ -34217,6 +34385,15 @@ UE.ui = baidu.editor.ui = {};
                 offset = {},
                 el = this.getDom(),
                 fixedlayer = uiUtils.getFixedLayer();
+
+            var shortcutMenuShows = this.editor.options.shortcutMenuShows;
+            for(let item of this.items){
+                if(item._name){
+                    if(item._name in shortcutMenuShows) {
+                        item.uiShow(shortcutMenuShows[item._name]);
+                    }
+                }
+            }
 
             for (let item of this.items) {
                 if ('shouldUiShow' in item) {
@@ -34724,27 +34901,28 @@ UE.ui = baidu.editor.ui = {};
     }
 
     var dialogIframeUrlMap = {
-        anchor: "~/dialogs/anchor/anchor.html?2f10d082",
-        insertimage: "~/dialogs/image/image.html?62e5392c",
-        link: "~/dialogs/link/link.html?ccbfcf18",
-        spechars: "~/dialogs/spechars/spechars.html?3bbeb696",
-        searchreplace: "~/dialogs/searchreplace/searchreplace.html?2cb782d2",
-        insertvideo: "~/dialogs/video/video.html?1603eb78",
-        insertaudio: "~/dialogs/audio/audio.html?a2979235",
-        help: "~/dialogs/help/help.html?05c0c8bf",
-        preview: "~/dialogs/preview/preview.html?5d9a0847",
-        emotion: "~/dialogs/emotion/emotion.html?a7bc0989",
-        wordimage: "~/dialogs/wordimage/wordimage.html?e6ca77bb",
-        formula: "~/dialogs/formula/formula.html?9a5a1511",
-        attachment: "~/dialogs/attachment/attachment.html?5cd272ea",
-        insertframe: "~/dialogs/insertframe/insertframe.html?807119a5",
-        edittip: "~/dialogs/table/edittip.html?fa0ea189",
-        edittable: "~/dialogs/table/edittable.html?134e2f06",
-        edittd: "~/dialogs/table/edittd.html?9fe1a06e",
-        scrawl: "~/dialogs/scrawl/scrawl.html?81bccab9",
-        template: "~/dialogs/template/template.html?3c8090b7",
-        background: "~/dialogs/background/background.html?c2bb8b05",
-        contentimport: "~/dialogs/contentimport/contentimport.html?e298f77b",
+        anchor: "~/dialogs/anchor/anchor.html?eb9739cc",
+        insertimage: "~/dialogs/image/image.html?afbedf05",
+        link: "~/dialogs/link/link.html?fa72bcd7",
+        spechars: "~/dialogs/spechars/spechars.html?3b88f009",
+        searchreplace: "~/dialogs/searchreplace/searchreplace.html?3167e75a",
+        insertvideo: "~/dialogs/video/video.html?c2c9fa02",
+        insertaudio: "~/dialogs/audio/audio.html?47891a09",
+        help: "~/dialogs/help/help.html?4bb38d19",
+        preview: "~/dialogs/preview/preview.html?b533ff4e",
+        emotion: "~/dialogs/emotion/emotion.html?c5e06473",
+        wordimage: "~/dialogs/wordimage/wordimage.html?6c25c600",
+        formula: "~/dialogs/formula/formula.html?a3bc14af",
+        attachment: "~/dialogs/attachment/attachment.html?8cf1bb27",
+        insertframe: "~/dialogs/insertframe/insertframe.html?9353d50c",
+        edittip: "~/dialogs/table/edittip.html?7f922949",
+        edittable: "~/dialogs/table/edittable.html?c2a698ec",
+        edittd: "~/dialogs/table/edittd.html?e110da33",
+        scrawl: "~/dialogs/scrawl/scrawl.html?185f463e",
+        template: "~/dialogs/template/template.html?4ec66ee4",
+        background: "~/dialogs/background/background.html?63701ca2",
+        contentimport: "~/dialogs/contentimport/contentimport.html?96da835f",
+        ai: "~/dialogs/ai/ai.html?86145ec2",
     };
     var dialogBtns = {
         noOk: ["searchreplace", "help", "spechars", "preview"],
@@ -35452,6 +35630,42 @@ UE.ui = baidu.editor.ui = {};
         return ui;
     };
 
+    /** AI智能助手 */
+    editorui['ai'] = function (editor, iframeUrl, title) {
+        iframeUrl = iframeUrl || (editor.options.dialogIframeUrlMap || {})['ai'] || dialogIframeUrlMap['ai'];
+        title = editor.options.labelMap['ai'] || editor.getLang("labelMap.ai") || "";
+
+        var dialog = new editorui.Dialog({
+            iframeUrl: editor.ui.mapUrl(iframeUrl),
+            editor: editor,
+            className: "edui-for-ai",
+            title: title,
+            holdScroll: true,
+            fullscreen: false,
+            closeDialog: editor.getLang("closeDialog")
+        });
+
+        editor.ui._dialogs["aiDialog"] = dialog;
+
+        var ui = new editorui.Button({
+            className: "edui-for-ai",
+            title: title,
+            onclick: function () {
+                if (editor.options.toolbarCallback) {
+                    if (true === editor.options.toolbarCallback('ai', editor)) {
+                        return;
+                    }
+                }
+                dialog.render();
+                dialog.open();
+            },
+            theme: editor.options.theme,
+            disabled: false
+        });
+        editorui.buttons['ai'] = ui;
+        return ui;
+    };
+
     /* 简单上传插件 */
     editorui['simpleupload'] = function (editor) {
         var name = "simpleupload",
@@ -35894,6 +36108,7 @@ UE.ui = baidu.editor.ui = {};
             }
         },
         _initToolbars: function () {
+            var me = this;
             var editor = this.editor;
             var toolbars = this.toolbars || [];
             if (toolbars[0]) {
@@ -35923,12 +36138,14 @@ UE.ui = baidu.editor.ui = {};
                         if (ui) {
                             if (utils.isFunction(ui)) {
                                 toolbarItemUi = new baidu.editor.ui[toolbarItem](editor);
+                                toolbarItemUi._name = toolbarItem
                             } else {
                                 if (ui.id && ui.id !== editor.key) {
                                     continue;
                                 }
                                 var itemUI = ui.execFn.call(editor, editor, toolbarItem);
                                 if (itemUI) {
+                                    itemUI._name = toolbarItem;
                                     if (ui.index === undefined) {
                                         toolbarUi.add(itemUI);
                                         continue;
@@ -35966,6 +36183,25 @@ UE.ui = baidu.editor.ui = {};
                 toolbarUi.add(obj.itemUI, obj.index);
             });
             this.toolbars = toolbarUis;
+            editor.addListener('serverConfigLoaded',function(){
+                me.refreshToolbars();
+            });
+            setTimeout(()=>{
+                this.refreshToolbars();
+            },0);
+        },
+        refreshToolbars: function () {
+            var toolbarShows = this.editor.options.toolbarShows;
+            for (var i = 0; i < this.toolbars.length; i++) {
+                for (var j = 0; j < this.toolbars[i].items.length; j++) {
+                    var item = this.toolbars[i].items[j];
+                    if(item._name){
+                        if(item._name in toolbarShows){
+                            item.uiShow(toolbarShows[item._name]);
+                        }
+                    }
+                }
+            }
         },
         getHtmlTpl: function () {
             return (
@@ -36101,7 +36337,7 @@ UE.ui = baidu.editor.ui = {};
             if (this._fullscreen) {
                 var vpRect = uiUtils.getViewportRect();
                 this.getDom().style.cssText =
-                    "border:0;position:absolute;left:0;top:var(--ueditor-top-offset," +
+                    "border:0;position:fixed;left:0;top:var(--ueditor-top-offset," +
                     (this.editor.options.topOffset || 0) +
                     "px);width:" +
                     vpRect.width +
@@ -36348,7 +36584,7 @@ UE.ui = baidu.editor.ui = {};
         editor.options.editor = editor;
         utils.loadFile(document, {
             href:
-                editor.options.themePath + editor.options.theme + "/css/ueditor.css?98125a73",
+                editor.options.themePath + editor.options.theme + "/css/ueditor.css?dfa5e8ae",
             tag: "link",
             type: "text/css",
             rel: "stylesheet"
