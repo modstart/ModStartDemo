@@ -12,10 +12,13 @@
     "require": [
         "Vendor"
     ],
-    "version": "2.1.0",
+    "tags": [
+        "开发"
+    ],
+    "version": "2.2.0",
     "author": "ModStart",
     "description": "ModStart开发示例程序",
-    "modstartVersion": ">=3.9.0",
+    "modstartVersion": ">=4.1.0",
     "config": {
         "testText": [
             [

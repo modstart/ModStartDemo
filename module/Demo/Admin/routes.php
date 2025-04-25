@@ -36,6 +36,7 @@ $router->match(['get', 'post'], 'demo/form', 'FormController@index');
 $router->match(['get', 'post'], 'demo/form_config', 'FormConfigController@index');
 $router->match(['get', 'post'], 'demo/form_layout', 'FormLayoutController@index');
 $router->match(['get', 'post'], 'demo/form_field', 'FormFieldController@index');
+$router->match(['get', 'post'], 'demo/form_field/server/{type}', 'FormFieldController@server');
 $router->match(['get', 'post'], 'demo/form_dynamic', 'FormDynamicController@index');
 $router->match(['get', 'post'], 'demo/form_dialog', 'FormDialogController@index');
 $router->match(['get', 'post'], 'demo/form_dialog/dialog', 'FormDialogController@dialog');
