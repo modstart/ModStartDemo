@@ -44,6 +44,7 @@ class FormFieldController extends Controller
         $form->radio('radio', '单选')->optionType(DemoType::class);
         $form->checkbox('checkbox', '复选')->optionType(DemoType::class);
         $form->select('select', '下拉')->optionType(DemoType::class);
+        $form->select('select', '下拉(带搜索)')->optionType(DemoType::class)->selectSearch(true);
         $form->type('type', '类型')->type(DemoType::class);
         $form->tags('tags', '标签');
         $form->percent('percent', '单行百分比');

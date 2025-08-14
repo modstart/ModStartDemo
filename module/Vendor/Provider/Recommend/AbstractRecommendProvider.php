@@ -3,6 +3,10 @@
 
 namespace Module\Vendor\Provider\Recommend;
 
+use ModStart\Admin\Layout\AdminConfigBuilder;
+use ModStart\Support\Concern\HasFields;
+
+
 abstract class AbstractRecommendProvider
 {
     abstract public function name();
@@ -28,5 +32,8 @@ abstract class AbstractRecommendProvider
 
     
     abstract public function randomItem($biz, $userId, $limit = 1, $sceneIds = [], $tags = [], $exceptBizIds = [], $param = []);
+
+    
+    abstract public function configForm($builder, $param = []);
 
 }

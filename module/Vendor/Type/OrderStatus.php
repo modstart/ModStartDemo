@@ -12,8 +12,9 @@ class OrderStatus implements BaseType
 
     const COMPLETED = 50;
 
-        const CANCEL_PAID = 97;
-        const CANCEL_EXPIRED = 98;
+        const REFUNDED = 60;
+
+                const CANCEL_EXPIRED = 98;
         const CANCEL = 99;
 
     
@@ -26,8 +27,9 @@ class OrderStatus implements BaseType
 
             self::COMPLETED => '已完成',
 
-            self::CANCEL_PAID => '支付成功取消',
-            self::CANCEL_EXPIRED => '订单过期取消',
+            self::REFUNDED => '已退款',
+
+                        self::CANCEL_EXPIRED => '订单过期取消',
             self::CANCEL => '订单取消',
                     ];
     }
@@ -49,8 +51,8 @@ class OrderStatus implements BaseType
         return self::filterList([
             self::WAIT_PAY,
             self::COMPLETED,
-            self::CANCEL_PAID,
-            self::CANCEL_EXPIRED,
+            self::REFUNDED,
+                        self::CANCEL_EXPIRED,
             self::CANCEL,
         ]);
     }

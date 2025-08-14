@@ -41,8 +41,8 @@ trait CanCascadeFields
     protected $cascadeParam = [];
 
     /**
-     * @param $operator
-     * @param $value
+     * @param $operator string 比较符 =|in|notIn|includes|!=|>|<|>=|<=
+     * @param $value string|array 比较值
      * @param $closure \Closure function($builder) { }
      *
      * @return $this
@@ -224,7 +224,7 @@ trait CanCascadeFields
        cascadeGroups.forEach(function (group) {
            var groupDom = $('#{$this->id()}_group_' + group.index);
            groupDom.addClass('cascade-group-hide');
-           groupDom.find('input,textarea,select').prop('disabled',true)
+           groupDom.find('input,textarea,select').prop('disabled',true);
        });
        cascadeGroups.forEach(function (group) {
            var groupDom = $('#{$this->id()}_group_' + group.index);

@@ -211,6 +211,15 @@ class Tecmz
     }
 
     
+    public function docToImageResult($jobId, $status)
+    {
+        $post = [];
+        $post['jobId'] = $jobId;
+        $post['status'] = $status;
+        return $this->request('/doc_to_image/result', $post);
+    }
+
+    
     public function imageCompress($format, $imageData = null, $imageUrl = null, $name = null, $param = [])
     {
         $ret = $this->request('/image_compress/prepare', []);

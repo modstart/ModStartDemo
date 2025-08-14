@@ -17,6 +17,7 @@ class GridController extends Controller
 {
     use DemoPreviewTrait;
     use HasAdminQuickCRUD;
+
     protected function crud(AdminCRUDBuilder $builder)
     {
         $this->setupDemoPreview('使用快速 CRUD 的方法，使用很少的代码创建了一个增删改查页面');
