@@ -52,7 +52,12 @@ class FormFieldController extends Controller
         $form->link('link', '链接');
         $form->button('button', '按钮');
         $form->html('html', 'HTML')->html('<div style="background:#F8F8F8;border-radius:1rem;padding:1rem;" class="ub-html"><p>HTML内容</p><p>HTML内容</p></div>');
-        $form->multiSelect('multiSelect', '多选')->optionType(DemoType::class);
+        $form->multiSelect('multiSelect1', '多选下拉（固定类型）')
+            ->optionType(DemoType::class)
+            ->defaultValue([DemoType::VALUE_A]);
+        $form->multiSelect('multiSelect2', '多选下拉（数据库源）')
+            ->optionModel(DemoNewsCategory::class, 'id', 'title')
+            ->defaultValue([1]);
         $form->period('period', '时间长度');
         $form->selectRemote('selectRemote', '远程下拉')->server(modstart_admin_url('demo/form_field/server/selectRemote'));
         $form->areaChina('areaChina', '中国地区');

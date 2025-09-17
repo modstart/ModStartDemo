@@ -3,7 +3,7 @@
     "title": "开发示例程序",
     "types": [
         "PC",
-        "Mobile"
+        "Admin"
     ],
     "env": [
         "laravel5",
@@ -15,10 +15,10 @@
     "tags": [
         "开发"
     ],
-    "version": "2.2.1",
+    "version": "2.2.2",
     "author": "ModStart",
     "description": "ModStart开发示例程序",
-    "modstartVersion": ">=4.1.0",
+    "modstartVersion": ">=4.1.2",
     "config": {
         "testText": [
             [
