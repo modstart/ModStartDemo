@@ -65,6 +65,13 @@ class ImageDesignUtil
         BizException::throwsIf('背景图和背景色同时为空', empty($imageConfig['backgroundImage']) && empty($imageConfig['backgroundColor']));
     }
 
+    private static function getTextWidth($text, $fontPath, $fontSize)
+    {
+        $box = imagettfbbox($fontSize, 0, $fontPath, $text);
+        $width = abs($box[2] - $box[0]);
+        return $width;
+    }
+
     public static function render($imageConfig, $variables = [])
     {
         BizException::throwsIfEmpty('imageConfig 为空', $imageConfig);
@@ -100,7 +107,35 @@ class ImageDesignUtil
             switch ($item['type']) {
                 case 'text':
                     $lineHeight = isset($item['data']['lineHeight']) ? $item['data']['lineHeight'] : 1.2;
+                    $textFontPath = empty($item['data']['font']) ? null : $item['data']['font'];
+                    if ($textFontPath) {
+                        $textFontPath = FileUtil::savePathToLocalTemp($textFontPath, 'ttf', true);
+                    }
+                    if (empty($textFontPath)) {
+                        $textFontPath = $fontPath;
+                    }
                     $lines = explode(self::LINE_BREAK, $item['data']['text']);
+                    if (!empty($item['data']['width'])) {
+                        $newLines = [];
+                        foreach ($lines as $text) {
+                            $currentLine = '';
+                            $words = preg_split('//u', $text, -1, PREG_SPLIT_NO_EMPTY);
+                            foreach ($words as $char) {
+                                $testLine = $currentLine . $char;
+                                $lineWidth = self::getTextWidth($testLine, $textFontPath, $item['data']['size']);
+                                if ($lineWidth > $item['data']['width'] && $currentLine !== '') {
+                                    $newLines[] = $currentLine;
+                                    $currentLine = $char;
+                                } else {
+                                    $currentLine = $testLine;
+                                }
+                            }
+                            if ($currentLine !== '') {
+                                $newLines[] = $currentLine;
+                            }
+                        }
+                        $lines = $newLines;
+                    }
                     $offsets = [];
                     if (!empty($item['data']['shadowOffset'])) {
                         if (empty($item['data']['shadowColor'])) {
@@ -138,13 +173,16 @@ class ImageDesignUtil
                             if (empty($line)) {
                                 continue;
                             }
-                            $image->text($line, $item['x'] + $offset['x'], $y + $offset['y'], function ($font) use ($item, $offset, $fontPath) {
-                                $font->file($fontPath);
-                                $font->size($item['data']['size']);
-                                $font->color($offset['color']);
-                                $font->align($item['data']['align']);
-                                $font->valign('top');
-                            });
+                            $image->text(
+                                $line, $item['x'] + $offset['x'], $y + $offset['y'],
+                                function ($font) use ($item, $offset, $textFontPath) {
+                                    $font->file($textFontPath);
+                                    $font->size($item['data']['size']);
+                                    $font->color($offset['color']);
+                                    $font->align($item['data']['align']);
+                                    $font->valign('top');
+                                }
+                            );
                             $y += $item['data']['size'] * $lineHeight;
                         }
                     }
