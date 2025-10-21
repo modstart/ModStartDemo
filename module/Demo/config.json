@@ -2,8 +2,8 @@
     "name": "Demo",
     "title": "开发示例程序",
     "types": [
-        "PC",
-        "Admin"
+        "Admin",
+        "PC"
     ],
     "env": [
         "laravel5",
