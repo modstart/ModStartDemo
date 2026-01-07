@@ -9,7 +9,9 @@
                 @if($f['type']==\ModStart\Field\Type\DynamicFieldsType::TYPE_TEXT)
                     {{$valueObject[$f['name']]}}
                 @elseif($f['type']==\ModStart\Field\Type\DynamicFieldsType::TYPE_TEXTAREA)
-                    {{$valueObject[$f['name']]}}
+                    <div>
+                        {!! nl2br(htmlspecialchars($valueObject[$f['name']])) !!}
+                    </div>
                 @elseif($f['type']==\ModStart\Field\Type\DynamicFieldsType::TYPE_NUMBER)
                     {{$valueObject[$f['name']]}}
                 @elseif($f['type']==\ModStart\Field\Type\DynamicFieldsType::TYPE_SWITCH)
@@ -26,14 +28,22 @@
                     <div>
                         <a href="{{$valueObject[$f['name']]}}" target="_blank">
                             <i class="iconfont icon-file"></i>
-                            {{$valueObject[$f['name']]}}
+                            @if('name'==$param['fileTitle'])
+                                {{\ModStart\Core\Util\PathUtil::getFilename($valueObject[$f['name']])}}
+                            @else
+                                {{$valueObject[$f['name']]}}
+                            @endif
                         </a>
                     </div>
                 @elseif($f['type']==\ModStart\Field\Type\DynamicFieldsType::TYPE_FILES)
                     @foreach($valueObject[$f['name']] as $v)
                         <a href="{{$v}}" target="_blank">
                             <i class="iconfont icon-file"></i>
-                            {{$v}}
+                            @if('name'==$param['filesTitle'])
+                                {{\ModStart\Core\Util\PathUtil::getFilename($v)}}
+                            @else
+                                {{$v}}
+                            @endif
                         </a>
                     @endforeach
                 @else

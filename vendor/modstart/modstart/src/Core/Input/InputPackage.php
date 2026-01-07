@@ -3,6 +3,7 @@
 namespace ModStart\Core\Input;
 
 use Illuminate\Support\Facades\Input;
+use ModStart\Core\Exception\BizException;
 use ModStart\Core\Util\FormatUtil;
 use ModStart\Core\Util\HtmlUtil;
 use ModStart\Core\Util\SecureUtil;
@@ -185,6 +186,9 @@ class InputPackage
             $content = trim($this->data[$key]);
             $content = HtmlUtil::filter($content);
             $content = StrUtil::filterSpecialChars($content);
+            if ($content === '<p></p>') {
+                $content = '';
+            }
             return $content;
         }
         return $defaultValue;
@@ -611,7 +615,7 @@ class InputPackage
         return $data;
     }
 
-    public function getType($key, $typeCls, $defaultValue = null)
+    public function getType($key, $typeCls, $defaultValue = null, $throwUnexpectedValue = false)
     {
         if (!isset($this->data[$key])) {
             return $defaultValue;
@@ -626,6 +630,7 @@ class InputPackage
                 return $k;
             }
         }
+        BizException::throwsIf('Unexpected value for ' . $key, $throwUnexpectedValue);
         return $defaultValue;
     }
 
@@ -639,7 +644,9 @@ class InputPackage
         }
         $values = [];
         foreach ($this->data[$key] as $item) {
-            $values[] = trim($item);
+            $item = @trim((string)$item);
+            $item = StrUtil::filterSpecialChars($item);
+            $values[] = $item;
         }
         return $values;
     }

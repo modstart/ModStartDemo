@@ -31,15 +31,21 @@ class CaptchaProvider
         return self::$instances;
     }
 
-    public static function nameTitleMap()
+    public static function nameTitleMap($empty = false)
     {
-        return array_build(self::all(), function ($k, $v) {
+        $map = array_build(self::all(), function ($k, $v) {
             
             return [
                 $v->name(),
                 $v->title()
             ];
         });
+        if ($empty) {
+            $map = array_merge([
+                '' => L('Empty')
+            ], $map);
+        }
+        return $map;
     }
 
     public static function nameTitleMapWithNone()

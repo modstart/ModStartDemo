@@ -2,9 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use ModStart\Core\Dao\ModelManageUtil;
 
-class CreateDemoNews extends Migration
+class DemoNewsCreate extends Migration
 {
     
     public function up()
@@ -29,5 +28,5 @@ class CreateDemoNews extends Migration
     
     public function down()
     {
-    }
+            }
 }

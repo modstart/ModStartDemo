@@ -10,8 +10,8 @@ use ModStart\Core\Input\Response;
 use ModStart\Core\Provider\FontProvider;
 use ModStart\Core\Util\ColorUtil;
 use ModStart\Core\Util\FileUtil;
+use ModStart\Core\Util\LogUtil;
 use ModStart\Core\Util\QrcodeUtil;
-use ModStart\Core\Util\SerializeUtil;
 
 class ImageDesignUtil
 {
@@ -67,29 +67,117 @@ class ImageDesignUtil
 
     private static function getTextWidth($text, $fontPath, $fontSize)
     {
-        $box = imagettfbbox($fontSize, 0, $fontPath, $text);
+        $box = @imagettfbbox($fontSize, 0, $fontPath, $text);
         $width = abs($box[2] - $box[0]);
         return $width;
     }
 
-    public static function render($imageConfig, $variables = [])
+    private static function ttfHasChar($fontFile, $char)
     {
-        BizException::throwsIfEmpty('imageConfig 为空', $imageConfig);
+        $fp = fopen($fontFile, 'rb');
+        if (!$fp) return false;
+        fseek($fp, 4);
+        $numTables = unpack('n', fread($fp, 2))[1];
+        fseek($fp, 12);
+        $cmapOffset = null;
+        for ($i = 0; $i < $numTables; $i++) {
+            $record = unpack('a4tag/NcheckSum/Noffset/Nlength', fread($fp, 16));
+            if ($record['tag'] === 'cmap') {
+                $cmapOffset = $record['offset'];
+                break;
+            }
+        }
+
+        if ($cmapOffset === null) return false;
+
+                fseek($fp, $cmapOffset);
+        $cmapHeader = unpack('nversion/nnumTables', fread($fp, 4));
+
+        $unicodeOffset = null;
+        for ($i = 0; $i < $cmapHeader['numTables']; $i++) {
+            $entry = unpack('nplatformID/nencodingID/Noffset', fread($fp, 8));
+            if ($entry['platformID'] == 3 && $entry['encodingID'] == 1) {                 $unicodeOffset = $entry['offset'];
+                break;
+            }
+        }
+
+        if ($unicodeOffset === null) return false;
+        fseek($fp, $cmapOffset + $unicodeOffset);
+        $format = unpack('nformat', fread($fp, 2))['format'];
+
+        if ($format != 4) {
+            fclose($fp);
+            return false;
+        }
+
+                fseek($fp, -2, SEEK_CUR);
+        $fmt4 = unpack('nformat/nlength/nlanguage/nsegCountX2/nsearchRange/nentrySelector/nrangeShift', fread($fp, 14));
+        $segCount = $fmt4['segCountX2'] / 2;
+
+        $endCodes = unpack("n$segCount", fread($fp, $segCount * 2));
+        fseek($fp, 2, SEEK_CUR);         $startCodes = unpack("n$segCount", fread($fp, $segCount * 2));
+        $idDeltas = unpack("n$segCount", fread($fp, $segCount * 2));
+
+        fclose($fp);
+
+        $code = mb_ord($char, 'UTF-8');
+        for ($i = 1; $i <= $segCount; $i++) {
+            if ($code >= $startCodes[$i] && $code <= $endCodes[$i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static function getTtfFont($fontFile, $fallbackFontFile, $text)
+    {
+        $chars = preg_split('//u', $text, -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($chars as $char) {
+            if (!self::ttfHasChar($fontFile, $char)) {
+                return $fallbackFontFile;
+            }
+        }
+        return $fontFile;
+    }
+
+    private static function replaceParam($data, $variables)
+    {
+        if (empty($variables)) {
+            return $data;
+        }
+        if (is_array($data)) {
+            $newData = [];
+            foreach ($data as $k => $v) {
+                $newData[$k] = self::replaceParam($v, $variables);
+            }
+            return $newData;
+        }
+        if (is_string($data)) {
+            foreach ($variables as $k => $v) {
+                $data = str_replace('${' . $k . '}', $v, $data);
+            }
+            return $data;
+        }
+        return $data;
+    }
+
+    public static function render($imageConfigJson, $variables = [])
+    {
+        BizException::throwsIfEmpty('imageConfig 为空', $imageConfigJson);
         $configParam = [];
         foreach ($variables as $k => $v) {
             $configParam['${' . $k . '}'] = $v;
         }
-        $imageConfig = SerializeUtil::jsonEncode($imageConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        $imageConfig = str_replace(array_keys($configParam), array_values($configParam), $imageConfig);
-        $imageConfig = json_decode($imageConfig, true);
+                                                                        $imageConfig = self::replaceParam($imageConfigJson, $variables);
 
         BizException::throwsIf('width empty', empty($imageConfig['width']));
         BizException::throwsIf('height empty', empty($imageConfig['height']));
         BizException::throwsIf('backgroundImage 和 backgroundColor 为空', empty($imageConfig['backgroundImage']) && empty($imageConfig['backgroundColor']));
         BizException::throwsIf('blocks empty', !isset($imageConfig['blocks']));
 
+        $systemFontPath = FontProvider::firstLocalPathOrFail();
         if (empty($imageConfig['font'])) {
-            $fontPath = FontProvider::firstLocalPathOrFail();
+            $fontPath = $systemFontPath;
         } else {
             $fontPath = FileUtil::savePathToLocalTemp($imageConfig['font'], 'ttf', true);
         }
@@ -114,7 +202,16 @@ class ImageDesignUtil
                     if (empty($textFontPath)) {
                         $textFontPath = $fontPath;
                     }
-                    $lines = explode(self::LINE_BREAK, $item['data']['text']);
+                    $textFontPath = self::getTtfFont($textFontPath, $systemFontPath, $item['data']['text']);
+                    $linesForBreak = explode(self::LINE_BREAK, $item['data']['text']);
+                    $lines = [];
+                    foreach ($linesForBreak as $line) {
+                        $parts = explode("\n", $line);
+                        foreach ($parts as $part) {
+                            $lines[] = $part;
+                        }
+                    }
+                    $lines = array_filter(array_map('trim', $lines));
                     if (!empty($item['data']['width'])) {
                         $newLines = [];
                         foreach ($lines as $text) {
@@ -173,7 +270,7 @@ class ImageDesignUtil
                             if (empty($line)) {
                                 continue;
                             }
-                            $image->text(
+                                                                                                                                                                                                    $image->text(
                                 $line, $item['x'] + $offset['x'], $y + $offset['y'],
                                 function ($font) use ($item, $offset, $textFontPath) {
                                     $font->file($textFontPath);

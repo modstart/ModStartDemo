@@ -1,6 +1,13 @@
-## 4.9.0
+## 5.0.0
+
+- 新增：
+
+---
+
+## 4.9.0 HTML 转 Markdown 支持，CaptchaProvider 优化
 
 - 新增：引入 turndown.js 用于将 HTML 转换为 Markdown
+- 新增：CaptchaProvider 支持空验证码选项参数
 
 ---
 

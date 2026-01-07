@@ -42,7 +42,7 @@
                         <div class="title">多语言</div>
                     </div>
                     <div class="body">
-                        <pre>模块：{{LM('Demo','Test Language')}}</pre>
+                        <pre>模块：{{LM('Demo','TestLanguage')}}</pre>
                         <pre>系统：{{L('Please Select')}}</pre>
                     </div>
                 </div>

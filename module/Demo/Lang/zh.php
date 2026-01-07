@@ -1,4 +1,4 @@
 <?php
 return [
-    'Test Language' => '测试语言',
+    'TestLanguage' => '测试语言',
 ];

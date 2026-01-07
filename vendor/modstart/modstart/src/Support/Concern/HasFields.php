@@ -20,6 +20,7 @@ use ModStart\ModStart;
  * @method \ModStart\Field\Audio                audio($column, $label = '')
  * @method \ModStart\Field\Button               button($column, $label = '')
  * @method \ModStart\Field\Captcha              captcha($column, $label = '')
+ * @method \ModStart\Field\Cascader             cascader($column, $label = '')
  * @method \ModStart\Field\Checkbox             checkbox($column, $label = '')
  * @method \ModStart\Field\Code                 code($column, $label = '')
  * @method \ModStart\Field\Color                color($column, $label = '')
@@ -273,6 +274,15 @@ trait HasFields
         return $this->fields->first(function ($k, AbstractField $item) use ($column) {
             return $item->column() == $column;
         });
+    }
+
+    public function getFieldColumnLabelMap()
+    {
+        $map = [];
+        $this->fields()->each(function (AbstractField $field) use (&$map) {
+            $map[$field->column()] = $field->label();
+        });
+        return $map;
     }
 
 }
