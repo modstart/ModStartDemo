@@ -1,8 +1,11 @@
 <?php
 
+$middleware = [];
+if (class_exists(\Module\Member\Middleware\ApiAuthMiddleware::class)) {
+    $middleware[] = \Module\Member\Middleware\ApiAuthMiddleware::class;
+}
 $router->group([
-    'middleware' => [
-    ],
+    'middleware' => $middleware,
 ], function () use ($router) {
 
     $router->match(['get', 'post'], 'demo/news/get', 'NewsController@get');

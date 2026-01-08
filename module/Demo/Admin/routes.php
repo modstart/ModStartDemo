@@ -14,6 +14,7 @@ $router->match(['get', 'post'], 'demo/grid/add', 'GridController@add');
 $router->match(['get', 'post'], 'demo/grid/edit', 'GridController@edit');
 $router->match(['post'], 'demo/grid/delete', 'GridController@delete');
 $router->match(['get'], 'demo/grid/show', 'GridController@show');
+$router->match(['get', 'post'], 'demo/grid/import', 'GridController@import');
 
 $router->match(['get', 'post'], 'demo/grid_operate', 'GridOperateController@index');
 $router->match(['get', 'post'], 'demo/grid_operate/add', 'GridOperateController@add');
@@ -55,4 +56,12 @@ $router->match(['get', 'post'], 'demo/front_echart', 'FrontEchartController@inde
 $router->match(['get', 'post'], 'demo/front_page/404', 'FrontPageController@page404');
 $router->match(['get', 'post'], 'demo/front_page/500', 'FrontPageController@page500');
 
+$router->match(['get', 'post'], 'demo/app_import', 'AppImportController@index');
+$router->match(['get', 'post'], 'demo/app_test_job', 'AppTestJobController@index');
+$router->match(['get'], 'demo/app_test_job/show', 'AppTestJobController@show');
+$router->match(['post'], 'demo/app_test_job/create', 'AppTestJobController@create');
+
+$router->match(['get', 'post'], 'demo/test_job', 'AppImportController@index');
+
 $router->match(['get', 'post'], 'demo/doc', 'DocController@index');
+

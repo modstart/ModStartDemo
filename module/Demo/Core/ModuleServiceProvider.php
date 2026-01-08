@@ -99,9 +99,8 @@ class ModuleServiceProvider extends ServiceProvider
                                     'url' => '\Module\Demo\Admin\Controller\WidgetVueController@index',
                                 ],
                             ]
-                        ],
-                        [
-                            'title' => '开发示例页面',
+                        ],[
+                            'title' => '基础示例页面',
                             'icon' => 'cube',
                             'sort' => 153,
                             'children' => [
@@ -136,9 +135,24 @@ class ModuleServiceProvider extends ServiceProvider
                             ]
                         ],
                         [
+                            'title' => '常见示例页面',
+                            'icon' => 'cube',
+                            'sort' => 154,
+                            'children' => [
+                                [
+                                    'title' => '复杂数据导入',
+                                    'url' => '\Module\Demo\Admin\Controller\AppImportController@index',
+                                ],
+                                [
+                                    'title' => '后台任务调度',
+                                    'url' => '\Module\Demo\Admin\Controller\AppTestJobController@index',
+                                ],
+                            ]
+                        ],
+                        [
                             'title' => '开发者文档',
                             'icon' => 'code',
-                            'sort' => 154,
+                            'sort' => 155,
                             'url' => '\Module\Demo\Admin\Controller\DocController@index',
                         ],
                     ]

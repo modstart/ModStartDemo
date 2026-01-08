@@ -10,8 +10,6 @@ use ModStart\Core\Exception\BizException;
 use ModStart\Core\Input\InputPackage;
 use ModStart\Core\Input\Response;
 use ModStart\Core\Util\CRUDUtil;
-use ModStart\ModStart;
-use Module\News\Util\NewsUtil;
 
 
 class NewsController extends Controller

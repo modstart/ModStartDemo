@@ -2,6 +2,8 @@
 
 namespace Module\Demo\Admin\Traits;
 
+use Illuminate\Support\Str;
+use ModStart\Core\Util\FileUtil;
 use ModStart\ModStart;
 
 trait DemoPreviewTrait
@@ -11,6 +13,30 @@ trait DemoPreviewTrait
         ModStart::js('vendor/Demo/js/prism/prism.js');
         ModStart::css('vendor/Demo/js/prism/prism.css');
         ModStart::script('Prism.highlightAll();');
+    }
+
+    private function filterCodeContent($content, $type)
+    {
+        if ('php' == $type) {
+            $content = trim($content);
+            $lines = explode("\n", $content);
+            $blackList = [
+                '$this->setupDemoPreview',
+                'DemoPreviewTrait',
+            ];
+            $lines = array_filter($lines, function ($line) use ($blackList) {
+                foreach ($blackList as $item) {
+                    if (Str::contains($line, $item)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            $content = join("\n", $lines);
+        }
+                $content = str_replace("\r", '', $content);
+        $content = preg_replace('/\n{2,}/', "\n\n", $content);
+        return $content;
     }
 
     protected function setupDemoPreview($description, $param = [])
@@ -24,9 +50,12 @@ trait DemoPreviewTrait
 
         $ref = new \ReflectionClass(__CLASS__);
         $file = $ref->getFileName();
-        $contentHtml = htmlspecialchars(file_get_contents($file));
+        $codeContent = file_get_contents($file);
+        $ext = FileUtil::extension($file);
+        $codeContent = $this->filterCodeContent($codeContent, $ext);
+        $contentHtml = htmlspecialchars($codeContent);
         $codes[] = [
-            'name' => '调用代码',
+            'name' => '代码',
             'type' => 'php',
             'contentHtml' => $contentHtml,
             'path' => substr($file, strlen(base_path()) + 1),
@@ -34,7 +63,10 @@ trait DemoPreviewTrait
 
         if (!empty($param['codes'])) {
             foreach ($param['codes'] as $code) {
-                $contentHtml = htmlspecialchars(file_get_contents(base_path($code['path'])));
+                $file = file_get_contents(base_path($code['path']));
+                $ext = FileUtil::extension($code['path']);
+                $codeContent = $this->filterCodeContent($file, $ext);
+                $contentHtml = htmlspecialchars($codeContent);
                 $codes[] = [
                     'name' => $code['name'],
                     'type' => $code['type'],
