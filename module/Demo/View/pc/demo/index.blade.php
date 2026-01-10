@@ -1,6 +1,8 @@
 @extends($_viewFrame)
 
 @section('pageTitleMain')Demo演示@endsection
+@section('pageKeywords')关键词@endsection
+@section('pageDescription')描述@endsection
 
 @section('bodyContent')
 

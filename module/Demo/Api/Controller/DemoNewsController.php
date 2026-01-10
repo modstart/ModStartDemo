@@ -12,7 +12,7 @@ use ModStart\Core\Input\Response;
 use ModStart\Core\Util\CRUDUtil;
 
 
-class NewsController extends Controller
+class DemoNewsController extends Controller
 {
     
     public function get()

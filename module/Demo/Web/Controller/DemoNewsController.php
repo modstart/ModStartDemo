@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Module\Demo\Web\Controller;
 
 use ModStart\Module\ModuleBaseController;

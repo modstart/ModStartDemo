@@ -9,7 +9,7 @@ use ModStart\Core\Input\Response;
 use Module\Demo\Util\DemoNewsCategoryUtil;
 
 
-class NewsCategoryController extends Controller
+class DemoNewsCategoryController extends Controller
 {
     
     public function all()
