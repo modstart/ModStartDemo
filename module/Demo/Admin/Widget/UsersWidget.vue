@@ -1,3 +1,4 @@
+<!-- @DEMO 加载ECharts，处理用户统计请求，权限控制 -->
 <script>
 export default {
     data() {

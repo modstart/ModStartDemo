@@ -1,1 +1,1 @@
-// Built js from resources/asset/src/js/Xxxx/xxx.js
+// @DEMO 模块脚本代码
