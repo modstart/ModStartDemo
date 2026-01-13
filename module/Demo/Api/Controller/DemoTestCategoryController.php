@@ -6,17 +6,17 @@ namespace Module\Demo\Api\Controller;
 
 use Illuminate\Routing\Controller;
 use ModStart\Core\Input\Response;
-use Module\Demo\Util\DemoNewsCategoryUtil;
+use Module\Demo\Util\DemoTestCategoryUtil;
 
 
-class DemoNewsCategoryController extends Controller
+class DemoTestCategoryController extends Controller
 {
     
     public function all()
     {
         $data = [];
-        $data['records'] = DemoNewsCategoryUtil::all();
-        $data['tree'] = DemoNewsCategoryUtil::tree();
+        $data['records'] = DemoTestCategoryUtil::all();
+        $data['tree'] = DemoTestCategoryUtil::tree();
         return Response::generateSuccessData($data);
     }
 }

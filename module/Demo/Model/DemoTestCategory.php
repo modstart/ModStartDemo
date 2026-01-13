@@ -5,7 +5,7 @@ namespace Module\Demo\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DemoTestJob extends Model
+class DemoTestCategory extends Model
 {
-    protected $table = 'demo_test_job';
+    protected $table = 'demo_test_category';
 }

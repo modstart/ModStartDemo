@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -20,7 +21,6 @@ class DemoTestJobCreate extends Migration
             $table->text('data')->nullable()->comment('');
             $table->text('result')->nullable()->comment('');
         });
-
     }
 
     

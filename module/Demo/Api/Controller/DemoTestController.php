@@ -10,17 +10,18 @@ use ModStart\Core\Exception\BizException;
 use ModStart\Core\Input\InputPackage;
 use ModStart\Core\Input\Response;
 use ModStart\Core\Util\CRUDUtil;
+use Module\Demo\Model\DemoTest;
 
 
-class DemoNewsController extends Controller
+class DemoTestController extends Controller
 {
     
     public function get()
     {
-        $news = ModelUtil::get('demo_news', CRUDUtil::id());
-        BizException::throwsIfEmpty('新闻不存在', $news);
+        $record = ModelUtil::get(DemoTest::class, CRUDUtil::id());
+        BizException::throwsIfEmpty('记录不存在', $record);
         return Response::generateSuccessData([
-            'news' => $news,
+            'record' => $record,
         ]);
     }
 
@@ -30,19 +31,20 @@ class DemoNewsController extends Controller
         $input = InputPackage::buildFromInput();
         $page = $input->getPage();
         $pageSize = $input->getPageSize();
-        $option = [];
-        $option['where'] = [];
-        $option['order'] = ['id', 'desc'];
+        $query = DemoTest::query();
         $categoryId = $input->getInteger('categoryId');
         if ($categoryId) {
-            $option['where']['categoryId'] = $categoryId;
+            $query = $query->where('categoryId', $categoryId);
         }
-        $paginateData = ModelUtil::paginate('demo_news', $page, $pageSize, $option);
+        $query = $query->orderBy('id', 'desc');
+        $resultData = $query->paginate($pageSize, ['*'], 'page', $page)->toArray();
+        $records = $resultData['data'];
+        $total = $resultData['total'];
         return Response::generateSuccessData([
             'page' => $page,
             'pageSize' => $pageSize,
-            'total' => $paginateData['total'],
-            'records' => $paginateData['records'],
+            'total' => $total,
+            'records' => $records,
         ]);
     }
 }

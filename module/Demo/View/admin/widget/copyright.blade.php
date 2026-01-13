@@ -1,3 +1,4 @@
+{{--@DEMO 版权信息及链接展示--}}
 <div class="ub-content-box margin-bottom tw-text-center tw-text-white"
      style="background-image:var(--color-primary-gradient-bg);height:10rem;">
     <div>

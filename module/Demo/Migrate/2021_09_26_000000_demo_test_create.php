@@ -1,15 +1,16 @@
 <?php
 
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class DemoNewsCreate extends Migration
+class DemoTestCreate extends Migration
 {
     
     public function up()
     {
 
-        Schema::create('demo_news', function (Blueprint $table) {
+        Schema::create('demo_test', function (Blueprint $table) {
 
             $table->increments('id');
             $table->timestamps();
@@ -20,9 +21,7 @@ class DemoNewsCreate extends Migration
             $table->string('cover', 200)->nullable()->comment('');
             $table->string('summary', 200)->nullable()->comment('');
             $table->text('content')->nullable()->comment('');
-
         });
-
     }
 
     

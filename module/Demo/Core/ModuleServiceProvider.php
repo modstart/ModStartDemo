@@ -1,5 +1,6 @@
 <?php
 
+
 namespace Module\Demo\Core;
 
 use Illuminate\Events\Dispatcher;
@@ -99,7 +100,8 @@ class ModuleServiceProvider extends ServiceProvider
                                     'url' => '\Module\Demo\Admin\Controller\WidgetVueController@index',
                                 ],
                             ]
-                        ],[
+                        ],
+                        [
                             'title' => '基础示例页面',
                             'icon' => 'cube',
                             'sort' => 153,
@@ -167,8 +169,5 @@ class ModuleServiceProvider extends ServiceProvider
     }
 
     
-    public function register()
-    {
-
-    }
+    public function register() {}
 }

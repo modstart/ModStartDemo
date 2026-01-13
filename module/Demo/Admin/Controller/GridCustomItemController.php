@@ -1,5 +1,6 @@
 <?php
 
+
 namespace Module\Demo\Admin\Controller;
 
 use Illuminate\Routing\Controller;
@@ -9,7 +10,7 @@ use ModStart\Grid\Grid;
 use ModStart\Grid\GridFilter;
 use ModStart\Support\Concern\HasPageTitleInfo;
 use Module\Demo\Admin\Traits\DemoPreviewTrait;
-use Module\Demo\Model\DemoNews;
+use Module\Demo\Model\DemoTest;
 
 class GridCustomItemController extends Controller
 {
@@ -20,7 +21,7 @@ class GridCustomItemController extends Controller
     public function grid()
     {
         $this->setupDemoPreview('支持页面条目的自定义显示');
-        $grid = Grid::make(DemoNews::class);
+        $grid = Grid::make(DemoTest::class);
         $grid->gridRowCols([3, 6]);
         $grid->useSimple(function (AbstractField $field, $item, $index) {
             $html = <<<HTML

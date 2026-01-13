@@ -1,3 +1,4 @@
+{{--@DEMO Vue+ElementUI 集成示例--}}
 @extends('modstart::admin.frame')
 
 @section('pageTitleMain')

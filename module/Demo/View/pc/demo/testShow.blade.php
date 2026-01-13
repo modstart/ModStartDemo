@@ -1,3 +1,4 @@
+{{--@DEMO 测试详情展示--}}
 @extends($_viewFrame)
 
 @section('pageTitleMain'){{$record['title']}}@endsection
@@ -6,7 +7,7 @@
     <div class="ub-container margin-top">
         <div class="ub-panel">
             <div class="head">
-                <div class="title">新闻数据</div>
+                <div class="title">测试数据</div>
             </div>
             <div class="body">
                 <pre>{{\ModStart\Core\Util\SerializeUtil::jsonEncode($record,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)}}</pre>

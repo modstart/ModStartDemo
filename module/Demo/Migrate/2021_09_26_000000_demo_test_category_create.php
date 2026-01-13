@@ -1,15 +1,16 @@
 <?php
 
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class DemoNewsCategoryCreate extends Migration
+class DemoTestCategoryCreate extends Migration
 {
     
     public function up()
     {
 
-        Schema::create('demo_news_category', function (Blueprint $table) {
+        Schema::create('demo_test_category', function (Blueprint $table) {
 
             $table->increments('id');
             $table->timestamps();
@@ -17,9 +18,7 @@ class DemoNewsCategoryCreate extends Migration
             $table->integer('sort')->nullable()->comment('');
 
             $table->string('title', 20)->nullable()->comment('');
-
         });
-
     }
 
     

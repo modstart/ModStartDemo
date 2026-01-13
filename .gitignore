@@ -22,3 +22,5 @@ _delete_.*
 /_testenv/
 
 
+/openspec
+/AGENTS.md

@@ -17,8 +17,8 @@ use ModStart\Form\Form;
 use ModStart\Grid\Grid;
 use ModStart\Widget\Box;
 use Module\Demo\Admin\Traits\DemoPreviewTrait;
-use Module\Demo\Model\DemoNews;
-use Module\Demo\Model\DemoNewsCategory;
+use Module\Demo\Model\DemoTest;
+use Module\Demo\Model\DemoTestCategory;
 use Module\Demo\Type\DemoType;
 
 class FormFieldController extends Controller
@@ -56,7 +56,7 @@ class FormFieldController extends Controller
             ->optionType(DemoType::class)
             ->defaultValue([DemoType::VALUE_A]);
         $form->multiSelect('multiSelect2', '多选下拉（数据库源）')
-            ->optionModel(DemoNewsCategory::class, 'id', 'title')
+            ->optionModel(DemoTestCategory::class, 'id', 'title')
             ->defaultValue([1]);
         $form->period('period', '时间长度');
         $form->selectRemote('selectRemote', '远程下拉')->server(modstart_admin_url('demo/form_field/server/selectRemote'));
@@ -82,7 +82,7 @@ class FormFieldController extends Controller
             ->previewUrl(modstart_admin_url('demo/form_field/server/jsonIdItemsPreview'));
         $form->keyValueList('keyValueList', '键值对列表');
         $form->tree('tree', '树')
-            ->tree(TreeUtil::modelToTree(DemoNewsCategory::class, ['title' => 'title']));
+            ->tree(TreeUtil::modelToTree(DemoTestCategory::class, ['title' => 'title']));
         $form->richHtml('richHtml', '富文本');
         $form->markdown('markdown', 'Markdown');
         $form->complexFields('complexFields', '复杂字段组')->fields([
@@ -113,21 +113,22 @@ class FormFieldController extends Controller
             });
     }
 
-    public function server(AdminDialogPage $page,
-                                           $type)
-    {
+    public function server(
+        AdminDialogPage $page,
+        $type
+    ) {
         switch ($type) {
             case 'selectRemote':
-                return SelectRemote::handleModel(DemoNews::class, 'id', 'title');
+                return SelectRemote::handleModel(DemoTest::class, 'id', 'title');
             case 'jsonIdItemsSelect':
-                $grid = Grid::make(DemoNews::class);
+                $grid = Grid::make(DemoTest::class);
                 $grid->id('id', 'ID');
                 $grid->text('title', '标题');
                 $grid->disableCUD();
                 $grid->canSingleSelectItem(true);
                 return $page->pageTitle('选择用户')->body($grid)->handleGrid($grid);
             case 'jsonIdItemsPreview':
-                $records = DemoNews::whereIn('id', CRUDUtil::ids())->get()->toArray();
+                $records = DemoTest::whereIn('id', CRUDUtil::ids())->get()->toArray();
                 return Response::generateSuccessData([
                     'records' => $records,
                 ]);

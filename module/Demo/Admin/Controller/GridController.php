@@ -13,8 +13,8 @@ use ModStart\Core\Input\Response;
 use ModStart\Grid\GridFilter;
 use ModStart\Support\Concern\HasFields;
 use Module\Demo\Admin\Traits\DemoPreviewTrait;
-use Module\Demo\Model\DemoNews;
-use Module\Demo\Model\DemoNewsCategory;
+use Module\Demo\Model\DemoTest;
+use Module\Demo\Model\DemoTestCategory;
 use Module\Vendor\QuickRun\Export\ImportHandle;
 
 class GridController extends Controller
@@ -26,12 +26,12 @@ class GridController extends Controller
     {
         $this->setupDemoPreview('使用快速 CRUD 的方法，使用很少的代码创建了一个 新增、查看、更新、删除、导入 页面');
         $builder
-            ->init(DemoNews::class)
+            ->init(DemoTest::class)
             ->field(function ($builder) {
                 
                 $builder->id('id', 'ID');
-                $builder->select('categoryId', '分类')->optionModelTree(DemoNewsCategory::class);
-                $builder->text('title', '标题')->asLink(modstart_web_url('demo/news/{id}'));
+                $builder->select('categoryId', '分类')->optionModelTree(DemoTestCategory::class);
+                $builder->text('title', '标题')->asLink(modstart_web_url('demo/test/{id}'));
                 $builder->image('cover', '封面');
                 $builder->textarea('summary', '摘要')->listable(false);
                 $builder->richHtml('content', '内容')->listable(false);
@@ -71,7 +71,7 @@ class GridController extends Controller
                 $record['categoryId'] = $package->nextInteger();
                 $record['title'] = $package->nextTrimString();
                 $record['content'] = $package->nextTrimString();
-                ModelUtil::insert(DemoNews::class, $record);
+                ModelUtil::insert(DemoTest::class, $record);
                 return Response::generateSuccess();
             })
             ->performExcel();

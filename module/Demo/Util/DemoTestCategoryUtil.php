@@ -1,29 +1,30 @@
 <?php
 
+
 namespace Module\Demo\Util;
 
 use ModStart\Core\Assets\AssetsUtil;
 use ModStart\Core\Dao\ModelUtil;
 use ModStart\Core\Util\TreeUtil;
-use Module\Demo\Model\DemoNewsCategory;
+use Module\Demo\Model\DemoTestCategory;
 use Module\Vendor\Util\CacheUtil;
 
-class DemoNewsCategoryUtil
+class DemoTestCategoryUtil
 {
     public static function clearCache()
     {
-        CacheUtil::forget('Demo:NewsCategories');
+        CacheUtil::forget('Demo:TestCategories');
     }
 
     public static function allIds()
     {
-        return ModelUtil::values(DemoNewsCategory::class, 'id');
+        return ModelUtil::values(DemoTestCategory::class, 'id');
     }
 
     public static function all()
     {
-        return CacheUtil::rememberForever('Demo:NewsCategories', function () {
-            $records = ModelUtil::all(DemoNewsCategory::class, [], [
+        return CacheUtil::rememberForever('Demo:TestCategories', function () {
+            $records = ModelUtil::all(DemoTestCategory::class, [], [
                 'id',
                 'pid',
                 'title',

@@ -1,3 +1,4 @@
+{{--@DEMO 会员登录要求页面--}}
 @extends($_viewFrame)
 
 @section('pageTitleMain')已登录界面@endsection

@@ -11,9 +11,8 @@ use ModStart\Form\Form;
 use ModStart\Grid\GridFilter;
 use ModStart\Support\Concern\HasFields;
 use Module\Demo\Admin\Traits\DemoPreviewTrait;
-use Module\Demo\Model\DemoNewsCategory;
-use Module\Demo\Util\DemoNewsCategoryUtil;
-use Module\News\Util\NewsUtil;
+use Module\Demo\Model\DemoTestCategory;
+use Module\Demo\Util\DemoTestCategoryUtil;
 
 class GridTreeController extends Controller
 {
@@ -24,7 +23,7 @@ class GridTreeController extends Controller
     {
         $this->setupDemoPreview('树状分类，理论支持无限级分类');
         $builder
-            ->init(DemoNewsCategory::class)
+            ->init(DemoTestCategory::class)
             ->field(function ($builder) {
                 
                 $builder->id('id', 'ID');
@@ -38,7 +37,7 @@ class GridTreeController extends Controller
                 $filter->like('title', L('Title'));
             })
             ->hookChanged(function (Form $form) {
-                DemoNewsCategoryUtil::clearCache();
+                DemoTestCategoryUtil::clearCache();
             })
             ->title('树状数据表格')
             ->asTree()

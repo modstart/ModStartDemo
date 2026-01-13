@@ -4,8 +4,8 @@
 namespace Module\Demo\Admin\Controller;
 
 
-use App\Model\DemoNews;
-use App\Model\DemoNewsCategory;
+use Module\Demo\Model\DemoTest;
+use Module\Demo\Model\DemoTestCategory;
 use Illuminate\Routing\Controller;
 use ModStart\Admin\Concern\HasAdminDetail;
 use ModStart\Admin\Concern\HasAdminForm;
@@ -42,16 +42,16 @@ class GridMultiController extends Controller
         }
         return $page
             ->pageTitle('多个数据表格')
-            ->append(Box::make($grid1, '新闻分类'))
-            ->append(Box::make($grid2, '新闻管理'));
+            ->append(Box::make($grid1, '测试分类'))
+            ->append(Box::make($grid2, '测试管理'));
     }
 
     public function grid1()
     {
-        $grid = Grid::make(DemoNewsCategory::class);
+        $grid = Grid::make(DemoTestCategory::class);
         $grid->id('id', 'ID');
         $grid->text('title', '标题');
-        $grid->title('新闻分类');
+        $grid->title('测试分类');
         $grid->urlGrid(modstart_admin_url('demo/grid_multi', ['_grid' => 'grid1']));
         $grid->canAdd(false)->canEdit(false)->canDelete(false);
         $grid->gridFilter(function (GridFilter $filter) {
@@ -63,12 +63,12 @@ class GridMultiController extends Controller
 
     public function grid2()
     {
-        $grid = Grid::make(DemoNews::class);
+        $grid = Grid::make(DemoTest::class);
         $grid->id('id', 'ID');
-        $grid->select('categoryId', '分类')->optionModelTree(DemoNewsCategory::class);
+        $grid->select('categoryId', '分类')->optionModelTree(DemoTestCategory::class);
         $grid->text('title', '标题');
         $grid->richHtml('content', '内容');
-        $grid->title('新闻管理');
+        $grid->title('测试管理');
         $grid->urlGrid(modstart_admin_url('demo/grid_multi', ['_grid' => 'grid2']));
         $grid->canAdd(false)->canEdit(false)->canDelete(false);
         $grid->gridFilter(function (GridFilter $filter) {

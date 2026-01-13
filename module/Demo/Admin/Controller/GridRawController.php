@@ -14,8 +14,8 @@ use ModStart\Grid\Grid;
 use ModStart\Grid\GridFilter;
 use ModStart\Support\Concern\HasPageTitleInfo;
 use Module\Demo\Admin\Traits\DemoPreviewTrait;
-use Module\Demo\Model\DemoNews;
-use Module\Demo\Model\DemoNewsCategory;
+use Module\Demo\Model\DemoTest;
+use Module\Demo\Model\DemoTestCategory;
 
 class GridRawController extends Controller
 {
@@ -29,9 +29,9 @@ class GridRawController extends Controller
     public function grid()
     {
         $this->setupDemoPreview('使用 Grid、Form、Detail 独立控制表格、表单、详情页面的显示，每个页面可高度定制');
-        $grid = Grid::make(DemoNews::class);
+        $grid = Grid::make(DemoTest::class);
         $grid->id('id', 'ID');
-        $grid->select('categoryId', '分类')->optionModelTree(DemoNewsCategory::class);
+        $grid->select('categoryId', '分类')->optionModelTree(DemoTestCategory::class);
         $grid->text('title', '标题');
         $grid->richHtml('content', '内容');
         $grid->gridFilter(function (GridFilter $filter) {
@@ -44,8 +44,8 @@ class GridRawController extends Controller
 
     public function form()
     {
-        $form = Form::make(DemoNews::class);
-        $form->select('categoryId', '分类')->optionModelTree(DemoNewsCategory::class);
+        $form = Form::make(DemoTest::class);
+        $form->select('categoryId', '分类')->optionModelTree(DemoTestCategory::class);
         $form->text('title', '标题');
         $form->richHtml('content', '内容');
         return $form;
@@ -53,8 +53,8 @@ class GridRawController extends Controller
 
     public function detail()
     {
-        $detail = Detail::make(DemoNews::class);
-        $detail->select('categoryId', '分类')->optionModelTree(DemoNewsCategory::class);
+        $detail = Detail::make(DemoTest::class);
+        $detail->select('categoryId', '分类')->optionModelTree(DemoTestCategory::class);
         $detail->text('title', '标题');
         $detail->richHtml('content', '内容');
         return $detail;

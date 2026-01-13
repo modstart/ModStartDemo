@@ -1,3 +1,4 @@
+{{--@DEMO 演示首页，展示测试分类、内容、配置、多语言--}}
 @extends($_viewFrame)
 
 @section('pageTitleMain')Demo演示@endsection
@@ -11,20 +12,20 @@
             <div class="col-md-6">
                 <div class="ub-panel">
                     <div class="head">
-                        <div class="title">新闻分类</div>
+                        <div class="title">测试分类</div>
                     </div>
                     <div class="body">
-                        <pre>{{\ModStart\Core\Util\SerializeUtil::jsonEncode(\Module\Demo\Util\DemoNewsUtil::categories(),JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)}}</pre>
+                        <pre>{{\ModStart\Core\Util\SerializeUtil::jsonEncode(\Module\Demo\Util\DemoTestCategoryUtil::all(),JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)}}</pre>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="ub-panel">
                     <div class="head">
-                        <div class="title">新闻内容</div>
+                        <div class="title">测试内容</div>
                     </div>
                     <div class="body">
-                        <pre>{{\ModStart\Core\Util\SerializeUtil::jsonEncode(\Module\Demo\Util\DemoNewsUtil::all(),JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)}}</pre>
+                        <pre>{{\ModStart\Core\Util\SerializeUtil::jsonEncode(\Module\Demo\Util\DemoTestUtil::all(),JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)}}</pre>
                     </div>
                 </div>
             </div>
